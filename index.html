@@ -213,7 +213,7 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;font-family:va
 <div id="modal" hidden></div>
 <div id="toast"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function(){
 'use strict';
@@ -283,7 +283,7 @@ function defaults(){
 /* ---------- state + persistence ---------- */
 let S=defaults();
 try{const raw=localStorage.getItem(KEY)||localStorage.getItem('hunter-system-v1');if(raw)S=Object.assign(defaults(),JSON.parse(raw))}catch(e){}
-let sb=null,online=false,myId=null,samp=null,sampImg=false,lastSig='',lastDuelMax=0,showAll=false;
+let onlineErr='',sb=null,online=false,myId=null,samp=null,sampImg=false,lastSig='',lastDuelMax=0,showAll=false;
 const pendingAdd=(()=>{try{return (new URLSearchParams(location.search).get('add')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8)}catch(e){return ''}})();
 let dirty=false,writing=false,tmr=null,lastCard='';
 let peers=[],peersLoaded=false,unsubPeers=null;
@@ -312,16 +312,22 @@ async function pubCard(){
   const r=await sb.from('hunters').upsert({user_id:myId,card:Object.assign({},c,{upd:Date.now()}),updated_at:new Date().toISOString()});
   if(r.error)lastCard='';
 }
+function loadScript(src){return new Promise((res,rej)=>{const e=document.createElement('script');e.src=src;e.onload=res;e.onerror=()=>rej(new Error('load'));document.head.appendChild(e)})}
 async function initRemote(){
-  if(!SUPABASE_URL||!SUPABASE_KEY||!window.supabase){render();return}
+  if(!SUPABASE_URL||!SUPABASE_KEY){onlineErr='Keine Zugangsdaten in der Datei.';render();return}
+  if(!window.supabase){try{await loadScript('https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js')}catch(e){}}
+  if(!window.supabase){onlineErr='Die Online-Bibliothek konnte nicht geladen werden (Netzwerk oder Werbeblocker?).';render();return}
+  let step='Start';
   try{
     sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+    step='Anmeldung';
     let ses=(await sb.auth.getSession()).data.session;
     if(!ses){const r0=await sb.auth.signInAnonymously();if(r0.error)throw r0.error;ses=r0.data.session}
     myId=ses.user.id;
+    step='Spielstand laden';
     const r=await sb.from('saves').select('state').eq('user_id',myId).maybeSingle();
     if(r.error)throw r.error;
-    online=true;
+    online=true;onlineErr='';
     if(r.data&&r.data.state){
       const rem=r.data.state;
       if((rem.savedAt||0)>(S.savedAt||0)){S=Object.assign(defaults(),clone(rem));try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -333,7 +339,12 @@ async function initRemote(){
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshOnline(false)});
     if(S.started){rollover()}
     render();showIntro();
-  }catch(e){online=false;render()}
+  }catch(e){
+    online=false;
+    onlineErr=step+': '+String((e&&(e.message||e.code))||e).slice(0,220);
+    try{console.error('Hunter online',e)}catch(x){}
+    render();
+  }
 }
 async function refreshOnline(first){
   if(!online)return;
@@ -953,7 +964,7 @@ function viewArena(){
       :'<div class="empty">'+(peersLoaded?'Noch keine Freunde in der Liste. Schick deinen Einladungs-Link oder füge oben einen Freundescode hinzu.':'Lade ...')+'</div>')+
       '<p class="dim" style="font-size:12px;margin-top:8px">Freunde sehen Name, Level, Rang, Werte, Konstanz und dein kleines Profilbild. Dein Freund sieht das Duell-Ergebnis in seinem Postfach, sobald er die App öffnet.</p></section>';
   }else{
-    h+='<section class="win"><div class="empty">Die Online-Arena ist nicht verbunden. Prüfe deine Internetverbindung oder nutze den Hunter-Code weiter unten.</div></section>';
+    h+='<section class="win"><div class="empty">Die Online-Arena ist nicht verbunden. Prüfe deine Internetverbindung oder nutze den Hunter-Code weiter unten.'+(onlineErr?'<p class="dim" style="font-size:13px;margin-top:8px;overflow-wrap:anywhere">Technische Meldung: '+esc(onlineErr)+'</p>':'')+'</div></section>';
   }
   h+='<section class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Ohne Freigabe</div><h2>Hunter-Code</h2></div></div>'+
     '<p class="dim" style="font-size:13px;margin-bottom:8px">Schick deinen Code per Nachricht und füge den Code deines Freundes ein. Beide sehen dasselbe Ergebnis, solange die Werte gleich bleiben.</p>'+
