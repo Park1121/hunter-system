@@ -118,7 +118,7 @@ main{display:flex;flex-direction:column;gap:14px;min-width:0}
 .btn.ghost{background:transparent;border-color:#2b6bff55;color:var(--dim)}
 .btn[disabled]{opacity:.4;cursor:not-allowed;box-shadow:none}
 .btn.sm{padding:3px 10px;min-height:30px;font-size:13px}
-input[type=text],input[type=number],select,textarea{background:#08122c;border:1px solid #2b6bff66;padding:8px 10px;min-height:38px;min-width:0;width:100%}
+input[type=text],input[type=number],input[type=password],select,textarea{background:#08122c;border:1px solid #2b6bff66;padding:8px 10px;min-height:38px;min-width:0;width:100%}
 textarea{resize:vertical;min-height:64px}
 input[type=number].amt{width:84px}
 input[type=file]{display:none}
@@ -283,7 +283,7 @@ function defaults(){
 /* ---------- state + persistence ---------- */
 let S=defaults();
 try{const raw=localStorage.getItem(KEY)||localStorage.getItem('hunter-system-v1');if(raw)S=Object.assign(defaults(),JSON.parse(raw))}catch(e){}
-let onlineErr='',sb=null,online=false,myId=null,samp=null,sampImg=false,lastSig='',lastDuelMax=0,showAll=false;
+let authResolve=null,acct={guest:true,email:''},onlineErr='',sb=null,online=false,myId=null,samp=null,sampImg=false,lastSig='',lastDuelMax=0,showAll=false;
 const pendingAdd=(()=>{try{return (new URLSearchParams(location.search).get('add')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8)}catch(e){return ''}})();
 let dirty=false,writing=false,tmr=null,lastCard='';
 let peers=[],peersLoaded=false,unsubPeers=null;
@@ -312,17 +312,82 @@ async function pubCard(){
   const r=await sb.from('hunters').upsert({user_id:myId,card:Object.assign({},c,{upd:Date.now()}),updated_at:new Date().toISOString()});
   if(r.error)lastCard='';
 }
+function authErr(e){
+  const m=String((e&&(e.message||e.code))||e||'');
+  if(/Invalid login/i.test(m))return 'E-Mail oder Passwort stimmt nicht.';
+  if(/already registered|already been registered/i.test(m))return 'Diese E-Mail hat schon ein Konto. Nutze Anmelden.';
+  if(/at least 6|weak/i.test(m))return 'Das Passwort ist zu schwach (mindestens 6 Zeichen).';
+  if(/not confirmed/i.test(m))return 'Die E-Mail ist noch nicht bestätigt. Prüfe dein Postfach.';
+  if(/rate limit|too many|seconds/i.test(m))return 'Zu viele Versuche. Warte kurz und versuche es erneut.';
+  if(/invalid/i.test(m)&&/email/i.test(m))return 'Diese E-Mail-Adresse wird nicht akzeptiert.';
+  return m.slice(0,160);
+}
+function authDialog(){
+  return new Promise(res=>{
+    authResolve=res;
+    modal({title:'Anmeldung',nobtn:true,body:'<p class="dim">Melde dich an, damit du deinen Charakter auf jedem Gerät wiederfindest.</p>'+
+      '<label class="f" style="text-align:left">E-Mail<input type="text" id="authMail" autocomplete="email" inputmode="email" autocapitalize="off"></label>'+
+      '<label class="f" style="text-align:left">Passwort (mindestens 6 Zeichen)<input type="password" id="authPw" autocomplete="current-password"></label>'+
+      '<p id="authMsg" style="color:var(--warn);min-height:20px"></p>'+
+      '<div class="btnrow" style="flex-wrap:wrap;margin-top:4px"><button class="btn" data-act="auth-login">Anmelden</button><button class="btn ok" data-act="auth-signup">Neues Konto</button></div>'+
+      '<div class="btnrow" style="flex-wrap:wrap;margin-top:6px"><button class="btn ghost sm" data-act="auth-guest">Als Gast spielen</button><button class="btn ghost sm" data-act="auth-local">Nur lokal spielen</button></div>'+
+      '<p class="dim" style="font-size:12px">Gäste können später im Status-Fenster ein Konto anlegen und behalten dabei ihren Charakter. Lokal ohne Konto gibt es keine Arena-Liste.</p>'});
+  });
+}
+function authDone(v){const f=authResolve;authResolve=null;nextModal();render();if(f)f(v)}
+async function authAct(kind){
+  const msg=t=>{const e=document.getElementById('authMsg');if(e)e.textContent=t};
+  try{
+    if(kind==='local'){authDone(null);return}
+    if(kind==='guest'){const r=await sb.auth.signInAnonymously();if(r.error)throw r.error;authDone({session:r.data.session,replaceLocal:false});return}
+    const email=((document.getElementById('authMail')||{}).value||'').trim(),password=(document.getElementById('authPw')||{}).value||'';
+    if(!/^\S+@\S+\.\S+$/.test(email)){msg('Bitte eine gültige E-Mail eintragen.');return}
+    if(password.length<6){msg('Das Passwort braucht mindestens 6 Zeichen.');return}
+    msg('Einen Moment ...');
+    if(kind==='login'){
+      const r=await sb.auth.signInWithPassword({email,password});if(r.error)throw r.error;
+      authDone({session:r.data.session,replaceLocal:true});
+    }else{
+      const r=await sb.auth.signUp({email,password});if(r.error)throw r.error;
+      if(r.data&&r.data.session)authDone({session:r.data.session,replaceLocal:false});
+      else msg('Bestätigungs-Mail gesendet. Bestätige sie und melde dich dann an.');
+    }
+  }catch(e){msg(authErr(e))}
+}
+async function upgradeAccount(){
+  const email=((document.getElementById('accMail')||{}).value||'').trim(),password=(document.getElementById('accPw')||{}).value||'';
+  if(!/^\S+@\S+\.\S+$/.test(email)){toast('Bitte eine gültige E-Mail eintragen');return}
+  if(password.length<6){toast('Das Passwort braucht mindestens 6 Zeichen');return}
+  try{
+    const r=await sb.auth.updateUser({email,password});
+    if(r.error)throw r.error;
+    const u=r.data&&r.data.user;
+    if(u&&u.email){acct={guest:false,email:u.email};toast('Konto gesichert');render()}
+    else toast('Bestätigungs-Mail gesendet. Bestätige sie, dann ist dein Konto aktiv.');
+  }catch(e){toast(authErr(e))}
+}
+async function signOutNow(){
+  try{clearTimeout(tmr);dirty=true;await flush()}catch(e){}
+  try{await sb.auth.signOut()}catch(e){}
+  try{localStorage.removeItem(KEY)}catch(e){}
+  location.reload();
+}
 function loadScript(src){return new Promise((res,rej)=>{const e=document.createElement('script');e.src=src;e.onload=res;e.onerror=()=>rej(new Error('load'));document.head.appendChild(e)})}
 async function initRemote(){
   if(!SUPABASE_URL||!SUPABASE_KEY){onlineErr='Keine Zugangsdaten in der Datei.';render();return}
   if(!window.supabase){try{await loadScript('https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js')}catch(e){}}
-  if(!window.supabase){onlineErr='Die Online-Bibliothek konnte nicht geladen werden (Netzwerk oder Werbeblocker?).';render();return}
+  if(!window.supabase){onlineErr='Die Online-Bibliothek konnte nicht geladen werden (Netzwerk oder Werbeblocker?).';render();showIntro();return}
   let step='Start';
   try{
     sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
     step='Anmeldung';
-    let ses=(await sb.auth.getSession()).data.session;
-    if(!ses){const r0=await sb.auth.signInAnonymously();if(r0.error)throw r0.error;ses=r0.data.session}
+    let ses=(await sb.auth.getSession()).data.session,replaceLocal=false;
+    if(!ses){
+      const a=await authDialog();
+      if(!a){onlineErr='Du spielst lokal, ohne Konto.';render();showIntro();return}
+      ses=a.session;replaceLocal=a.replaceLocal;
+    }
+    acct={guest:!!ses.user.is_anonymous,email:ses.user.email||''};
     myId=ses.user.id;
     step='Spielstand laden';
     const r=await sb.from('saves').select('state').eq('user_id',myId).maybeSingle();
@@ -330,7 +395,7 @@ async function initRemote(){
     online=true;onlineErr='';
     if(r.data&&r.data.state){
       const rem=r.data.state;
-      if((rem.savedAt||0)>(S.savedAt||0)){S=Object.assign(defaults(),clone(rem));try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+      if(replaceLocal||(rem.savedAt||0)>(S.savedAt||0)){S=Object.assign(defaults(),clone(rem));try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
       else{dirty=true;flush()}
     }else if(S.started){dirty=true;flush()}
     await refreshOnline(true);
@@ -343,7 +408,7 @@ async function initRemote(){
     online=false;
     onlineErr=step+': '+String((e&&(e.message||e.code))||e).slice(0,220);
     try{console.error('Hunter online',e)}catch(x){}
-    render();
+    render();showIntro();
   }
 }
 async function refreshOnline(first){
@@ -409,8 +474,8 @@ function nextModal(){
   const m=mq.shift();
   if(!m){el.hidden=true;el.innerHTML='';modalOpen=false;return}
   modalOpen=true;el.hidden=false;
-  el.innerHTML='<div class="win '+(m.kind||'')+'" role="dialog" aria-modal="true"><div class="lbl" style="text-align:center">[ System ]</div><div class="ttl">'+esc(m.title)+'</div><div class="body">'+m.body+'</div><div class="btnrow"><button class="btn" id="mok" data-act="'+(m.act||'modal-ok')+'">'+esc(m.btn||'Bestätigen')+'</button></div></div>';
-  const i=el.querySelector('input[type=text]');if(i)i.focus();else document.getElementById('mok').focus();
+  el.innerHTML='<div class="win '+(m.kind||'')+'" role="dialog" aria-modal="true"><div class="lbl" style="text-align:center">[ System ]</div><div class="ttl">'+esc(m.title)+'</div><div class="body">'+m.body+'</div>'+(m.nobtn?'':'<div class="btnrow"><button class="btn" id="mok" data-act="'+(m.act||'modal-ok')+'">'+esc(m.btn||'Bestätigen')+'</button></div>')+'</div>';
+  const i=el.querySelector('input[type=text]'),ok=document.getElementById('mok');if(i)i.focus();else if(ok)ok.focus();
 }
 
 /* ---------- derived values ---------- */
@@ -759,8 +824,8 @@ async function askPlan(){
 }
 
 /* ---------- render ---------- */
-function getProfile(){
-  if(S.profile)return S.profile;
+function getProfile(){return S.profile||autoProfile()}
+function autoProfile(){
   const top=STATS.map(x=>x[0]).sort((a,b)=>S.stats[b]-S.stats[a])[0];
   const K={str:'Krieger',vit:'Dauerläufer',agi:'Schattenläufer',int:'Magier',dis:'Eiserner Wächter'};
   const r=rankOf(S.level);
@@ -927,7 +992,10 @@ function viewStatus(){
    st+'<p class="dim" style="margin:8px 0 0;font-size:13px">Jede Level-Stufe gibt 3 Punkte. Außerdem wächst jeder Stat durch passende Quests, mit steigendem Aufwand pro Punkt.</p></section>'+
    '<section class="win"><div class="sub"><div class="lbl">Ausrüstung</div></div>'+gear+'</section>'+
    '<section class="win vio"><div class="sub"><div class="lbl" style="color:var(--violet)">Fähigkeiten</div></div>'+sk+'</section>'+
-   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><label class="f wide">Strafquest bei Fehlschlag<input type="text" id="setPen" maxlength="100" value="'+esc(S.penaltyText)+'"></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>';
+   (online?(acct.guest
+     ?'<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Konto</div><h2>Charakter sichern</h2></div></div><p class="dim" style="margin-bottom:10px">Du spielst als Gast. Ohne Konto ist dein Charakter weg, wenn du den Browser wechselst oder die Browserdaten löschst. Mit E-Mail und Passwort findest du ihn überall wieder.</p><div class="grid"><label class="f">E-Mail<input type="text" id="accMail" autocomplete="email" inputmode="email" autocapitalize="off"></label><label class="f">Passwort<input type="password" id="accPw" autocomplete="new-password"></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="acc-upgrade">Konto anlegen</button></div></section>'
+     :'<section class="win"><div class="sub"><div><div class="lbl">Konto</div><h2>Angemeldet</h2></div></div><p class="dim" style="margin-bottom:10px;overflow-wrap:anywhere">'+esc(acct.email)+'</p><div class="acts"><button class="btn ghost" data-act="acc-out">Abmelden</button></div></section>'):'')+
+   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><label class="f wide">Strafquest bei Fehlschlag<input type="text" id="setPen" maxlength="100" value="'+esc(S.penaltyText)+'"></label><label class="f">Klasse<input type="text" id="setCls" maxlength="40" value="'+esc(pf.klasse)+'"></label><label class="f">Spitzname<input type="text" id="setNick" maxlength="40" value="'+esc(pf.spitzname)+'"></label><label class="f wide">Beschreibung<textarea id="setLore" maxlength="300">'+esc(pf.lore)+'</textarea></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><button class="btn ghost sm" data-act="profreset">Profil automatisch</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>';
 }
 function viewShop(){
   const lock=S.penalties.length>0;
@@ -1075,7 +1143,14 @@ document.addEventListener('click',e=>{
     case 'battle':battleAct(id);save();break;
     case 'battle-end':B=null;break;
     case 'duel':{const pe=peers.find(x=>x.id===id);if(pe)doDuel(cleanCard(pe),id);return}
+    case 'auth-login':authAct('login');return;
+    case 'auth-signup':authAct('signup');return;
+    case 'auth-guest':authAct('guest');return;
+    case 'auth-local':authAct('local');return;
+    case 'acc-upgrade':upgradeAccount();return;
+    case 'acc-out':signOutNow();return;
     case 'addfriend':{addFriendByCode((document.getElementById('friendIn')||{}).value||'',false);return}
+    case 'profreset':S.profile=null;save();toast('Profil wird wieder automatisch erstellt');break;
     case 'delfriend':S.friends=S.friends.filter(f=>f.id!==id);save();break;
     case 'toggleall':showAll=!showAll;break;
     case 'invite':{
@@ -1103,6 +1178,10 @@ document.addEventListener('click',e=>{
     case 'settings':{
       S.name=(document.getElementById('setName').value.trim()||'Spieler');
       S.penaltyText=document.getElementById('setPen').value.trim()||'Strafquest';
+      const pc=document.getElementById('setCls').value.trim(),pn=document.getElementById('setNick').value.trim(),pl=document.getElementById('setLore').value.trim();
+      const au=autoProfile();
+      if(!pc&&!pn&&!pl||(pc===au.klasse&&pn===au.spitzname&&pl===au.lore))S.profile=null;
+      else S.profile={klasse:(pc||au.klasse).slice(0,40),spitzname:(pn||au.spitzname).slice(0,40),lore:(pl||au.lore).slice(0,300)};
       save();toast('Gespeichert');break;
     }
     case 'reset':
@@ -1143,7 +1222,7 @@ document.addEventListener('change',e=>{
 if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){rollover()}
 render();
-if(!S.started)showIntro();
+if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
 initRemote();
 })();
 </script>
