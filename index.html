@@ -62,6 +62,42 @@ p{margin:0}
 .avatar.sm{width:48px;height:48px}.avatar.sm .rt{font-size:13px}.avatar.sm .ph{font-size:22px}
 .r-E{--rk:#8aa0c8}.r-D{--rk:#4aa3ff}.r-C{--rk:#5ee6c0}.r-B{--rk:#ffb54a}.r-A{--rk:#ff5468}.r-S{--rk:#9a6bff}
 
+/* rank looks */
+@keyframes rkpulse{0%,100%{filter:drop-shadow(0 0 3px var(--rk))}50%{filter:drop-shadow(0 0 11px var(--rk))}}
+@keyframes rkshine{to{background-position:0 0,300% 0}}
+.avatar.r-D{outline:1px solid var(--rk);outline-offset:3px}
+.avatar.r-C{outline:1px solid var(--rk);outline-offset:3px;box-shadow:0 0 26px var(--rk),inset 0 0 18px #0008}
+.avatar.r-B,.avatar.r-A,.avatar.r-S{outline:2px solid var(--rk);outline-offset:4px;box-shadow:0 0 28px var(--rk),inset 0 0 18px #0008}
+.avatar.r-A,.avatar.r-S{animation:rkpulse 2.6s ease-in-out infinite}
+.avatar.r-S{border:3px solid transparent;background:linear-gradient(#0b1a40,#0b1a40) padding-box,linear-gradient(110deg,#9a6bff,#ffd36b,#ff5468,#5ee6c0,#9a6bff) border-box;background-size:100% 100%,300% 100%;animation:rkpulse 2.6s ease-in-out infinite,rkshine 6s linear infinite}
+.avatar.sm.r-D,.avatar.sm.r-C,.avatar.sm.r-B,.avatar.sm.r-A,.avatar.sm.r-S{outline-offset:2px;box-shadow:0 0 12px var(--rk),inset 0 0 8px #0008}
+.avatar.au::before{content:"";position:absolute;inset:0;border:3px solid var(--au);box-shadow:inset 0 0 14px var(--au);z-index:1;pointer-events:none}
+.avatar.sm.au::before{border-width:2px}
+.badge[class*=" r-"]{border-color:var(--rk);box-shadow:0 0 18px var(--rk)}
+.badge[class*=" r-"] b{color:var(--rk);text-shadow:0 0 14px var(--rk)}
+.badge.r-A b,.badge.r-S b{animation:rkpulse 2.6s ease-in-out infinite}
+.badge.au small{color:var(--au)}
+.pname.au{color:var(--au);text-shadow:0 0 12px var(--au)}
+.pn.au{color:var(--au)}
+.stars{color:#ffd36b;letter-spacing:.08em;text-shadow:0 0 8px #ffd36b88;font-size:.85em}
+.rankbox .rkrow{display:flex;gap:16px;align-items:center}
+.rkbig{flex:none;width:84px;height:84px;display:grid;place-items:center;font-family:var(--f-d);font-weight:700;font-size:54px;color:var(--rk);border:2px solid var(--rk);box-shadow:0 0 22px var(--rk);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:#0b1a40;text-shadow:0 0 14px var(--rk)}
+.rkinfo{flex:1;min-width:0}
+.pres{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin-top:6px}
+.pz{border:1px solid #2b6bff33;padding:6px 8px;font-family:var(--f-d);font-size:14px;color:var(--dim);opacity:.55}
+.pz small{display:block;font-size:12px}
+.pz.on{opacity:1;color:#ffd36b;border-color:#ffd36b88;box-shadow:0 0 10px #ffd36b33}
+#modal .rankup{font-size:110px;line-height:1;color:var(--rk);text-shadow:0 0 30px var(--rk);animation:rkpulse 2s ease-in-out infinite}
+#modal .big.stars{color:#ffd36b;text-shadow:0 0 20px #ffd36b88}
+.pick{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+#modal .pick{justify-content:center}
+.pick button{font-family:var(--f-d);letter-spacing:.06em;font-size:14px;padding:6px 10px;background:#08122c;border:1px solid #2b6bff66;color:var(--fg);cursor:pointer}
+.pick button.on{border-color:var(--glow);box-shadow:0 0 10px var(--glow);color:#fff}
+.pick button small{display:block;font-size:11px;color:var(--dim);letter-spacing:.02em}
+.pick .sw{width:34px;height:34px;padding:0;background:var(--c);border-color:#0006}
+.pick .sw.on{outline:2px solid #fff;outline-offset:2px;box-shadow:none}
+@media (prefers-reduced-motion:reduce){.avatar,.badge b,#modal .rankup{animation:none!important}}
+
 /* header */
 #hdr{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center}
 .badge{grid-row:span 2;width:74px;height:74px;display:grid;place-items:center;border:2px solid var(--glow);background:#0b1a40;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);text-align:center;box-shadow:0 0 18px var(--glow)}
@@ -263,6 +299,39 @@ function genPenalty(){
   const n=Math.max(5,Math.round(t.b*(1+S.level*0.02)/5)*5);
   return n+' '+t.u+' '+t.n;
 }
+function mkQ(name,target,unit,stat){const xp=calcXP(target,unit,'daily');return {id:uid(),name,target,unit,stat,xp,gold:calcGold(xp),type:'daily',rank:'E',cur:0,done:false}}
+function packQuests(id){return (PACKS[id]&&PACKS[id].q||[]).map(a=>mkQ(a[0],a[1],a[2],a[3]))}
+const prestigeOf=()=>PRESTIGE.filter(p=>(S.bestStreak||0)>=p.d).length;
+const validAura=a=>AURAS.some(x=>x[0]===a)?a:null;
+const auAttr=a=>validAura(a)?' style="--au:'+a+'"':'';
+const auCls=a=>validAura(a)?' au':'';
+const stars=n=>n>0?'<span class="stars" title="Prestige-Siegel">'+'★'.repeat(Math.min(n,PRESTIGE.length))+'</span>':'';
+function pickMark(act,val){document.querySelectorAll('[data-act="'+act+'"]').forEach(b=>b.classList.toggle('on',b.dataset.id===val))}
+function rankSection(){
+  const r=rankOf(S.level),i=rankIdx(S.level),lo=RANK_AT[i],hi=RANK_AT[i+1],pct=hi?Math.min(100,(S.level-lo)/(hi-lo)*100):100;
+  return '<section class="win rankbox"><div class="rkrow"><div class="rkbig r-'+r+'">'+r+'</div><div class="rkinfo"><div class="lbl">Rang</div><div class="num" style="font-size:22px">'+esc(TITLES[r])+' '+stars(prestigeOf())+'</div>'+
+    (hi?'<div class="qp">Nächster Rang '+RANKS[i+1]+' bei LV '+hi+' (noch '+(hi-S.level)+' Level)</div><div class="bar" style="margin-top:6px"><i style="width:'+pct+'%"></i></div>':'<div class="qp">Höchster Rang erreicht.</div>')+'</div></div>'+
+    '<div class="lbl" style="margin-top:12px">Prestige-Siegel für deine Serie</div><div class="pres">'+PRESTIGE.map((p,k)=>'<div class="pz'+((S.bestStreak||0)>=p.d?' on':'')+'">'+'★'.repeat(k+1)+' '+p.n+'<small>'+p.d+' Tage am Stück</small></div>').join('')+'</div>'+
+    '<div class="qp" style="margin-top:6px">Beste Serie: '+(S.bestStreak||0)+' Tage. Das Siegel steht neben deinem Namen, auch für deine Freunde.</div></section>';
+}
+function introBody(){
+  return '<p>Du wurdest als Spieler ausgewählt.</p><p class="dim">Täglich trainieren, Quests erfüllen, Level aufsteigen, Fähigkeiten freischalten, Schatten rekrutieren. Wer die täglichen Quests nicht schafft, wird bestraft.</p>'+
+   '<label class="f" style="text-align:left;margin-top:8px">Dein Name<input type="text" id="introName" maxlength="30" value="" placeholder="Spieler"></label>'+
+   '<label class="f" style="text-align:left;margin-top:6px">Foto für deinen Charakter (optional)<input type="file" id="introPhoto" accept="image/*" style="display:block;background:#08122c;border:1px solid #2b6bff66;padding:8px 10px;width:100%"></label>'+
+   '<div class="f" style="text-align:left;margin-top:8px"><span>Klasse (optional)</span><div class="pick">'+CLASSES.map(c=>'<button type="button" data-act="i-cls" data-id="'+c+'">'+c+'</button>').join('')+'</div></div>'+
+   '<div class="f" style="text-align:left;margin-top:8px"><span>Aura-Farbe (optional)</span><div class="pick">'+AURAS.map(a=>'<button type="button" class="sw" style="--c:'+a[0]+'" data-act="i-aura" data-id="'+a[0]+'" aria-label="'+a[1]+'"></button>').join('')+'</div></div>'+
+   '<label class="f" style="text-align:left;margin-top:8px">Spitzname (optional)<input type="text" id="introNick" maxlength="40" placeholder="z. B. Der Unermüdliche"></label>'+
+   '<label class="f" style="text-align:left;margin-top:6px">Motto (optional)<input type="text" id="introLore" maxlength="120" placeholder="z. B. Jeden Tag ein bisschen stärker"></label>'+
+   '<div class="f" style="text-align:left;margin-top:8px"><span>Dein Start-Training</span><div class="pick">'+Object.keys(PACKS).map(k=>'<button type="button" class="'+(k==='all'?'on':'')+'" data-act="i-pack" data-id="'+k+'">'+PACKS[k].n+'<small>'+PACKS[k].t+'</small></button>').join('')+'</div></div>';
+}
+let introSel={cls:'',aura:null,pack:'all'};
+function applyIntro(){
+  const g=id=>((document.getElementById(id)||{}).value||'').trim();
+  const nick=g('introNick'),lore=g('introLore');
+  if(introSel.pack!=='all'&&PACKS[introSel.pack])S.quests=packQuests(introSel.pack);
+  S.aura=validAura(introSel.aura);
+  if(introSel.cls||nick||lore)S.profile={klasse:introSel.cls.slice(0,40),spitzname:nick.slice(0,40),lore:lore.slice(0,300)};
+}
 function prevText(f){
   const x=calcXP(f.target,f.unit,f.type,f.rank);
   return 'Belohnung vom System: +'+x+' XP, +'+calcGold(x,f.type,f.rank)+' G';
@@ -279,6 +348,17 @@ function migrate(){
   S.v=3;return true;
 }
 const SHADOW_EVERY=20;
+const AURAS=[['#4aa3ff','Blau'],['#5ee6c0','Türkis'],['#ffb54a','Gold'],['#ff5468','Rot'],['#9a6bff','Violett'],['#e8f0ff','Weiß']];
+const CLASSES=['Krieger','Dauerläufer','Schattenläufer','Magier','Eiserner Wächter'];
+const PRESTIGE=[{n:'Bronze',d:7},{n:'Silber',d:30},{n:'Gold',d:100},{n:'Diamant',d:365}];
+const PACKS={
+  all:{n:'Allrounder',t:'Kraft, Laufen, Lernen'},
+  str:{n:'Kraft',t:'Liegestütze, Kniebeugen',q:[['Liegestütze',30,'Wdh.','str'],['Kniebeugen',50,'Wdh.','str'],['Sit-ups',30,'Wdh.','str'],['Dehnen',10,'Min.','agi'],['Früh aufstehen und Bett machen',1,'','dis']]},
+  vit:{n:'Ausdauer',t:'Laufen, Gehen',q:[['Laufen',5,'km','vit'],['Zügiges Gehen',20,'Min.','vit'],['Treppensteigen',10,'Stockwerke','vit'],['Dehnen',10,'Min.','agi'],['Früh aufstehen und Bett machen',1,'','dis']]},
+  agi:{n:'Beweglichkeit',t:'Dehnen, Mobility',q:[['Dehnen',15,'Min.','agi'],['Mobility-Flow',12,'Min.','agi'],['Planke',45,'Sek.','str'],['Spazieren',20,'Min.','vit'],['Früh aufstehen und Bett machen',1,'','dis']]},
+  int:{n:'Lernen & Fokus',t:'Lernen, Lesen',q:[['Fokus-Lernen',45,'Min.','int'],['Lesen',20,'Min.','int'],['Kalte Dusche',1,'','dis'],['Dehnen',10,'Min.','agi'],['Früh aufstehen und Bett machen',1,'','dis']]}
+};
+const RANKUP_TXT={D:'Du bist kein Anfänger mehr.',C:'Das System nimmt dich ernst.',B:'Elite-Hunter. Wenige kommen so weit.',A:'Nationaler Hunter. Dein Name ist bekannt.',S:'An der Spitze. Das System nennt dich Schattenmonarch.'};
 const SKILLS=[
   {id:'heavy',name:'Heftiger Schlag',lv:2,mp:10,desc:'1,8x Schaden'},
   {id:'step',name:'Blitzschritt',lv:5,mp:12,desc:'1,2x Schaden, weicht dem nächsten Angriff aus'},
@@ -308,7 +388,7 @@ function addDays(k,n){const [y,m,d]=k.split('-').map(Number);return dayKey(new D
 const statName=k=>{const s=STATS.find(x=>x[0]===k);return s?s[1]:''};
 
 function defaults(){
-  const dq=(name,target,unit,stat)=>{const xp=calcXP(target,unit,'daily');return {id:uid(),name,target,unit,stat,xp,gold:calcGold(xp),type:'daily',rank:'E',cur:0,done:false}};
+  const dq=(name,target,unit,stat)=>mkQ(name,target,unit,stat);
   return {
     v:3,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
     stats:{str:10,vit:10,agi:10,int:10,dis:10},prog:{str:0,vit:0,agi:0,int:0,dis:0},
@@ -327,7 +407,7 @@ function defaults(){
     inv:[],penaltyText:'20 Burpees pro verpasstem Tag',penalties:[],
     lastDay:null,lastComplete:null,streak:0,bestStreak:0,totalDone:0,shadows:[],savedAt:0,
     avatar:null,thumb:null,profile:null,hist:{},keys:1,potions:1,gear:{weapon:null,armor:null},
-    cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0
+    aura:null,cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0
   };
 }
 
@@ -543,7 +623,7 @@ function myCard(){
   const c=consistency();
   return {name:S.name,level:S.level,rank:rankOf(S.level),stats:Object.assign({},S.stats),cons:c.pct,days:c.days,
     gw:S.gear.weapon?S.gear.weapon.val:0,ga:S.gear.armor?S.gear.armor.val:0,sh:S.shadows.length,thumb:S.thumb||null,
-    cls:String(getProfile().klasse||'').slice(0,40),fc:myFc(),fl:S.friends.map(f=>f.id).slice(0,100)};
+    cls:String(getProfile().klasse||'').slice(0,40),au:validAura(S.aura),pr:prestigeOf(),fc:myFc(),fl:S.friends.map(f=>f.id).slice(0,100)};
 }
 function pStats(){
   const s=S.stats;
@@ -561,7 +641,8 @@ function grantXP(n){
     const unlocked=SKILLS.filter(k=>k.lv<=S.level&&k.lv>S.level-ups);
     modal({title:'Level Up!',body:'<div class="big">LV '+S.level+'</div><p>+'+(3*ups)+' freie Statuspunkte</p>'+
       (unlocked.length?'<p style="color:var(--ok);font-family:var(--f-d);font-size:19px;letter-spacing:.08em">Neue Fähigkeit: '+unlocked.map(k=>esc(k.name)).join(', ')+'</p>':'')+
-      (r1!==r0?'<p style="color:var(--violet);font-family:var(--f-d);font-size:20px;letter-spacing:.1em">RANG-AUFSTIEG: '+r0+' → '+r1+'<br>Neuer Titel: '+esc(TITLES[r1])+'</p>':'')+'<p class="dim">Verteile deine Punkte im Status-Fenster.</p>'});
+      '<p class="dim">Verteile deine Punkte im Status-Fenster.</p>'});
+    if(r1!==r0)modal({kind:'vio',title:'Rang-Aufstieg',body:'<div class="big rankup r-'+r1+'">'+r1+'</div><p style="font-family:var(--f-d);font-size:20px;letter-spacing:.1em">'+r0+' → '+r1+'<br>Neuer Titel: '+esc(TITLES[r1])+'</p><p class="dim">'+esc(RANKUP_TXT[r1]||'')+' Neue Dungeon-Ränge sind jetzt für dich freigeschaltet.</p>',btn:'Aufsteigen'});
   }
 }
 function giveKey(why){S.keys++;toast('Schlüssel gefunden'+(why?' ('+why+')':''))}
@@ -597,7 +678,7 @@ function completeQuest(q){
     if(d.length&&d.every(x=>x.done)&&S.lastComplete!==dayKey()){
       const y=dayKey(new Date(Date.now()-864e5));
       S.streak=(S.lastComplete===y)?S.streak+1:1;
-      S.lastComplete=dayKey();S.bestStreak=Math.max(S.bestStreak,S.streak);
+      const p0=prestigeOf();S.lastComplete=dayKey();S.bestStreak=Math.max(S.bestStreak,S.streak);if(prestigeOf()>p0){const pz=PRESTIGE[prestigeOf()-1];modal({kind:'vio',title:'Prestige',body:'<div class="big stars">'+'★'.repeat(prestigeOf())+'</div><p>'+pz.n+'-Siegel: '+pz.d+' Tage Serie am Stück</p><p class="dim">Es steht jetzt neben deinem Namen, auch für deine Freunde.</p>',btn:'Stolz tragen'})}
       const bx=Math.min(100,30+S.streak*5),bg=20;
       S.gold+=bg;S.keys++;
       modal({title:'Tagesquest geschafft',body:'<div class="big">'+S.streak+' 🔥</div><p>Serie: '+S.streak+' Tag'+(S.streak>1?'e':'')+' in Folge</p><p>Bonus: +'+bx+' XP, +'+bg+' G und ein Schlüssel</p>',btn:'Weiter'});
@@ -747,7 +828,7 @@ function fighter(c,m){
 function cleanCard(c){
   const st={};STATS.forEach(([k])=>{st[k]=clampN(c.stats&&c.stats[k],1,999,10)});
   return {name:String(c.name||'Hunter').slice(0,30),level:clampN(c.level,1,999,1),rank:RANKS.includes(c.rank)?c.rank:'E',stats:st,cons:clampN(c.cons,0,100,50),days:clampN(c.days,0,14,0),
-    gw:clampN(c.gw,0,99,0),ga:clampN(c.ga,0,99,0),sh:clampN(c.sh,0,999,0),thumb:typeof c.thumb==='string'&&c.thumb.startsWith('data:image/')&&c.thumb.length<20000?c.thumb:null,cls:String(c.cls||'').slice(0,40),fc:String(c.fc||'').replace(/[^A-Za-z0-9]/g,'').slice(0,8),fl:Array.isArray(c.fl)?c.fl.slice(0,100).map(x=>String(x).slice(0,40)):[]};
+    gw:clampN(c.gw,0,99,0),ga:clampN(c.ga,0,99,0),sh:clampN(c.sh,0,999,0),thumb:typeof c.thumb==='string'&&c.thumb.startsWith('data:image/')&&c.thumb.length<20000?c.thumb:null,cls:String(c.cls||'').slice(0,40),au:validAura(c.au),pr:clampN(c.pr,0,PRESTIGE.length,0),fc:String(c.fc||'').replace(/[^A-Za-z0-9]/g,'').slice(0,8),fl:Array.isArray(c.fl)?c.fl.slice(0,100).map(x=>String(x).slice(0,40)):[]};
 }
 function cleanDuel(o){
   if(!o)return null;
@@ -880,21 +961,22 @@ async function askPlan(){
 }
 
 /* ---------- render ---------- */
-function getProfile(){return S.profile||autoProfile()}
+function getProfile(){const a=autoProfile(),p=S.profile;return p?{klasse:p.klasse||a.klasse,spitzname:p.spitzname||a.spitzname,lore:p.lore||a.lore}:a}
 function autoProfile(){
   const top=STATS.map(x=>x[0]).sort((a,b)=>S.stats[b]-S.stats[a])[0];
   const K={str:'Krieger',vit:'Dauerläufer',agi:'Schattenläufer',int:'Magier',dis:'Eiserner Wächter'};
   const r=rankOf(S.level);
   return {klasse:K[top],spitzname:TITLES[r],lore:S.name+' kämpft sich Quest für Quest nach oben. Das System beobachtet jeden Schritt.'};
 }
-function avatarHtml(cls,src,rank,name){
-  return '<div class="avatar '+cls+' r-'+rank+'">'+(src?'<img alt="" src="'+esc(src)+'">':'<span class="ph">'+esc((name||'?').trim().charAt(0).toUpperCase())+'</span>')+'<span class="rt">'+rank+'</span></div>';
+function avatarHtml(cls,src,rank,name,au){
+  au=validAura(au);
+  return '<div class="avatar '+cls+' r-'+rank+(au?' au':'')+'"'+auAttr(au)+'>'+(src?'<img alt="" src="'+esc(src)+'">':'<span class="ph">'+esc((name||'?').trim().charAt(0).toUpperCase())+'</span>')+'<span class="rt">'+rank+'</span></div>';
 }
 function renderHdr(){
   const r=rankOf(S.level),n=need(S.level),pct=Math.min(100,S.xp/n*100);
   document.getElementById('hdr').innerHTML=
-   (S.avatar?avatarHtml('',S.avatar,r,S.name):'<div class="badge"><div><b>'+r+'</b><small>RANG</small></div></div>')+
-   '<div><div class="pname">'+esc(S.name)+'</div><div class="ptitle">'+(getProfile().klasse?esc(getProfile().klasse)+' · ':'')+esc(TITLES[r])+'</div></div>'+
+   (S.avatar?avatarHtml('',S.avatar,r,S.name,S.aura):'<div class="badge r-'+r+auCls(S.aura)+'"'+auAttr(S.aura)+'><div><b>'+r+'</b><small>RANG</small></div></div>')+
+   '<div><div class="pname'+auCls(S.aura)+'"'+auAttr(S.aura)+'>'+esc(S.name)+' '+stars(prestigeOf())+'</div><div class="ptitle">'+(getProfile().klasse?esc(getProfile().klasse)+' · ':'')+esc(TITLES[r])+'</div></div>'+
    '<div class="hstats"><span>LV <b class="num">'+S.level+'</b></span><span>GOLD <b class="num">'+S.gold+'</b></span><span>SERIE <b class="num">'+S.streak+'</b></span><span>SCHLÜSSEL <b class="num">'+S.keys+'</b></span></div>'+
    '<div class="xpwrap"><div class="row" style="justify-content:space-between;font-family:var(--f-d);letter-spacing:.08em;font-size:13px;margin-bottom:3px"><span class="dim">EXP</span><span class="num">'+S.xp+' / '+n+'</span></div><div class="bar" role="progressbar" aria-valuenow="'+S.xp+'" aria-valuemax="'+n+'"><i style="width:'+pct+'%"></i></div></div>';
 }
@@ -1039,18 +1121,18 @@ function viewStatus(){
   const gear='<div class="kv"><div><span class="lbl">Waffe</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.weapon?esc(S.gear.weapon.name)+' (+'+S.gear.weapon.val+')':'keine')+'</span></div><div><span class="lbl">Rüstung</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.armor?esc(S.gear.armor.name)+' (+'+S.gear.armor.val+')':'keine')+'</span></div><div><span class="lbl">Tränke</span><span class="num">'+S.potions+'</span></div></div>';
   const sk=SKILLS.map(k=>'<div class="skill '+(S.level>=k.lv?'':'lock')+'"><span class="nm">'+esc(k.name)+'</span><span class="qp">'+(S.level>=k.lv?k.mp+' MP':'ab LV '+k.lv)+'</span><span class="dim" style="flex-basis:100%;font-size:13px">'+esc(k.desc)+'</span></div>').join('');
   return '<section class="win"><div class="sub"><div><div class="lbl">Status-Fenster</div><h2>'+esc(S.name)+'</h2></div>'+(S.free>0?'<span class="lbl" style="color:var(--warn)">Freie Punkte: '+S.free+'</span>':'')+'</div>'+
-   '<div class="char">'+avatarHtml('big',S.avatar,r,S.name)+'<div class="info">'+
+   '<div class="char">'+avatarHtml('big',S.avatar,r,S.name,S.aura)+'<div class="info">'+
      (pf?'<div class="num" style="font-size:22px">'+esc(pf.klasse)+'</div>'+(pf.spitzname?'<div class="lbl">„'+esc(pf.spitzname)+'“</div>':'')+'<div class="lore">'+esc(pf.lore)+'</div>':'<div class="dim">'+(S.avatar?'Noch kein Profil.':'Lade ein Foto hoch, damit das System deinen Charakter erstellt.')+'</div>')+
      (aiMsg?'<div class="think">'+esc(aiMsg)+'</div>':'')+
      '<div class="acts"><button class="btn sm" data-act="photo">'+(S.avatar?'Foto ändern':'Foto wählen')+'</button>'+(S.avatar&&samp&&sampImg?'<button class="btn vio sm" data-act="profile">Profil neu erzeugen</button>':'')+'</div></div></div></section>'+
-   '<section class="win"><div class="sub"><div class="lbl">Werte</div></div><div class="kv" style="margin-bottom:12px"><div><span class="lbl">Rang</span><span class="num">'+r+'</span></div><div><span class="lbl">Level</span><span class="num">'+S.level+'</span></div><div><span class="lbl">Lebenspunkte</span><span class="num">'+p.hp+'</span></div><div><span class="lbl">Mana</span><span class="num">'+p.mp+'</span></div><div><span class="lbl">Angriff</span><span class="num">'+Math.round(p.atk)+'</span></div><div><span class="lbl">Verteidigung</span><span class="num">'+Math.round(p.def)+'</span></div></div>'+
+   rankSection()+'<section class="win"><div class="sub"><div class="lbl">Werte</div></div><div class="kv" style="margin-bottom:12px"><div><span class="lbl">Rang</span><span class="num">'+r+'</span></div><div><span class="lbl">Level</span><span class="num">'+S.level+'</span></div><div><span class="lbl">Lebenspunkte</span><span class="num">'+p.hp+'</span></div><div><span class="lbl">Mana</span><span class="num">'+p.mp+'</span></div><div><span class="lbl">Angriff</span><span class="num">'+Math.round(p.atk)+'</span></div><div><span class="lbl">Verteidigung</span><span class="num">'+Math.round(p.def)+'</span></div></div>'+
    st+'<p class="dim" style="margin:8px 0 0;font-size:13px">Jede Level-Stufe gibt 3 Punkte. Außerdem wächst jeder Stat durch passende Quests, mit steigendem Aufwand pro Punkt.</p></section>'+
    '<section class="win"><div class="sub"><div class="lbl">Ausrüstung</div></div>'+gear+'</section>'+
    '<section class="win vio"><div class="sub"><div class="lbl" style="color:var(--violet)">Fähigkeiten</div></div>'+sk+'</section>'+
    (online?(acct.guest
      ?'<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Konto</div><h2>Charakter sichern</h2></div></div><p class="dim" style="margin-bottom:10px">Du spielst als Gast. Ohne Konto ist dein Charakter weg, wenn du den Browser wechselst oder die Browserdaten löschst. Mit E-Mail und Passwort findest du ihn überall wieder.</p><div class="grid"><label class="f">E-Mail<input type="text" id="accMail" autocomplete="email" inputmode="email" autocapitalize="off"></label><label class="f">Passwort<input type="password" id="accPw" autocomplete="new-password"></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="acc-upgrade">Konto anlegen</button></div></section>'
      :'<section class="win"><div class="sub"><div><div class="lbl">Konto</div><h2>Angemeldet</h2></div></div><p class="dim" style="margin-bottom:10px;overflow-wrap:anywhere">'+esc(acct.email)+'</p><div class="acts"><button class="btn ghost" data-act="acc-out">Abmelden</button></div></section>'):'')+
-   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><label class="f">Klasse<input type="text" id="setCls" maxlength="40" value="'+esc(pf.klasse)+'"></label><label class="f">Spitzname<input type="text" id="setNick" maxlength="40" value="'+esc(pf.spitzname)+'"></label><label class="f wide">Beschreibung<textarea id="setLore" maxlength="300">'+esc(pf.lore)+'</textarea></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><button class="btn ghost sm" data-act="profreset">Profil automatisch</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>';
+   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><label class="f">Klasse<input type="text" id="setCls" maxlength="40" value="'+esc(pf.klasse)+'"></label><label class="f">Spitzname<input type="text" id="setNick" maxlength="40" value="'+esc(pf.spitzname)+'"></label><label class="f wide">Beschreibung<textarea id="setLore" maxlength="300">'+esc(pf.lore)+'</textarea></label><div class="f wide"><span>Klasse wählen</span><div class="pick">'+CLASSES.map(c=>'<button type="button" data-act="setclass" data-id="'+c+'">'+c+'</button>').join('')+'</div></div><div class="f wide"><span>Aura-Farbe</span><div class="pick"><button type="button" class="'+(validAura(S.aura)?'':'on')+'" data-act="aura" data-id="none">Rang-Farbe</button>'+AURAS.map(a=>'<button type="button" class="sw'+(S.aura===a[0]?' on':'')+'" style="--c:'+a[0]+'" data-act="aura" data-id="'+a[0]+'" aria-label="'+a[1]+'"></button>').join('')+'</div></div></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><button class="btn ghost sm" data-act="profreset">Profil automatisch</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>';
 }
 function viewShop(){
   const lock=S.penalties.length>0;
@@ -1067,7 +1149,7 @@ function viewArena(){
   const me=myCard();
   const shown=peers.filter(p=>showAll||isFriend(p));
   let h='<section class="win"><div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde</h2></div></div>'+
-    '<div class="peer">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name)+'<div class="mid"><div class="pn">'+esc(me.name)+' <span class="dim" style="font-size:14px">(du)</span></div><div class="qp">LV '+me.level+' · Konstanz '+me.cons+' %'+(me.days?' ('+me.days+' Tage)':' (noch keine Daten)')+' · Bonus x'+mult(me.cons).toFixed(2)+'</div></div><div class="qp">Siege '+S.arena.w+' · Niederlagen '+S.arena.l+'</div></div>'+
+    '<div class="peer">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura)+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+' <span class="dim" style="font-size:14px">(du)</span></div><div class="qp">LV '+me.level+' · Konstanz '+me.cons+' %'+(me.days?' ('+me.days+' Tage)':' (noch keine Daten)')+' · Bonus x'+mult(me.cons).toFixed(2)+'</div></div><div class="qp">Siege '+S.arena.w+' · Niederlagen '+S.arena.l+'</div></div>'+
     '<p class="dim" style="font-size:13px;margin-top:6px">Fairness: Gewonnen wird nicht nach dem Level, sondern nach Werten plus Konstanz. Wer die letzten 14 Tage dranbleibt, bekommt bis zu +25 %, wer schludert bis zu −25 %. Neueinsteiger zählen nur ab ihrem ersten Tag. Das Ergebnis ist festgelegt: dieselben Werte ergeben immer dasselbe Duell.</p></section>';
   if(online){
     const inc=duelsIn;
@@ -1083,7 +1165,7 @@ function viewArena(){
       '<label class="item" style="cursor:pointer;margin-top:10px"><input type="checkbox" data-act="toggleall" style="width:20px;height:20px"'+(showAll?' checked':'')+'><span class="nm dim" style="font-weight:400">Alle Hunter anzeigen, nicht nur Freunde</span></label></section>';
     h+='<section class="win"><div class="sub"><div class="lbl">Hunter in der Arena</div></div>'+
       (shown.length?shown.map(p=>{const c=cleanCard(p);const f=fighter(c,mult(c.cons));const pw=Math.round(f.max/10+f.atk*2+f.def*3);
-        return '<div class="peer">'+avatarHtml('sm',c.thumb,c.rank,c.name)+'<div class="mid"><div class="pn">'+esc(c.name)+'</div><div class="qp">'+(c.cls?esc(c.cls)+' · ':'')+'LV '+c.level+' · Konstanz '+c.cons+' % · Kampfkraft '+pw+'</div></div><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(S.friends.some(f=>f.id===p.id)?'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'" aria-label="Freund entfernen">✕</button>':'')+'</div>'}).join('')
+        return '<div class="peer">'+avatarHtml('sm',c.thumb,c.rank,c.name,c.au)+'<div class="mid"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="qp">'+(c.cls?esc(c.cls)+' · ':'')+'LV '+c.level+' · Konstanz '+c.cons+' % · Kampfkraft '+pw+'</div></div><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(S.friends.some(f=>f.id===p.id)?'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'" aria-label="Freund entfernen">✕</button>':'')+'</div>'}).join('')
       :'<div class="empty">'+(peersLoaded?'Noch keine Freunde in der Liste. Schick deinen Einladungs-Link oder füge oben einen Freundescode hinzu.':'Lade ...')+'</div>')+
       '<p class="dim" style="font-size:12px;margin-top:8px">Freunde sehen Name, Level, Rang, Werte, Konstanz und dein kleines Profilbild. Dein Freund sieht das Duell-Ergebnis in seinem Postfach, sobald er die App öffnet.</p></section>';
   }else{
@@ -1142,7 +1224,8 @@ setInterval(()=>{if(S.started&&dayKey()!==S.lastDay){rollover();render()}else ti
 /* ---------- intro ---------- */
 function showIntro(){
   if(S.started||modalOpen)return;
-  modal({title:'Spieler gefunden',act:'start',btn:'Annehmen',body:'<p>Du wurdest als Spieler ausgewählt.</p><p class="dim">Täglich trainieren, Quests erfüllen, Level aufsteigen, Fähigkeiten freischalten, Schatten rekrutieren. Wer die täglichen Quests nicht schafft, wird bestraft.</p><label class="f" style="text-align:left;margin-top:8px">Dein Name<input type="text" id="introName" maxlength="30" value="" placeholder="Spieler"></label><label class="f" style="text-align:left;margin-top:6px">Foto für deinen Charakter (optional)<input type="file" id="introPhoto" accept="image/*" style="display:block;background:#08122c;border:1px solid #2b6bff66;padding:8px 10px;width:100%"></label>'});
+  introSel={cls:'',aura:null,pack:'all'};
+  modal({title:'Spieler gefunden',act:'start',btn:'Annehmen',body:introBody()});
 }
 
 /* ---------- events ---------- */
@@ -1158,10 +1241,15 @@ document.addEventListener('click',e=>{
       const v=(document.getElementById('introName')||{}).value||'';
       const f=(document.getElementById('introPhoto')||{}).files;
       const file=f&&f[0];
-      S.name=v.trim()||'Spieler';S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};save();nextModal();render();
+      S.name=v.trim()||'Spieler';applyIntro();S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};save();nextModal();render();
       if(file)setAvatar(file);
       return;
     }
+    case 'i-cls':introSel.cls=introSel.cls===id?'':id;pickMark('i-cls',introSel.cls);return;
+    case 'i-aura':introSel.aura=introSel.aura===id?null:id;pickMark('i-aura',introSel.aura||'');return;
+    case 'i-pack':introSel.pack=id;pickMark('i-pack',id);return;
+    case 'aura':S.aura=(id==='none')?null:validAura(id);save();pickMark('aura',S.aura||'none');renderHdr();return;
+    case 'setclass':{const e2=document.getElementById('setCls');if(e2)e2.value=id;return}
     case 'tab':tab=id;form=null;if(id==='arena'){arenaSince=S.duelSeen||0;markSeen()}break;
     case 'add':{const i=document.getElementById('amt-'+id);if(q)addProgress(q,Number(i&&i.value));save();break}
     case 'done':if(q){completeQuest(q);save()}break;
