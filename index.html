@@ -227,6 +227,57 @@ const RANKS=['E','D','C','B','A','S'];
 const RANK_AT=[1,10,20,35,50,70];
 const TITLES={E:'Schwächster Hunter',D:'Aufsteiger',C:'Erprobter Hunter',B:'Elite-Hunter',A:'Nationaler Hunter',S:'Schattenmonarch'};
 const DUNGEON_REWARD={E:[50,25],D:[100,50],C:[200,100],B:[400,200],A:[800,400],S:[1500,800]};
+const TIER_PRICE=[40,100,250,500],TIER_NAME=['Klein','Mittel','Groß','Riesig'];
+const QUEST_MAX=8,GATE_MAX=3,SHOP_MAX=15;
+const PEN_T=[{n:'Burpees',u:'Wdh.',b:20},{n:'Kniebeugen',u:'Wdh.',b:30},{n:'Planke',u:'Sek.',b:60},{n:'Mountain Climbers',u:'Wdh.',b:40},{n:'Liegestütze',u:'Wdh.',b:15},{n:'Hampelmänner',u:'Wdh.',b:50},{n:'Wandsitzen',u:'Sek.',b:60},{n:'Ausfallschritte',u:'Wdh.',b:30}];
+/* Belohnungen kommen vom System, nicht vom Spieler */
+function effortMin(target,unit){
+  const t=Math.max(0,Number(target)||0),u=String(unit||'').toLowerCase().trim();
+  if(!u)return t<=1?5:Math.min(t,30)*0.5;
+  if(/^(std|h$|stunde)/.test(u))return t*60;
+  if(/^min/.test(u))return t;
+  if(/^(sek|sec|s$)/.test(u))return t/60;
+  if(/km/.test(u))return t*6;
+  if(/stock|etage/.test(u))return t*0.5;
+  if(/seite|kapitel/.test(u))return t*3;
+  if(/wdh|rep|stück|mal|^x$|satz|sätze/.test(u))return t*0.15;
+  return Math.min(t,60)*0.3;
+}
+function calcXP(target,unit,type,rank){
+  if(type==='dungeon')return DUNGEON_REWARD[DUNGEON_REWARD[rank]?rank:'E'][0];
+  return Math.round(Math.max(8,Math.min(50,5+1.1*effortMin(target,unit))));
+}
+function calcGold(xp,type,rank){return type==='dungeon'?DUNGEON_REWARD[DUNGEON_REWARD[rank]?rank:'E'][1]:Math.round(xp/2)}
+const dayCap=()=>200+S.level*8;
+function capState(){const t=dayKey();if(!S.cap||S.cap.day!==t)S.cap={day:t,xp:0,dg:0};return S.cap}
+const maxGate=()=>Math.min(5,rankIdx(S.level)+1);
+function shopMinTier(name){
+  const n=String(name||'').toLowerCase();
+  if(/urlaub|ferien|reise|wochenende|ausflug|tag frei|freier tag|ganzer tag|ganzen tag|krank|schwänz/.test(n))return 3;
+  if(/abend|kino|restaurant|essen gehen|party|cheat|konzert|nacht|shopping|neues spiel|kaufen/.test(n))return 2;
+  if(/stunde|std|gaming|zocken|serie|film|spiel/.test(n))return 1;
+  return 0;
+}
+function genPenalty(){
+  const t=PEN_T[Math.floor(Math.random()*PEN_T.length)];
+  const n=Math.max(5,Math.round(t.b*(1+S.level*0.02)/5)*5);
+  return n+' '+t.u+' '+t.n;
+}
+function prevText(f){
+  const x=calcXP(f.target,f.unit,f.type,f.rank);
+  return 'Belohnung vom System: +'+x+' XP, +'+calcGold(x,f.type,f.rank)+' G';
+}
+function migrate(){
+  if((S.v||0)>=3)return false;
+  (S.quests||[]).forEach(q=>{
+    if(q.type==='system')return;
+    if(q.type==='dungeon'){const r=RANKS[Math.min(maxGate(),Math.max(0,RANKS.indexOf(q.rank)))];q.rank=r;q.xp=DUNGEON_REWARD[r][0];q.gold=DUNGEON_REWARD[r][1]}
+    else{q.xp=calcXP(q.target,q.unit,'daily');q.gold=calcGold(q.xp)}
+  });
+  (S.shop||[]).forEach(i=>{i.price=Math.max(Math.round(Number(i.price))||0,TIER_PRICE[shopMinTier(i.name)])});
+  if(!S.cap)S.cap={day:null,xp:0,dg:0};
+  S.v=3;return true;
+}
 const SHADOW_EVERY=20;
 const SKILLS=[
   {id:'heavy',name:'Heftiger Schlag',lv:2,mp:10,desc:'1,8x Schaden'},
@@ -257,9 +308,9 @@ function addDays(k,n){const [y,m,d]=k.split('-').map(Number);return dayKey(new D
 const statName=k=>{const s=STATS.find(x=>x[0]===k);return s?s[1]:''};
 
 function defaults(){
-  const dq=(name,target,unit,stat,xp,gold)=>({id:uid(),name,target,unit,stat,xp,gold,type:'daily',rank:'E',cur:0,done:false});
+  const dq=(name,target,unit,stat)=>{const xp=calcXP(target,unit,'daily');return {id:uid(),name,target,unit,stat,xp,gold:calcGold(xp),type:'daily',rank:'E',cur:0,done:false}};
   return {
-    v:2,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
+    v:3,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
     stats:{str:10,vit:10,agi:10,int:10,dis:10},prog:{str:0,vit:0,agi:0,int:0,dis:0},
     quests:[
       dq('Liegestütze',50,'Wdh.','str',20,10),
@@ -270,19 +321,19 @@ function defaults(){
       dq('Früh aufstehen und Bett machen',1,'','dis',15,8)
     ],
     shop:[
-      {id:uid(),name:'1 Folge Anime',price:50},{id:uid(),name:'Snack nach Wahl',price:30},
-      {id:uid(),name:'1 Std. Gaming',price:80},{id:uid(),name:'Freier Abend',price:200},{id:uid(),name:'Cheat-Meal',price:300}
+      {id:uid(),name:'1 Folge Anime',price:40},{id:uid(),name:'Snack nach Wahl',price:40},
+      {id:uid(),name:'1 Std. Gaming',price:100},{id:uid(),name:'Freier Abend',price:250},{id:uid(),name:'Cheat-Meal',price:300}
     ],
     inv:[],penaltyText:'20 Burpees pro verpasstem Tag',penalties:[],
     lastDay:null,lastComplete:null,streak:0,bestStreak:0,totalDone:0,shadows:[],savedAt:0,
     avatar:null,thumb:null,profile:null,hist:{},keys:1,potions:1,gear:{weapon:null,armor:null},
-    arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0
+    cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0
   };
 }
 
 /* ---------- state + persistence ---------- */
 let S=defaults();
-try{const raw=localStorage.getItem(KEY)||localStorage.getItem('hunter-system-v1');if(raw)S=Object.assign(defaults(),JSON.parse(raw))}catch(e){}
+try{const raw=localStorage.getItem(KEY)||localStorage.getItem('hunter-system-v1');if(raw)S=Object.assign(defaults(),JSON.parse(raw));migrate()}catch(e){}
 let authResolve=null,acct={guest:true,email:''},onlineErr='',sb=null,online=false,myId=null,samp=null,sampImg=false,lastSig='',lastDuelMax=0,showAll=false;
 const pendingAdd=(()=>{try{return (new URLSearchParams(location.search).get('add')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8)}catch(e){return ''}})();
 let dirty=false,writing=false,tmr=null,lastCard='';
@@ -395,7 +446,7 @@ async function initRemote(){
     online=true;onlineErr='';
     if(r.data&&r.data.state){
       const rem=r.data.state;
-      if(replaceLocal||(rem.savedAt||0)>(S.savedAt||0)){S=Object.assign(defaults(),clone(rem));try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+      if(replaceLocal||(rem.savedAt||0)>(S.savedAt||0)){S=Object.assign(defaults(),clone(rem));try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(migrate())save()}
       else{dirty=true;flush()}
     }else if(S.started){dirty=true;flush()}
     await refreshOnline(true);
@@ -521,21 +572,26 @@ function recordDay(k){
 function completeQuest(q){
   if(q.done)return;
   q.done=true;q.cur=q.target;
-  S.gold+=q.gold;S.totalDone++;
-  if(q.stat&&S.stats[q.stat]!=null){
-    const pts=Math.max(1,Math.min(4,Math.round(q.xp/15)));
-    S.prog[q.stat]=(S.prog[q.stat]||0)+pts;
-    while(S.prog[q.stat]>=statNeed(S.stats[q.stat])){S.prog[q.stat]-=statNeed(S.stats[q.stat]);S.stats[q.stat]++;toast('+1 '+statName(q.stat))}
-  }
-  toast('Quest abgeschlossen: +'+q.xp+' XP, +'+q.gold+' G');
-  grantXP(q.xp);
-  const kc=q.type==='dungeon'?1:q.type==='system'?0.4:0.15;
-  if(Math.random()<kc)giveKey(q.type==='dungeon'?'Dungeon':'');
-  if(S.totalDone%SHADOW_EVERY===0){
-    const n=S.shadows.length+1;
-    S.shadows.push({id:uid(),name:'Schatten-Soldat #'+n,rank:rankOf(S.level)});
-    modal({kind:'vio',title:'Extraktion',body:'<div class="big" style="color:var(--violet);text-shadow:0 0 20px var(--violet)">Schatten #'+n+'</div><p>Ein neuer Soldat dient dir jetzt, Rang '+rankOf(S.level)+'. Er verstärkt dich im Kampf.</p>',btn:'Aufstehen'});
-  }
+  const c=capState();let gx=q.xp,gg=q.gold;
+  if(q.type==='dungeon'){if(c.dg>=1){gx=0;gg=0}else c.dg++}
+  else{const room=Math.max(0,dayCap()-c.xp);if(gx>room){gg=Math.round(gg*room/Math.max(1,gx));gx=room}c.xp+=gx}
+  if(gx>0){
+    S.gold+=gg;S.totalDone++;
+    if(q.stat&&S.stats[q.stat]!=null){
+      const pts=Math.max(1,Math.min(4,Math.round(gx/15)));
+      S.prog[q.stat]=(S.prog[q.stat]||0)+pts;
+      while(S.prog[q.stat]>=statNeed(S.stats[q.stat])){S.prog[q.stat]-=statNeed(S.stats[q.stat]);S.stats[q.stat]++;toast('+1 '+statName(q.stat))}
+    }
+    toast('Quest abgeschlossen: +'+gx+' XP, +'+gg+' G'+(gx<q.xp?' (Tageslimit)':''));
+    grantXP(gx);
+    const kc=q.type==='dungeon'?1:q.type==='system'?0.4:0.15;
+    if(Math.random()<kc)giveKey(q.type==='dungeon'?'Dungeon':'');
+    if(S.totalDone%SHADOW_EVERY===0){
+      const n=S.shadows.length+1;
+      S.shadows.push({id:uid(),name:'Schatten-Soldat #'+n,rank:rankOf(S.level)});
+      modal({kind:'vio',title:'Extraktion',body:'<div class="big" style="color:var(--violet);text-shadow:0 0 20px var(--violet)">Schatten #'+n+'</div><p>Ein neuer Soldat dient dir jetzt, Rang '+rankOf(S.level)+'. Er verstärkt dich im Kampf.</p>',btn:'Aufstehen'});
+    }
+  }else toast(q.type==='dungeon'?'Heute war schon ein Dungeon dran: keine Belohnung mehr.':'Tageslimit erreicht: Diese Quest bringt heute keine Belohnung mehr.');
   if(q.type==='daily'){
     const d=S.quests.filter(x=>x.type==='daily');
     if(d.length&&d.every(x=>x.done)&&S.lastComplete!==dayKey()){
@@ -581,8 +637,8 @@ function rollover(){
       const sx=dailies.reduce((a,q)=>a+q.xp,0),sg=dailies.reduce((a,q)=>a+q.gold,0);
       const lx=Math.min(S.xp,Math.round(sx*0.5*failed)),lg=Math.min(S.gold,Math.round(sg*0.25*failed));
       S.xp-=lx;S.gold-=lg;S.streak=0;
-      for(let i=0;i<failed;i++)S.penalties.push({id:uid(),text:S.penaltyText||'Strafquest'});
-      modal({kind:'bad',title:'Strafe',body:'<p>Die täglichen Quests wurden nicht abgeschlossen.</p><p style="color:var(--bad);font-family:var(--f-d);font-size:20px">−'+lx+' XP, −'+lg+' G</p><p>Strafquest'+(failed>1?'s':'')+': '+failed+'x „'+esc(S.penaltyText||'Strafquest')+'“</p><p class="dim">Die Serie ist zurückgesetzt. Solange Strafen offen sind, ist der Shop gesperrt.</p>',btn:'Verstanden'});
+      const ptx=[];for(let i=0;i<failed;i++){const tx=genPenalty();ptx.push(tx);S.penalties.push({id:uid(),text:tx})}
+      modal({kind:'bad',title:'Strafe',body:'<p>Die täglichen Quests wurden nicht abgeschlossen.</p><p style="color:var(--bad);font-family:var(--f-d);font-size:20px">−'+lx+' XP, −'+lg+' G</p><p>Strafquest'+(failed>1?'s':'')+':<br>'+ptx.map(esc).join('<br>')+'</p><p class="dim">Die Serie ist zurückgesetzt. Solange Strafen offen sind, ist der Shop gesperrt.</p>',btn:'Verstanden'});
     }
     const keys=Object.keys(S.hist).sort();
     while(keys.length>150)delete S.hist[keys.shift()];
@@ -884,22 +940,21 @@ function formHtml(){
   return '<section class="win" id="qform"><div class="sub"><h2>'+(f.id?'Quest ändern':'Neue Quest')+'</h2></div><div class="grid">'+
    '<label class="f wide">Name<input type="text" id="fName" maxlength="80" value="'+esc(f.name)+'"></label>'+
    '<label class="f">Art<select id="fType"><option value="daily"'+(f.type==='daily'?' selected':'')+'>Täglich</option><option value="dungeon"'+(f.type==='dungeon'?' selected':'')+'>Dungeon (einmalig)</option></select></label>'+
-   (f.type==='dungeon'?'<label class="f">Rang<select id="fRank">'+RANKS.map(r=>'<option'+(f.rank===r?' selected':'')+'>'+r+'</option>').join('')+'</select></label>':'')+
+   (f.type==='dungeon'?'<label class="f">Rang<select id="fRank">'+RANKS.slice(0,maxGate()+1).map(r=>'<option'+(f.rank===r?' selected':'')+'>'+r+'</option>').join('')+'</select></label>':'')+
    '<label class="f wide">Wirkt auf<select id="fStat">'+STATS.map(([k])=>'<option value="'+k+'"'+(f.stat===k?' selected':'')+'>'+HINT[k]+'</option>').join('')+'</select></label>'+
    '<label class="f">Ziel<input type="number" id="fTarget" min="1" step="any" value="'+f.target+'"></label>'+
    '<label class="f">Einheit<input type="text" id="fUnit" maxlength="12" placeholder="km, Min., Wdh." value="'+esc(f.unit)+'"></label>'+
-   '<label class="f">XP<input type="number" id="fXp" min="0" value="'+f.xp+'"></label>'+
-   '<label class="f">Gold<input type="number" id="fGold" min="0" value="'+f.gold+'"></label>'+
-   '</div><p class="dim" style="font-size:13px;margin-top:8px">Mehr XP heißt auch: der Stat wächst schneller (leichte Quests bringen 1 Punkt, schwere bis 4).</p><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="fsave">Speichern</button><button class="btn ghost" data-act="fcancel">Abbrechen</button></div></section>';
+   '<p id="fPrev" style="grid-column:1/-1;font-family:var(--f-d);letter-spacing:.06em;color:var(--glow)">'+prevText(f)+'</p>'+
+   '</div><p class="dim" style="font-size:13px;margin-top:8px">'+(f.type==='dungeon'?'Dungeons gibt es bis Rang '+RANKS[maxGate()]+', höchstens '+GATE_MAX+' offen. Pro Tag zählt ein Dungeon.':'Das System berechnet die Belohnung aus Ziel und Einheit (Min., Wdh., km, Sek.). Aus Quests zählen pro Tag höchstens '+dayCap()+' XP, höchstens '+QUEST_MAX+' tägliche Quests.')+'</p><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="fsave">Speichern</button><button class="btn ghost" data-act="fcancel">Abbrechen</button></div></section>';
 }
 function readForm(){
   const v=id=>{const e=document.getElementById(id);return e?e.value:undefined};
   return {id:form.id,name:v('fName')??form.name,type:v('fType')??form.type,rank:v('fRank')??form.rank,
-    target:Number(v('fTarget')??form.target),unit:v('fUnit')??form.unit,stat:v('fStat')??form.stat,xp:Number(v('fXp')??form.xp),gold:Number(v('fGold')??form.gold)};
+    target:Number(v('fTarget')??form.target),unit:v('fUnit')??form.unit,stat:v('fStat')??form.stat};
 }
 function newForm(type){
   const d=type==='dungeon';
-  return {id:null,name:'',type,rank:'E',target:1,unit:'',stat:d?'str':'dis',xp:d?DUNGEON_REWARD.E[0]:20,gold:d?DUNGEON_REWARD.E[1]:10};
+  return {id:null,name:'',type,rank:'E',target:1,unit:'',stat:d?'str':'dis'};
 }
 function planHtml(){
   if(!samp)return '';
@@ -934,7 +989,7 @@ function viewQuests(){
   }
   if(sq.length)h+='<section class="win gold"><div class="sub"><div class="lbl" style="color:var(--warn)">System-Quest (heute)</div></div>'+sq.map(qRow).join('')+'</section>';
   h+='<section class="win"><div class="sub"><div><div class="lbl">Tägliche Quest</div><h2>Training des Hunters</h2></div><div style="text-align:right"><div class="lbl">Zeitlimit</div><div class="cd" id="cd">--:--:--</div></div></div>'+
-    '<div class="row" style="margin-bottom:8px"><span class="qp">Abgeschlossen '+dn+' / '+d.length+'</span><span class="sp"></span><span class="dim" style="font-size:13px">Bei Fehlschlag: Strafe</span></div>'+
+    '<div class="row" style="margin-bottom:8px"><span class="qp">Abgeschlossen '+dn+' / '+d.length+'</span><span class="sp"></span><span class="dim" style="font-size:13px">Tageslimit: '+capState().xp+' / '+dayCap()+' XP</span></div>'+
     (d.length?d.map(qRow).join(''):'<div class="empty">Keine täglichen Quests. Lege unten eine an.</div>')+'</section>';
   h+=form&&form.type==='daily'?formHtml():'<button class="btn" data-act="newq" data-id="daily">+ Neue tägliche Quest</button>';
   h+=planHtml();
@@ -995,7 +1050,7 @@ function viewStatus(){
    (online?(acct.guest
      ?'<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Konto</div><h2>Charakter sichern</h2></div></div><p class="dim" style="margin-bottom:10px">Du spielst als Gast. Ohne Konto ist dein Charakter weg, wenn du den Browser wechselst oder die Browserdaten löschst. Mit E-Mail und Passwort findest du ihn überall wieder.</p><div class="grid"><label class="f">E-Mail<input type="text" id="accMail" autocomplete="email" inputmode="email" autocapitalize="off"></label><label class="f">Passwort<input type="password" id="accPw" autocomplete="new-password"></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="acc-upgrade">Konto anlegen</button></div></section>'
      :'<section class="win"><div class="sub"><div><div class="lbl">Konto</div><h2>Angemeldet</h2></div></div><p class="dim" style="margin-bottom:10px;overflow-wrap:anywhere">'+esc(acct.email)+'</p><div class="acts"><button class="btn ghost" data-act="acc-out">Abmelden</button></div></section>'):'')+
-   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><label class="f wide">Strafquest bei Fehlschlag<input type="text" id="setPen" maxlength="100" value="'+esc(S.penaltyText)+'"></label><label class="f">Klasse<input type="text" id="setCls" maxlength="40" value="'+esc(pf.klasse)+'"></label><label class="f">Spitzname<input type="text" id="setNick" maxlength="40" value="'+esc(pf.spitzname)+'"></label><label class="f wide">Beschreibung<textarea id="setLore" maxlength="300">'+esc(pf.lore)+'</textarea></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><button class="btn ghost sm" data-act="profreset">Profil automatisch</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>';
+   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><label class="f">Klasse<input type="text" id="setCls" maxlength="40" value="'+esc(pf.klasse)+'"></label><label class="f">Spitzname<input type="text" id="setNick" maxlength="40" value="'+esc(pf.spitzname)+'"></label><label class="f wide">Beschreibung<textarea id="setLore" maxlength="300">'+esc(pf.lore)+'</textarea></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><button class="btn ghost sm" data-act="profreset">Profil automatisch</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>';
 }
 function viewShop(){
   const lock=S.penalties.length>0;
@@ -1003,7 +1058,7 @@ function viewShop(){
    (lock?'<p style="color:var(--bad);margin-bottom:8px">Gesperrt: Leiste zuerst deine offenen Strafquests ab.</p>':'')+
    S.shop.map(i=>'<div class="item"><span class="nm">'+esc(i.name)+'</span><span class="chip g">'+i.price+' G</span><button class="btn ok sm" data-act="buy" data-id="'+i.id+'"'+(S.gold<i.price||lock?' disabled':'')+'>Kaufen</button><button class="btn ghost sm" data-act="delshop" data-id="'+i.id+'" aria-label="Entfernen">✕</button></div>').join('')+
    (S.shop.length?'':'<div class="empty">Der Shop ist leer.</div>')+
-   '<div class="grid" style="margin-top:12px"><label class="f wide">Eigene Belohnung<input type="text" id="shName" maxlength="60" placeholder="z. B. Kinoabend"></label><label class="f">Preis<input type="number" id="shPrice" min="1" value="100"></label><div style="display:flex;align-items:flex-end"><button class="btn" data-act="addshop" style="width:100%">Hinzufügen</button></div></div></section>';
+   '<div class="grid" style="margin-top:12px"><label class="f wide">Eigene Belohnung<input type="text" id="shName" maxlength="60" placeholder="z. B. Kinoabend"></label><label class="f">Größe<select id="shTier">'+TIER_NAME.map((n,i)=>'<option value="'+i+'">'+n+' ('+TIER_PRICE[i]+' G)</option>').join('')+'</select></label><div style="display:flex;align-items:flex-end"><button class="btn" data-act="addshop" style="width:100%">Hinzufügen</button></div></div><p class="dim" style="font-size:13px;margin-top:8px">Den Preis legt das System fest. Große Belohnungen (z. B. ein freier Tag) werden automatisch höher eingestuft.</p></section>';
   h+='<section class="win"><div class="sub"><div class="lbl">Inventar</div></div>'+
    (S.inv.length?S.inv.map(i=>'<div class="item"><span class="nm">'+esc(i.name)+'</span><span class="chip">x'+i.n+'</span><button class="btn sm" data-act="use" data-id="'+esc(i.name)+'">Einlösen</button></div>').join(''):'<div class="empty">Leer. Verdiene Gold mit Quests und kaufe dir etwas.</div>')+'</section>';
   return h;
@@ -1118,7 +1173,13 @@ document.addEventListener('click',e=>{
     case 'fsave':{
       const f=readForm();
       if(!f.name.trim()){toast('Gib der Quest einen Namen');return}
-      const t=Math.max(1,f.target||1),xp=Math.max(0,Math.round(f.xp||0)),gd=Math.max(0,Math.round(f.gold||0));
+      const t=Math.min(1000,Math.max(1,f.target||1));
+      if(f.type==='dungeon'&&RANKS.indexOf(f.rank)>maxGate())f.rank=RANKS[maxGate()];
+      if(!f.id){
+        if(f.type==='daily'&&S.quests.filter(y=>y.type==='daily').length>=QUEST_MAX){toast('Höchstens '+QUEST_MAX+' tägliche Quests');return}
+        if(f.type==='dungeon'&&S.quests.filter(y=>y.type==='dungeon'&&!y.done).length>=GATE_MAX){toast('Höchstens '+GATE_MAX+' offene Dungeons');return}
+      }
+      const xp=calcXP(t,f.unit,f.type,f.rank),gd=calcGold(xp,f.type,f.rank);
       if(f.id){
         const x=S.quests.find(y=>y.id===f.id);
         if(x){const typeChanged=x.type!==f.type;Object.assign(x,{name:f.name.trim(),type:f.type,rank:f.rank,target:t,unit:f.unit.trim(),stat:f.stat,xp,gold:gd});if(typeChanged||x.cur>=t){x.cur=0;x.done=false}x.cur=Math.min(x.cur,t)}
@@ -1136,7 +1197,7 @@ document.addEventListener('click',e=>{
     case 'plan-apply':{
       if(!planRes)break;
       let n=0;
-      planRes.qs.forEach((p,i)=>{const c=document.getElementById('pl-'+i);if(c&&c.checked){S.quests.push({id:uid(),name:p.name,target:p.target,unit:p.unit,stat:p.stat,xp:p.xp,gold:Math.max(5,Math.round(p.xp/2)),type:'daily',rank:'E',cur:0,done:false});n++}});
+      planRes.qs.forEach((p,i)=>{const c=document.getElementById('pl-'+i);if(c&&c.checked&&S.quests.filter(x=>x.type==='daily').length<QUEST_MAX){const px=calcXP(p.target,p.unit,'daily');S.quests.push({id:uid(),name:p.name,target:p.target,unit:p.unit,stat:p.stat,xp:px,gold:calcGold(px),type:'daily',rank:'E',cur:0,done:false});n++}});
       planRes=null;planOpen=false;save();toast(n+' Quest'+(n===1?'':'s')+' übernommen');break;
     }
     case 'door':startBattle(id);break;
@@ -1177,7 +1238,6 @@ document.addEventListener('click',e=>{
     case 'stat':if(S.free>0&&S.stats[id]!=null){S.free--;S.stats[id]++;save()}break;
     case 'settings':{
       S.name=(document.getElementById('setName').value.trim()||'Spieler');
-      S.penaltyText=document.getElementById('setPen').value.trim()||'Strafquest';
       const pc=document.getElementById('setCls').value.trim(),pn=document.getElementById('setNick').value.trim(),pl=document.getElementById('setLore').value.trim();
       const au=autoProfile();
       if(!pc&&!pn&&!pl||(pc===au.klasse&&pn===au.spitzname&&pl===au.lore))S.profile=null;
@@ -1193,9 +1253,12 @@ document.addEventListener('click',e=>{
     }
     case 'delshop':S.shop=S.shop.filter(x=>x.id!==id);save();break;
     case 'addshop':{
-      const n=document.getElementById('shName').value.trim(),p=Math.round(Number(document.getElementById('shPrice').value));
-      if(!n||!(p>0)){toast('Name und Preis eintragen');return}
-      S.shop.push({id:uid(),name:n,price:p});save();break;
+      const n=document.getElementById('shName').value.trim();
+      if(!n){toast('Gib der Belohnung einen Namen');return}
+      if(S.shop.length>=SHOP_MAX){toast('Höchstens '+SHOP_MAX+' Belohnungen');return}
+      const want=Math.max(0,Math.min(3,Number(document.getElementById('shTier').value)||0)),tier=Math.max(want,shopMinTier(n));
+      S.shop.push({id:uid(),name:n.slice(0,60),price:TIER_PRICE[tier]});save();
+      toast(tier>want?'Das System stuft das höher ein: '+TIER_PRICE[tier]+' G':'Hinzugefügt: '+TIER_PRICE[tier]+' G');break;
     }
     case 'use':{
       const h=S.inv.find(x=>x.name===id);
@@ -1206,6 +1269,10 @@ document.addEventListener('click',e=>{
   }
   render();
 });
+document.addEventListener('input',e=>{
+  if(!form||(e.target.id!=='fTarget'&&e.target.id!=='fUnit'))return;
+  const p=document.getElementById('fPrev');if(p)p.textContent=prevText(readForm());
+});
 document.addEventListener('change',e=>{
   if(e.target.id==='avatarIn'){const f=e.target.files&&e.target.files[0];e.target.value='';if(f)setAvatar(f);return}
   if(!form)return;
@@ -1213,8 +1280,7 @@ document.addEventListener('change',e=>{
   if(id==='fType'||id==='fRank'){
     const old=form,f=readForm();
     if(id==='fType'){f.rank='E'}
-    if(f.type==='dungeon'){const r=DUNGEON_REWARD[f.rank];f.xp=r[0];f.gold=r[1];if(old.type!==f.type)f.stat='str'}
-    else if(id==='fType'){f.xp=20;f.gold=10}
+    if(f.type==='dungeon'&&old.type!==f.type)f.stat='str';
     form=f;render();
   }
 });
