@@ -344,6 +344,8 @@ function migrate(){
   if((S.v||0)<4){
     S.aura=null;S.cls='';if(S.profile&&clsOk(S.profile.klasse,S.level||1))S.cls=S.profile.klasse;S.profile=null;
     if(!S.look)S.look=null;normGear();S.v=4;ch=true}
+  if((S.v||0)<5){
+    if(!S.plan||!Array.isArray(S.plan.d))S.plan=emptyPlan();S.planBonus=null;S.v=5;ch=true}
   return ch;
 }
 const SHADOW_EVERY=20;
@@ -365,6 +367,66 @@ const ELEM_LORE={
 const RANK_LORE={E:'Der Weg hat gerade erst begonnen.',D:'Die ersten Tore sind überlebt.',C:'Das System stuft diesen Hunter als erprobt ein.',B:'Die Gilde respektiert diesen Namen.',A:'Der Name ist im ganzen Land bekannt.',S:'Eine lebende Legende.'};
 const RARITY=['Gewöhnlich','Ungewöhnlich','Selten','Episch','Legendär','Mythisch'];
 const BAG_MAX=30;
+const WD=['Mo','Di','Mi','Do','Fr','Sa','So'];
+const wdToday=()=>(new Date().getDay()+6)%7;
+const PLAN_DAY_MAX=6;
+const EX=[['Liegestütze','Wdh.','str',20],['Kniebeugen','Wdh.','str',30],['Klimmzüge','Wdh.','str',8],['Sit-ups','Wdh.','str',30],['Plank','Sek.','str',60],['Ausfallschritte','Wdh.','str',20],['Dips','Wdh.','str',15],['Hanteltraining','Min.','str',30],
+ ['Laufen','km','vit',5],['Radfahren','km','vit',15],['Schwimmen','Min.','vit',30],['Seilspringen','Min.','vit',10],['Gehen','Min.','vit',45],['Treppensteigen','Stockwerke','vit',10],
+ ['Dehnen','Min.','agi',10],['Yoga','Min.','agi',20],['Mobility','Min.','agi',12],
+ ['Lernen','Min.','int',30],['Lesen','Seiten','int',15],['Meditation','Min.','dis',10],['Kalte Dusche','','dis',1]];
+const PLAN_UNITS=['Min.','Sek.','Wdh.','km','Seiten','Stockwerke'];
+const PLAN_TPL={
+  full:{n:'Ganzkörper',t:'Mo, Mi, Fr',d:{0:[['Liegestütze',20,'Wdh.','str'],['Kniebeugen',30,'Wdh.','str'],['Plank',45,'Sek.','str'],['Dehnen',10,'Min.','agi']],2:[['Liegestütze',20,'Wdh.','str'],['Kniebeugen',30,'Wdh.','str'],['Plank',45,'Sek.','str'],['Dehnen',10,'Min.','agi']],4:[['Liegestütze',20,'Wdh.','str'],['Kniebeugen',30,'Wdh.','str'],['Plank',45,'Sek.','str'],['Dehnen',10,'Min.','agi']]}},
+  run:{n:'Laufplan',t:'Di, Do, Sa',d:{1:[['Laufen',3,'km','vit'],['Dehnen',10,'Min.','agi']],3:[['Laufen',4,'km','vit'],['Dehnen',10,'Min.','agi']],5:[['Laufen',6,'km','vit'],['Dehnen',10,'Min.','agi']]}},
+  split:{n:'Push, Pull, Beine',t:'Mo, Mi, Fr, Sa',d:{0:[['Liegestütze',30,'Wdh.','str'],['Dips',15,'Wdh.','str'],['Plank',45,'Sek.','str']],2:[['Klimmzüge',8,'Wdh.','str'],['Sit-ups',30,'Wdh.','str']],4:[['Kniebeugen',40,'Wdh.','str'],['Ausfallschritte',20,'Wdh.','str']],5:[['Laufen',3,'km','vit'],['Dehnen',10,'Min.','agi']]}}
+};
+let fitOpen=false,fitDay=0,fitSel=0,fitArmed=null;
+const emptyPlan=()=>({d:[[],[],[],[],[],[],[]]});
+const planItems=d=>(S.plan&&Array.isArray(S.plan.d)&&S.plan.d[d])||[];
+function syncPlan(){
+  if(!S.plan||!Array.isArray(S.plan.d))S.plan=emptyPlan();
+  const items=planItems(wdToday()),ids=new Set(items.map(i=>i.id));
+  S.quests=S.quests.filter(q=>q.type!=='plan'||q.done||ids.has(q.pid));
+  items.forEach(it=>{
+    if(S.quests.some(q=>q.type==='plan'&&(q.pid===it.id||(q.done&&q.name===it.name&&q.unit===it.unit))))return;
+    const xp=calcXP(it.target,it.unit,'daily');
+    S.quests.push({id:uid(),pid:it.id,name:it.name,type:'plan',target:it.target,unit:it.unit,stat:it.stat,xp,gold:calcGold(xp),rank:'E',cur:0,done:false});
+  });
+}
+function fitXpText(){
+  const e=fitSel>=0?EX[fitSel]:null;
+  const unit=e?e[1]:((document.getElementById('fxUnit')||{}).value||'Min.');
+  const t=Math.min(1000,Math.max(1,Number((document.getElementById('fxTar')||{}).value)||1));
+  return 'Belohnung vom System: +'+calcXP(t,unit,'daily')+' XP';
+}
+function fitPrev(){const p=document.getElementById('fxPrev');if(p)p.textContent=fitXpText()}
+function fitEditor(){
+  const d=fitDay,items=planItems(d),cust=fitSel<0;
+  let h='<section class="win"><div class="sub"><div><div class="lbl">Wochenplan</div><h2>'+WD[d]+(d===wdToday()?' (heute)':'')+'</h2></div></div>'+
+   '<div class="pick" style="margin-bottom:10px">'+WD.map((n,i)=>'<button type="button" class="'+(i===d?'on':'')+'" data-act="fit-day" data-id="'+i+'">'+n+'<small>'+planItems(i).length+'</small></button>').join('')+'</div>'+
+   (items.length?items.map(it=>'<div class="item"><span class="nm">'+esc(it.name)+'</span><span class="chip">'+it.target+(it.unit?' '+esc(it.unit):'')+'</span><span class="chip xp">+'+calcXP(it.target,it.unit,'daily')+' XP</span><button class="btn ghost sm" data-act="fit-del" data-id="'+it.id+'" aria-label="Entfernen">✕</button></div>').join(''):'<div class="empty">Ruhetag. Füge unten eine Übung hinzu.</div>');
+  if(items.length<PLAN_DAY_MAX){
+    h+='<div class="grid" style="margin-top:12px"><label class="f wide">Übung<select id="fxEx">'+EX.map((e,i)=>'<option value="'+i+'"'+(i===fitSel?' selected':'')+'>'+e[0]+' ('+(e[2]==='str'?'Kraft':e[2]==='vit'?'Ausdauer':e[2]==='agi'?'Beweglichkeit':e[2]==='int'?'Lernen':'Disziplin')+')</option>').join('')+'<option value="-1"'+(cust?' selected':'')+'>Eigene Übung ...</option></select></label>'+
+     (cust?'<label class="f wide">Name<input type="text" id="fxName" maxlength="40" placeholder="z. B. Boxtraining"></label><label class="f">Einheit<select id="fxUnit">'+PLAN_UNITS.map(u=>'<option>'+u+'</option>').join('')+'</select></label><label class="f">Wirkt auf<select id="fxStat">'+STATS.map(([k])=>'<option value="'+k+'">'+HINT[k]+'</option>').join('')+'</select></label>':'')+
+     '<label class="f">Menge'+(!cust&&EX[fitSel][1]?' ('+esc(EX[fitSel][1])+')':'')+'<input type="number" id="fxTar" min="1" step="any" value="'+(cust?20:EX[fitSel][3])+'"></label>'+
+     '<div style="display:flex;align-items:flex-end"><button class="btn" data-act="fit-add" style="width:100%">Hinzufügen</button></div>'+
+     '<p id="fxPrev" style="grid-column:1/-1;font-family:var(--f-d);letter-spacing:.06em;color:var(--glow)">'+fitXpText()+'</p></div>';
+  }else h+='<p class="dim" style="margin-top:8px;font-size:13px">Höchstens '+PLAN_DAY_MAX+' Übungen pro Tag.</p>';
+  h+='</section><section class="win"><div class="sub"><div class="lbl">Vorlagen</div></div><p class="dim" style="font-size:13px;margin-bottom:8px">Eine Vorlage ersetzt deinen ganzen Plan. Du kannst sie danach ändern.</p><div class="pick">'+
+    Object.keys(PLAN_TPL).map(k=>'<button type="button" class="'+(fitArmed===k?'on':'')+'" data-act="fit-tpl" data-id="'+k+'">'+(fitArmed===k?'Sicher?':PLAN_TPL[k].n)+'<small>'+PLAN_TPL[k].t+'</small></button>').join('')+
+    '<button type="button" data-act="fit-clear" class="'+(fitArmed==='clear'?'on':'')+'">'+(fitArmed==='clear'?'Sicher?':'Plan leeren')+'</button></div></section>';
+  return h;
+}
+function fitHtml(){
+  const t=wdToday(),pq=S.quests.filter(q=>q.type==='plan'),has=S.plan.d.some(a=>a.length);
+  let h='<section class="win"><div class="sub"><div><div class="lbl">Trainingsplan</div><h2>'+(has?'Heute: '+WD[t]:'Dein Plan')+'</h2></div>'+(pq.length?'<span class="qp">'+pq.filter(q=>q.done).length+' / '+pq.length+'</span>':'')+'</div>';
+  if(!has)h+='<p class="dim" style="margin-bottom:8px">Trage deinen Wochenplan ein. An jedem Trainingstag werden die Übungen automatisch zu Quests mit Punkten. Der Plan ersetzt deine täglichen Quests nicht und löst keine Strafe aus. Wer an einem Tag alles schafft, bekommt einen Bonus.</p>';
+  else if(!pq.length)h+='<div class="empty">Heute ist laut Plan Ruhetag.</div>';
+  else h+=pq.map(qRow).join('');
+  h+='<div class="acts" style="margin-top:10px"><button class="btn '+(fitOpen?'ghost':'')+'" data-act="fit-toggle">'+(fitOpen?'Plan schließen':(has?'Plan bearbeiten':'Plan erstellen'))+'</button></div></section>';
+  if(fitOpen)h+=fitEditor();
+  return h;
+}
 let sellArmed=null,lookBusy=false;
 const sellPrice=it=>Math.max(1,Math.round(it.val*2));
 const rarChip=r=>'<span class="chip r-'+RANKS[Math.max(0,Math.min(5,r|0))]+'" style="color:var(--rk);border-color:var(--rk)">'+RARITY[Math.max(0,Math.min(5,r|0))]+'</span>';
@@ -444,7 +506,7 @@ const statName=k=>{const s=STATS.find(x=>x[0]===k);return s?s[1]:''};
 function defaults(){
   const dq=(name,target,unit,stat)=>mkQ(name,target,unit,stat);
   return {
-    v:4,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
+    v:5,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
     stats:{str:10,vit:10,agi:10,int:10,dis:10},prog:{str:0,vit:0,agi:0,int:0,dis:0},
     quests:[
       dq('Liegestütze',50,'Wdh.','str',20,10),
@@ -461,7 +523,7 @@ function defaults(){
     inv:[],penaltyText:'20 Burpees pro verpasstem Tag',penalties:[],
     lastDay:null,lastComplete:null,streak:0,bestStreak:0,totalDone:0,shadows:[],savedAt:0,
     avatar:null,thumb:null,profile:null,hist:{},keys:1,potions:1,gear:{weapon:null,armor:null},
-    aura:null,cls:'',look:null,bag:[],cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0
+    aura:null,cls:'',look:null,bag:[],plan:{d:[[],[],[],[],[],[],[]]},planBonus:null,cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0
   };
 }
 
@@ -739,6 +801,14 @@ function completeQuest(q){
       grantXP(bx);
     }
   }
+  if(q.type==='plan'){
+    const pl=S.quests.filter(x=>x.type==='plan');
+    if(pl.length&&pl.every(x=>x.done)&&S.planBonus!==dayKey()){
+      S.planBonus=dayKey();S.gold+=10;
+      modal({title:'Trainingsplan geschafft',body:'<div class="big">'+WD[wdToday()]+'</div><p>Alle Übungen von heute sind erledigt.</p><p>Bonus: +25 XP und +10 G</p>',btn:'Weiter'});
+      grantXP(25);
+    }
+  }
 }
 function addProgress(q,n){
   if(q.done||!(n>0))return;
@@ -778,8 +848,9 @@ function rollover(){
     const keys=Object.keys(S.hist).sort();
     while(keys.length>150)delete S.hist[keys.shift()];
   }
-  S.quests=S.quests.filter(q=>q.type!=='system');
+  S.quests=S.quests.filter(q=>q.type!=='system'&&q.type!=='plan');
   S.quests.forEach(q=>{if(q.type==='daily'){q.cur=0;q.done=false}});
+  syncPlan();
   S.sys={day:t,q:genSys(),st:'open'};
   S.lastDay=t;save();
 }
@@ -1063,13 +1134,13 @@ function qRow(q){
     if(q.target>1)acts+='<input class="amt" type="number" min="1" step="any" value="'+bestStep(q.target)+'" id="amt-'+q.id+'" aria-label="Menge"><button class="btn" data-act="add" data-id="'+q.id+'">+ Eintragen</button>';
     acts+='<button class="btn ok" data-act="done" data-id="'+q.id+'">Fertig</button>';
   }
-  if(q.type!=='system'){
+  if(q.type!=='system'&&q.type!=='plan'){
     acts+='<span class="sp"></span><button class="btn ghost sm" data-act="edit" data-id="'+q.id+'">Ändern</button>';
     acts+='<button class="btn '+(armed===q.id?'bad':'ghost')+' sm" data-act="del" data-id="'+q.id+'">'+(armed===q.id?'Sicher?':'Löschen')+'</button>';
   }
   return '<div class="q '+(q.done?'done':'')+'"><div class="qh"><span class="qn">'+esc(q.name)+'</span>'+prog+'</div>'+
    (q.target>1?'<div class="bar ok"><i style="width:'+pct+'%"></i></div>':'')+
-   '<div class="chips">'+(q.type==='dungeon'?'<span class="chip rk">'+q.rank+'-Rang</span>':'')+(q.type==='system'?'<span class="chip sys">System</span>':'')+'<span class="chip xp">+'+q.xp+' XP</span><span class="chip g">+'+q.gold+' G</span>'+(q.stat?'<span class="chip">'+HINT[q.stat]+'</span>':'')+'</div>'+
+   '<div class="chips">'+(q.type==='dungeon'?'<span class="chip rk">'+q.rank+'-Rang</span>':'')+(q.type==='system'?'<span class="chip sys">System</span>':'')+(q.type==='plan'?'<span class="chip sys">Plan</span>':'')+'<span class="chip xp">+'+q.xp+' XP</span><span class="chip g">+'+q.gold+' G</span>'+(q.stat?'<span class="chip">'+HINT[q.stat]+'</span>':'')+'</div>'+
    '<div class="acts">'+acts+'</div></div>';
 }
 function formHtml(){
@@ -1129,6 +1200,7 @@ function viewQuests(){
     '<div class="row" style="margin-bottom:8px"><span class="qp">Abgeschlossen '+dn+' / '+d.length+'</span><span class="sp"></span><span class="dim" style="font-size:13px">Tageslimit: '+capState().xp+' / '+dayCap()+' XP</span></div>'+
     (d.length?d.map(qRow).join(''):'<div class="empty">Keine täglichen Quests. Lege unten eine an.</div>')+'</section>';
   h+=form&&form.type==='daily'?formHtml():'<button class="btn" data-act="newq" data-id="daily">+ Neue tägliche Quest</button>';
+  h+=fitHtml();
   h+=planHtml();
   return h;
 }
@@ -1301,6 +1373,7 @@ document.addEventListener('click',e=>{
   if(a!=='del')armed=null;
   if(a!=='reset')penArmed=false;
   if(a!=='sell')sellArmed=null;
+  if(a!=='fit-tpl'&&a!=='fit-clear')fitArmed=null;
   const q=S.quests.find(x=>x.id===id);
   switch(a){
     case 'modal-ok':nextModal();render();return;
@@ -1387,6 +1460,33 @@ document.addEventListener('click',e=>{
     case 'photo':document.getElementById('avatarIn').click();return;
     case 'profile':genProfile(null);return;
     case 'pen':S.penalties=S.penalties.filter(p=>p.id!==id);save();toast('Strafe abgeleistet');break;
+    case 'fit-toggle':fitOpen=!fitOpen;if(fitOpen)fitDay=wdToday();break;
+    case 'fit-day':fitDay=Math.max(0,Math.min(6,Number(id)||0));break;
+    case 'fit-del':{const arr=S.plan.d[fitDay];const i=arr.findIndex(x=>x.id===id);if(i>=0){arr.splice(i,1);if(fitDay===wdToday())syncPlan();save()}break}
+    case 'fit-add':{
+      const arr=S.plan.d[fitDay];
+      if(arr.length>=PLAN_DAY_MAX){toast('Höchstens '+PLAN_DAY_MAX+' Übungen pro Tag');return}
+      const tar=Math.min(1000,Math.max(1,Math.round((Number(document.getElementById('fxTar').value)||1)*10)/10));
+      let it;
+      if(fitSel>=0&&EX[fitSel])it={id:uid(),name:EX[fitSel][0],target:tar,unit:EX[fitSel][1],stat:EX[fitSel][2]};
+      else{
+        const nm=(document.getElementById('fxName').value||'').trim().slice(0,40);
+        if(!nm){toast('Gib der Übung einen Namen');return}
+        const un=document.getElementById('fxUnit').value,st=document.getElementById('fxStat').value;
+        it={id:uid(),name:nm,target:tar,unit:PLAN_UNITS.includes(un)?un:'Min.',stat:STATS.some(x=>x[0]===st)?st:'dis'};
+      }
+      arr.push(it);if(fitDay===wdToday())syncPlan();save();toast('Zum Plan hinzugefügt');break;
+    }
+    case 'fit-tpl':{
+      const T=PLAN_TPL[id];if(!T)break;
+      if(S.plan.d.some(a=>a.length)&&fitArmed!==id){fitArmed=id;break}
+      S.plan=emptyPlan();Object.keys(T.d).forEach(k=>{S.plan.d[Number(k)]=T.d[k].map(a=>({id:uid(),name:a[0],target:a[1],unit:a[2],stat:a[3]}))});
+      fitArmed=null;syncPlan();save();toast('Vorlage übernommen: '+T.n);break;
+    }
+    case 'fit-clear':{
+      if(fitArmed!=='clear'){fitArmed='clear';break}
+      S.plan=emptyPlan();fitArmed=null;syncPlan();save();toast('Plan geleert');break;
+    }
     case 'equip':{const i=S.bag.findIndex(x=>x.id===id);if(i>=0){const it=S.bag[i],cur=S.gear[it.kind];S.bag.splice(i,1);if(cur)S.bag.push(cur);S.gear[it.kind]=it;save();toast('Ausgerüstet: '+it.name)}break}
     case 'unequip':{const cur=S.gear[id];if(cur&&S.bag.length<BAG_MAX){S.bag.push(cur);S.gear[id]=null;save()}else if(cur)toast('Rucksack ist voll');break}
     case 'sell':{const i=S.bag.findIndex(x=>x.id===id);if(i<0)break;if(sellArmed===id){const it=S.bag.splice(i,1)[0];S.gold+=sellPrice(it);sellArmed=null;save();toast('Verkauft: '+it.name+' (+'+sellPrice(it)+' G)')}else sellArmed=id;break}
@@ -1422,11 +1522,13 @@ document.addEventListener('click',e=>{
   render();
 });
 document.addEventListener('input',e=>{
+  if(e.target.id==='fxTar'||e.target.id==='fxUnit'){fitPrev();return}
   if(!form||(e.target.id!=='fTarget'&&e.target.id!=='fUnit'))return;
   const p=document.getElementById('fPrev');if(p)p.textContent=prevText(readForm());
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='avatarIn'){const f=e.target.files&&e.target.files[0];e.target.value='';if(f)setAvatar(f);return}
+  if(e.target.id==='fxEx'){fitSel=Number(e.target.value);render();return}
   if(!form)return;
   const id=e.target.id;
   if(id==='fType'||id==='fRank'){
@@ -1438,7 +1540,7 @@ document.addEventListener('change',e=>{
 });
 
 if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
-if(S.started){rollover()}
+if(S.started){rollover();syncPlan()}
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
 initRemote();
