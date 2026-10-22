@@ -6,6 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Hunter">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <title>Hunter System</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
 <style>
@@ -306,6 +309,55 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:60
 .pic.mon{background:radial-gradient(90% 90% at 50% 100%,color-mix(in srgb,var(--c) 70%,#04060f),#04060f)}
 .pic.mon img{object-fit:contain;object-position:center bottom;padding:4px 2px 0}
 .q.big .pic.mon img{padding:10px 0 0;object-position:center bottom}
+
+.banner{margin:-14px -14px 12px;height:128px;overflow:hidden;border-radius:15px 15px 0 0;position:relative}
+.banner img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 40%}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,#0d1233f2)}
+.win.bad .banner::after{background:linear-gradient(transparent 35%,#240a16f2)}
+.item .pic.pth{width:56px;height:56px;border-radius:10px;border:1px solid var(--line2)}
+.pic.red img{filter:sepia(1) hue-rotate(-45deg) saturate(3.2) brightness(.72) contrast(1.1)}
+
+/* emblems & item icons */
+.emb{--sz:96px;--cx:50%;--cy:50%;--lf:.3;--el:#9ec5ff;position:relative;display:inline-block;flex:none;width:var(--sz);height:var(--sz);vertical-align:middle}
+.emb img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
+.emb b{position:absolute;left:var(--cx);top:var(--cy);transform:translate(-50%,-50%);font-family:var(--f-d);font-weight:700;line-height:1;font-size:calc(var(--sz)*var(--lf));color:var(--el);text-shadow:0 0 calc(var(--sz)*.05) var(--el),0 0 calc(var(--sz)*.12) var(--el),0 1px 2px #000}
+.emb.nf{background:#0b1233;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}
+.emb.nf b{left:50%;top:50%;font-size:calc(var(--sz)*.5)}
+.hemb{grid-row:auto;display:grid;place-items:center;width:72px;height:72px;margin:-6px -4px -6px -6px}
+.hemb.au .emb img{filter:drop-shadow(0 0 7px var(--au))}
+.lvw{display:flex;align-items:center;gap:4px}
+#hdr .avatar .rt{display:none}
+#modal .rankup{font-size:0;line-height:0;display:grid;place-items:center;margin:2px 0 4px}
+.rkrow .emb{margin:-10px -12px -10px -10px}
+.ico{flex:none;width:50px;height:50px;border-radius:10px;border:1px solid color-mix(in srgb,var(--rk,#8aa0c8) 60%,transparent);background:radial-gradient(90% 90% at 50% 40%,color-mix(in srgb,var(--rk,#8aa0c8) 30%,#070b1d),#070b1d);display:grid;place-items:center;overflow:hidden}
+.ico img{width:100%;height:100%;object-fit:contain;display:block;padding:3px}
+.ico.big{width:84px;height:84px;border-radius:14px;box-shadow:0 0 18px color-mix(in srgb,var(--rk,#8aa0c8) 45%,transparent)}
+.ico.empty{border-style:dashed;background:transparent;opacity:.45}
+.ico.pot,.ico.gold{--rk:#ff5468}.ico.gold{--rk:#ffc34a}.ico.key{--rk:#ffc34a}
+.lootrow{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:2px 0 10px}
+.lootrow .lc{display:flex;flex-direction:column;align-items:center;gap:5px;max-width:150px;text-align:center}
+.lootrow .lc span:last-child{font-family:var(--f-d);font-weight:700;font-size:16px;letter-spacing:.03em;line-height:1.1;overflow-wrap:anywhere}
+.empty .chest{display:block;width:96px;height:96px;object-fit:contain;margin:0 auto 6px;opacity:.92}
+.mi{width:26px;height:26px;object-fit:contain;flex:none}
+.lbl.ic{display:inline-flex;align-items:center;gap:6px}
+.btn .bi{width:24px;height:24px;object-fit:contain;vertical-align:middle;margin:-5px 6px -5px -4px}
+@media (prefers-reduced-motion:reduce){#modal .rankup{animation:none!important}}
+
+/* scenes, shadows, tiers */
+.scene{margin:-14px -14px 12px;aspect-ratio:21/9;overflow:hidden;border-radius:15px 15px 0 0;position:relative;background:#070b1d}
+.scene img{display:block;width:100%;height:100%;object-fit:cover}
+.scene::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,#0d1233f0);pointer-events:none}
+.scene.m{aspect-ratio:16/9;margin-bottom:8px}
+#modal .win.vio .scene::after{background:linear-gradient(transparent 55%,#150d33f0)}
+.win.hall{background:linear-gradient(rgba(8,12,34,.55),rgba(8,12,34,.88)),var(--sbg,none) center 28%/cover,var(--panel)}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;margin-top:10px}
+.sc{border:1px solid #9b6bff44;border-radius:12px;background:radial-gradient(90% 70% at 50% 35%,#2a1458,#0a0818);padding:4px 4px 8px;text-align:center;min-width:0}
+.sc img{display:block;width:100%;aspect-ratio:3/4;object-fit:contain}
+.sc b{display:block;font-family:var(--f-d);font-size:15px;color:#d5c2ff;line-height:1.1;overflow-wrap:anywhere}
+.sc small{display:block;font-size:12px;color:var(--dim)}
+#modal .shd{display:block;height:190px;width:auto;margin:0 auto;filter:drop-shadow(0 0 16px #9b6bffaa)}
+.ico.tier{--rk:#ffc34a}
+.item.shp{flex-wrap:nowrap;gap:8px}.item.shp .nm{flex:1 1 0;min-width:0}.item.shp .ico{width:44px;height:44px}.item.shp .btn{flex:none}.item.shp .chip{flex:none}
 </style>
 </head>
 <body>
@@ -335,7 +387,7 @@ const TITLES={E:'Schwächster Hunter',D:'Aufsteiger',C:'Erprobter Hunter',B:'Eli
 const DUNGEON_REWARD={E:[50,25],D:[100,50],C:[200,100],B:[400,200],A:[800,400],S:[1500,800]};
 const TIER_PRICE=[40,100,250,500],TIER_NAME=['Klein','Mittel','Groß','Riesig'];
 const QUEST_MAX=8,GATE_MAX=3,SHOP_MAX=15;
-const PEN_T=[{n:'Burpees',u:'Wdh.',b:20},{n:'Kniebeugen',u:'Wdh.',b:30},{n:'Planke',u:'Sek.',b:60},{n:'Mountain Climbers',u:'Wdh.',b:40},{n:'Liegestütze',u:'Wdh.',b:15},{n:'Hampelmänner',u:'Wdh.',b:50},{n:'Wandsitzen',u:'Sek.',b:60},{n:'Ausfallschritte',u:'Wdh.',b:30}];
+const PEN_T=[{n:'Burpees',u:'Wdh.',b:20},{n:'Kniebeugen',u:'Wdh.',b:30},{n:'Planke',u:'Sek.',b:60},{n:'Mountain Climbers',u:'Wdh.',b:40},{n:'Liegestütze',u:'Wdh.',b:15},{n:'Hampelmänner',u:'Wdh.',b:50},{n:'Wandsitzen',u:'Sek.',b:60},{n:'Ausfallschritte',u:'Wdh.',b:30},{n:'Sit-ups',u:'Wdh.',b:30},{n:'Dips',u:'Wdh.',b:15},{n:'Treppen sprinten',u:'Stockwerke',b:5},{n:'Seilspringen',u:'Min.',b:5}];
 /* Belohnungen kommen vom System, nicht vom Spieler */
 function effortMin(target,unit){
   const t=Math.max(0,Number(target)||0),u=String(unit||'').toLowerCase().trim();
@@ -377,9 +429,42 @@ const auAttr=a=>validAura(a)?' style="--au:'+a+'"':'';
 const auCls=a=>validAura(a)?' au':'';
 const stars=n=>n>0?'<span class="stars" title="Prestige-Siegel">'+'★'.repeat(Math.min(n,PRESTIGE.length))+'</span>':'';
 function pickMark(act,val){document.querySelectorAll('[data-act="'+act+'"]').forEach(b=>b.classList.toggle('on',b.dataset.id===val))}
+const EMB_C={E:[50,57.5,.4],D:[49.8,46.6,.36],C:[49.8,57.9,.3],B:[49.9,48.1,.32],A:[49.9,46.2,.3],S:[50.2,46.1,.32]};
+const EMB_L={E:'#9ec5ff',D:'#6ff3d6',C:'#b4e8ff',B:'#ffd36b',A:'#ff7a7a',S:'#e2bcff'};
+function emblem(r,sz,cls){
+  r=EMB_C[r]?r:'E';const c=EMB_C[r];
+  return '<span class="emb '+(cls||'')+'" style="--sz:'+sz+'px;--cx:'+c[0]+'%;--cy:'+c[1]+'%;--lf:'+c[2]+';--el:'+EMB_L[r]+'"><img alt="" src="img/emblem-'+r+'.webp" onerror="this.parentNode.classList.add(\'nf\');this.remove()"><b>'+r+'</b></span>';
+}
+function itemKey(it){
+  if(!it)return 'sword';
+  if(it.kind==='potion'||it.kind==='gold'||it.kind==='key'||it.kind==='chest')return it.kind;
+  const n=(it.name||'').toLowerCase();
+  if(/dolch/.test(n))return 'dagger';
+  if(/axt/.test(n))return 'axe';
+  if(/schwert/.test(n))return 'sword';
+  if(/leder/.test(n))return 'leather';
+  if(/ketten/.test(n))return 'chain';
+  if(/platten/.test(n))return 'plate';
+  return it.kind==='armor'?'chain':'sword';
+}
+function itemIco(it,size){
+  const k=itemKey(it),cls=(it&&it.r!=null&&k!=='potion'&&k!=='gold'&&k!=='key'&&k!=='chest')?' r-'+RANKS[Math.max(0,Math.min(5,it.r|0))]:'';
+  const t=k==='potion'?' pot':k==='gold'?' gold':k==='key'?' key':'';
+  return '<span class="ico'+(size?' '+size:'')+cls+t+'"><img alt="" loading="lazy" src="img/item-'+k+'.webp" onerror="this.remove()"></span>';
+}
+function lootRow(r){
+  const c=(ico,cap)=>'<div class="lc">'+ico+'<span>'+cap+'</span></div>';
+  let h='<div class="lootrow">'+c(itemIco({kind:'gold'},'big'),'+'+r.g+' G');
+  if(r.li)h+=r.li.kind==='potion'?c(itemIco(r.li,'big'),r.li.n+' Trank'):c(itemIco(r.li,'big'),esc(r.li.name));
+  return h+'</div>';
+}
+const SH_T=['knight','assassin','beast'],SH_L={knight:'Schattenritter',assassin:'Schattenassassine',beast:'Schattenbestie'};
+function scene(n,cls,pos){return '<div class="scene '+(cls||'')+'"><img alt="" loading="lazy" src="img/ui-'+n+'.webp" style="object-position:'+(pos||'50% 40%')+'" onerror="this.parentNode.remove()"></div>'}
+const tierOf=pr=>Math.max(0,Math.min(3,TIER_PRICE.filter(x=>pr>=x).length-1));
+function tierIco(pr){return '<span class="ico tier"><img alt="" loading="lazy" src="img/shop-tier'+tierOf(pr)+'.webp" onerror="this.remove()"></span>'}
 function rankSection(){
   const r=rankOf(S.level),i=rankIdx(S.level),lo=RANK_AT[i],hi=RANK_AT[i+1],pct=hi?Math.min(100,(S.level-lo)/(hi-lo)*100):100;
-  return '<section class="win rankbox"><div class="rkrow"><div class="rkbig r-'+r+'">'+r+'</div><div class="rkinfo"><div class="lbl">Rang</div><div class="num" style="font-size:22px">'+esc(TITLES[r])+' '+stars(prestigeOf())+'</div>'+
+  return '<section class="win rankbox"><div class="rkrow">'+emblem(r,132,'big')+'<div class="rkinfo"><div class="lbl">Rang</div><div class="num" style="font-size:22px">'+esc(TITLES[r])+' '+stars(prestigeOf())+'</div>'+
     (hi?'<div class="qp">Nächster Rang '+RANKS[i+1]+' bei LV '+hi+' (noch '+(hi-S.level)+' Level)</div><div class="bar" style="margin-top:6px"><i style="width:'+pct+'%"></i></div>':'<div class="qp">Höchster Rang erreicht.</div>')+'</div></div>'+
     '<div class="lbl" style="margin-top:12px">Prestige-Siegel für deine Serie</div><div class="pres">'+PRESTIGE.map((p,k)=>'<div class="pz'+((S.bestStreak||0)>=p.d?' on':'')+'">'+'★'.repeat(k+1)+' '+p.n+'<small>'+p.d+' Tage am Stück</small></div>').join('')+'</div>'+
     '<div class="qp" style="margin-top:6px">Beste Serie: '+(S.bestStreak||0)+' Tage. Das Siegel steht neben deinem Namen, auch für deine Freunde.</div></section>';
@@ -554,7 +639,7 @@ const SKILLS=[
 ];
 const MON=[
   [['Goblin','goblin',''],['Schleimling','slime',''],['Jungwolf','wolf','']],
-  [['Goblin-Späher','goblin','hue-rotate(-50deg) saturate(1.2)'],['Grauwolf','wolf','grayscale(.75) brightness(1.1)'],['Schleim-Wächter','slime','hue-rotate(90deg)']],
+  [['Ork','orc',''],['Grauwolf','wolf','grayscale(.75) brightness(1.1)'],['Schleim-Wächter','slime','hue-rotate(90deg)']],
   [['Skelett','skeleton',''],['Skelett-Krieger','skeleton','hue-rotate(-90deg) saturate(1.2)'],['Grabwolf','wolf','hue-rotate(60deg)']],
   [['Dunkelritter','knight',''],['Eisritter','knight','hue-rotate(-60deg)'],['Schattenwolf','wolf','hue-rotate(40deg) brightness(.85)']],
   [['Dämon','demon',''],['Dämonenritter','knight','hue-rotate(110deg) saturate(1.3)'],['Dämonenfürst','demon','hue-rotate(25deg)']],
@@ -562,10 +647,10 @@ const MON=[
 ];
 const RK_COL=['#2a7bd8','#1fa88a','#7a4be0','#e0a020','#d81f3c','#8a2be2'];
 const RK_BG=['cave','ice','hall','lava','void','void'];
-const RK_MON=['goblin','wolf','skeleton','knight','demon','dragon'];
-const QIMG=[[/liegest|push|burpee|dips|stütz/i,'pushup'],[/kniebeug|squat|ausfall/i,'squat'],[/klimm|pull/i,'pullup'],[/plank|sit-?up|rumpf|crunch|bauch/i,'plank'],[/lauf|jog|sprint|treppe|seil|schwimm|ausdauer/i,'run'],[/rad\b|radfahr|bike|geh|spazier|zügig|wander/i,'bike'],[/dehn|stretch|yoga|mobil|flow/i,'stretch'],[/lern|les|buch|fokus|studi|prüf|schule|hausaufg|sprach/i,'study'],[/medit|atem|dusch|aufsteh|bett|früh|schlaf|ruhe/i,'meditate'],[/hantel|gewicht|gym|kraft|bank|fitness/i,'weights']];
+const RK_MON=['goblin','orc','skeleton','knight','demon','dragon'];
+const QIMG=[[/burpee/i,'burpee'],[/mountain|kletter/i,'mountain'],[/hampel|seilspring|jump/i,'jumprope'],[/wandsitz|wall ?sit/i,'wallsit'],[/ausfall|lunge/i,'lunge'],[/dips/i,'dips'],[/liegest|push|stütz/i,'pushup'],[/kniebeug|squat/i,'squat'],[/klimm|pull/i,'pullup'],[/sit-?up|crunch|bauch/i,'situp'],[/plank|rumpf/i,'plank'],[/treppe|stair|stockwerk/i,'stairs'],[/schwimm/i,'swim'],[/lauf|jog|sprint|ausdauer/i,'run'],[/box|kampf|sandsack|kick/i,'boxing'],[/kalt|dusch/i,'coldshower'],[/yoga|mobil|flow/i,'yoga'],[/dehn|stretch/i,'stretch'],[/\bles|buch|lektüre|seiten/i,'reading'],[/lern|fokus|studi|prüf|schule|hausaufg|sprach/i,'study'],[/medit|atem|aufsteh|bett|früh|schlaf|ruhe/i,'meditate'],[/rad\b|radfahr|bike|geh|spazier|zügig|wander/i,'bike'],[/hantel|gewicht|gym|kraft|bank|fitness/i,'weights']];
 const STAT_C={str:'#ff5468',vit:'#4fd6a8',agi:'#5ad2ff',int:'#9b6bff',dis:'#ffc34a'};
-function qKey(q){const n=q.name||'';for(const [re,k] of QIMG)if(re.test(n))return k;return {str:'weights',vit:'run',agi:'stretch',int:'study',dis:'meditate'}[q.stat]||'weights'}
+function qKey(q){const n=q.name||'';for(const [re,k] of QIMG)if(re.test(n))return k;return {str:'weights',vit:'run',agi:'stretch',int:'study',dis:'meditate'}[q.stat]||'custom'}
 function qImgSrc(q,small){
   if(q.type==='dungeon'){const i=Math.max(0,RANKS.indexOf(q.rank));return 'img/mon-'+RK_MON[i]+'.webp'}
   return 'img/quest-'+qKey(q)+(small?'-s':'')+'.webp';
@@ -808,7 +893,7 @@ function nextModal(){
   const m=mq.shift();
   if(!m){el.hidden=true;el.innerHTML='';modalOpen=false;return}
   modalOpen=true;el.hidden=false;
-  el.innerHTML='<div class="win '+(m.kind||'')+'" role="dialog" aria-modal="true"><div class="lbl" style="text-align:center">[ System ]</div><div class="ttl">'+esc(m.title)+'</div><div class="body">'+m.body+'</div>'+(m.nobtn?'':'<div class="btnrow"><button class="btn" id="mok" data-act="'+(m.act||'modal-ok')+'">'+esc(m.btn||'Bestätigen')+'</button></div>')+'</div>';
+  el.innerHTML='<div class="win '+(m.kind||'')+'" role="dialog" aria-modal="true">'+(m.pic?scene(m.pic,'m',m.pos):'')+'<div class="lbl" style="text-align:center">[ System ]</div><div class="ttl">'+esc(m.title)+'</div><div class="body">'+m.body+'</div>'+(m.nobtn?'':'<div class="btnrow"><button class="btn" id="mok" data-act="'+(m.act||'modal-ok')+'">'+esc(m.btn||'Bestätigen')+'</button></div>')+'</div>';
   const i=el.querySelector('input[type=text]'),ok=document.getElementById('mok');if(i)i.focus();else if(ok)ok.focus();
 }
 
@@ -842,10 +927,10 @@ function grantXP(n){
   if(ups){
     const r1=rankOf(S.level);
     const unlocked=SKILLS.filter(k=>k.lv<=S.level&&k.lv>S.level-ups);
-    modal({title:'Level Up!',body:'<div class="big">LV '+S.level+'</div><p>+'+(3*ups)+' freie Statuspunkte</p>'+
+    modal({pic:'levelup',title:'Level Up!',body:'<div class="big">LV '+S.level+'</div><p>+'+(3*ups)+' freie Statuspunkte</p>'+
       (unlocked.length?'<p style="color:var(--ok);font-family:var(--f-d);font-size:19px;letter-spacing:.08em">Neue Fähigkeit: '+unlocked.map(k=>esc(k.name)).join(', ')+'</p>':'')+
       '<p class="dim">Verteile deine Punkte im Status-Fenster.</p>'});
-    if(r1!==r0)modal({kind:'vio',title:'Rang-Aufstieg',body:'<div class="big rankup r-'+r1+'">'+r1+'</div><p style="font-family:var(--f-d);font-size:20px;letter-spacing:.1em">'+r0+' → '+r1+'<br>Neuer Titel: '+esc(TITLES[r1])+'</p><p class="dim">'+esc(RANKUP_TXT[r1]||'')+' Neue Dungeon-Ränge sind jetzt für dich freigeschaltet.</p>',btn:'Aufsteigen'});
+    if(r1!==r0)modal({pic:'rankup',kind:'vio',title:'Rang-Aufstieg',body:'<div class="rankup r-'+r1+'">'+emblem(r1,200,'pulse')+'</div><p style="font-family:var(--f-d);font-size:20px;letter-spacing:.1em">'+r0+' → '+r1+'<br>Neuer Titel: '+esc(TITLES[r1])+'</p><p class="dim">'+esc(RANKUP_TXT[r1]||'')+' Neue Dungeon-Ränge sind jetzt für dich freigeschaltet.</p>',btn:'Aufsteigen'});
   }
 }
 function giveKey(why){S.keys++;toast('Schlüssel gefunden'+(why?' ('+why+')':''))}
@@ -873,7 +958,7 @@ function completeQuest(q){
     if(S.totalDone%SHADOW_EVERY===0){
       const n=S.shadows.length+1;
       S.shadows.push({id:uid(),name:'Schatten-Soldat #'+n,rank:rankOf(S.level)});
-      modal({kind:'vio',title:'Extraktion',body:'<div class="big" style="color:var(--violet);text-shadow:0 0 20px var(--violet)">Schatten #'+n+'</div><p>Ein neuer Soldat dient dir jetzt, Rang '+rankOf(S.level)+'. Er verstärkt dich im Kampf.</p>',btn:'Aufstehen'});
+      modal({pic:'shadows',kind:'vio',title:'Extraktion',body:'<img class="shd" alt="" src="img/shadow-'+SH_T[(n-1)%3]+'.webp" onerror="this.remove()"><div class="big" style="color:var(--violet);text-shadow:0 0 20px var(--violet)">Schatten #'+n+'</div><p>Ein neuer Soldat dient dir jetzt, Rang '+rankOf(S.level)+'. Er verstärkt dich im Kampf.</p>',btn:'Aufstehen'});
     }
   }else toast(q.type==='dungeon'?'Heute war schon ein Dungeon dran: keine Belohnung mehr.':'Tageslimit erreicht: Diese Quest bringt heute keine Belohnung mehr.');
   if(q.type==='daily'){
@@ -884,7 +969,7 @@ function completeQuest(q){
       const p0=prestigeOf();S.lastComplete=dayKey();S.bestStreak=Math.max(S.bestStreak,S.streak);if(prestigeOf()>p0){const pz=PRESTIGE[prestigeOf()-1];modal({kind:'vio',title:'Prestige',body:'<div class="big stars">'+'★'.repeat(prestigeOf())+'</div><p>'+pz.n+'-Siegel: '+pz.d+' Tage Serie am Stück</p><p class="dim">Es steht jetzt neben deinem Namen, auch für deine Freunde.</p>',btn:'Stolz tragen'})}
       const bx=Math.min(100,30+S.streak*5),bg=20;
       S.gold+=bg;S.keys++;
-      modal({title:'Tagesquest geschafft',body:'<div class="big">'+S.streak+' 🔥</div><p>Serie: '+S.streak+' Tag'+(S.streak>1?'e':'')+' in Folge</p><p>Bonus: +'+bx+' XP, +'+bg+' G und ein Schlüssel</p>',btn:'Weiter'});
+      modal({pic:'daily',title:'Tagesquest geschafft',body:'<div class="big">'+S.streak+' 🔥</div><p>Serie: '+S.streak+' Tag'+(S.streak>1?'e':'')+' in Folge</p><p>Bonus: +'+bx+' XP, +'+bg+' G und ein Schlüssel</p>',btn:'Weiter'});
       grantXP(bx);
     }
   }
@@ -1013,15 +1098,16 @@ function endBattle(win){
     S.wins++;
     const xp=20+ri*30+L*2,g=15+ri*20;
     S.gold+=g;
-    const it=lootItem(ri);let lt='';
+    const it=lootItem(ri);let lt='',li=null;
     if(it){
-      if(it.kind==='potion'){S.potions+=it.n;lt='Beute: '+it.n+' Trank'}
+      if(it.kind==='potion'){S.potions+=it.n;lt='Beute: '+it.n+' Trank';li={kind:'potion',n:it.n}}
       else{
         const how=addToBag({kind:it.kind,val:it.val,name:it.name,r:ri});
         lt='Beute: '+it.name+' (+'+it.val+' '+(it.kind==='weapon'?'Angriff':'Rüstung')+'), '+how;
+        li={kind:it.kind,name:it.name,r:ri,val:it.val};
       }
     }
-    B.res={win:true,xp,g,lt};
+    B.res={win:true,xp,g,lt,li};
     B.log.push({t:B.mon.name+' ist besiegt!',c:'good'});
     save();grantXP(xp);
   }else{
@@ -1193,9 +1279,9 @@ const SVG_KEY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 function renderHdr(){
   const r=rankOf(S.level),n=need(S.level),pct=Math.min(100,S.xp/n*100),pf=getProfile();
   document.getElementById('hdr').innerHTML=
-   (S.avatar?avatarHtml('',S.avatar,r,S.name,S.aura):'<div class="badge r-'+r+auCls(S.aura)+'"'+auAttr(S.aura)+'><b>'+r+'</b></div>')+
+   (S.avatar?avatarHtml('',S.avatar,r,S.name,S.aura):'<div class="hemb'+auCls(S.aura)+'"'+auAttr(S.aura)+'>'+emblem(r,72)+'</div>')+
    '<div class="hm"><div class="pname'+auCls(S.aura)+'"'+auAttr(S.aura)+'>'+esc(S.name)+' '+stars(prestigeOf())+'</div><div class="ptitle">'+(pf.klasse?esc(pf.klasse)+' · ':'')+esc(TITLES[r])+'</div></div>'+
-   '<div class="lvbox"><small>Level</small><b class="num">'+S.level+'</b></div>'+
+   '<div class="lvw">'+(S.avatar?emblem(r,58):'')+'<div class="lvbox"><small>Level</small><b class="num">'+S.level+'</b></div></div>'+
    '<div class="xpwrap"><div class="xl"><span>Erfahrung</span><span class="num">'+S.xp+' / '+n+'</span></div><div class="bar" role="progressbar" aria-valuenow="'+S.xp+'" aria-valuemax="'+n+'"><i style="width:'+pct+'%"></i></div></div>'+
    '<div class="pills"><span class="pill g" title="Gold">'+SVG_COIN+S.gold+'</span><span class="pill s" title="Serie in Tagen">'+SVG_FLAME+S.streak+'</span><span class="pill k" title="Schlüssel">'+SVG_KEY+S.keys+'</span></div>';
 }
@@ -1287,13 +1373,13 @@ function viewQuests(){
   const d=S.quests.filter(q=>q.type==='daily'),dn=d.filter(q=>q.done).length;
   let h='';
   if(S.penalties.length){
-    h+='<section class="win bad"><div class="sub"><h2>Strafzone</h2><span class="lbl">'+S.penalties.length+' offen</span></div>'+
-      S.penalties.map(p=>'<div class="item"><span class="nm">'+esc(p.text)+'</span><button class="btn bad sm" data-act="pen" data-id="'+p.id+'">Abgeleistet</button></div>').join('')+'</section>';
+    h+='<section class="win bad"><div class="banner"><img alt="" src="img/ui-penalty.webp" onerror="this.parentNode.remove()"></div><div class="sub"><h2>Strafzone</h2><span class="lbl">'+S.penalties.length+' offen</span></div>'+
+      S.penalties.map(p=>'<div class="item"><div class="pic pth red" style="--c:#ff5468"><img alt="" loading="lazy" src="img/quest-'+qKey({name:p.text})+'-s.webp" onerror="this.remove()"></div><span class="nm">'+esc(p.text)+'</span><button class="btn bad sm" data-act="pen" data-id="'+p.id+'">Abgeleistet</button></div>').join('')+'</section>';
   }
   const sq=S.quests.filter(q=>q.type==='system');
   if(S.sys.q&&S.sys.st==='open'){
     const s=S.sys.q;
-    h+='<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Das System schreibt vor</div><h2>System-Quest</h2></div></div>'+
+    h+='<section class="win gold"><div class="banner"><img alt="" src="img/ui-system.webp" onerror="this.parentNode.remove()"></div><div class="sub"><div><div class="lbl" style="color:var(--warn)">Das System schreibt vor</div><h2>System-Quest</h2></div></div>'+
       '<p style="font-size:18px;font-weight:600">'+esc(s.n)+': '+s.target+(s.u?' '+esc(s.u):'')+'</p>'+
       '<div class="chips" style="margin:8px 0"><span class="chip xp">+'+s.xp+' XP</span><span class="chip g">+'+s.gold+' G</span><span class="chip">'+HINT[s.s]+'</span><span class="chip sys">Schlüssel-Chance 40 %</span></div>'+
       (s.weak?'<p class="dim" style="font-size:13px;margin-bottom:8px">Das System hat deinen schwächsten Wert erkannt.</p>':'')+
@@ -1316,10 +1402,10 @@ function monBlock(){
   if(!B.over){
     acts='<div class="bacts"><button class="btn atk" data-act="battle" data-id="atk">Angriff</button>'+
       SKILLS.filter(k=>S.level>=k.lv).map(k=>'<button class="btn vio" data-act="battle" data-id="skill:'+k.id+'"'+(p.mp<k.mp?' disabled':'')+' title="'+esc(k.desc)+'">'+esc(k.name)+'<small>'+k.mp+' MP</small></button>').join('')+
-      '<button class="btn ok" data-act="battle" data-id="potion"'+(S.potions<1?' disabled':'')+'>Trank ('+S.potions+')</button></div>';
+      '<button class="btn ok" data-act="battle" data-id="potion"'+(S.potions<1?' disabled':'')+'><img class="bi" alt="" src="img/item-potion.webp" onerror="this.remove()">Trank ('+S.potions+')</button></div>';
   }else{
     const r=B.res;
-    acts=(r.win?'<p style="color:var(--ok);font-family:var(--f-d);font-size:22px">Sieg! +'+r.xp+' XP, +'+r.g+' G'+(r.lt?'<br>'+esc(r.lt):'')+'</p>':'<p style="color:var(--bad);font-family:var(--f-d);font-size:22px">Niederlage. Schlüssel verloren'+(r.lg?', −'+r.lg+' G':'')+'.</p>')+
+    acts=(r.win?lootRow(r)+'<p style="color:var(--ok);font-family:var(--f-d);font-size:22px">Sieg! +'+r.xp+' XP, +'+r.g+' G'+(r.lt?'<br>'+esc(r.lt):'')+'</p>':'<p style="color:var(--bad);font-family:var(--f-d);font-size:22px">Niederlage. Schlüssel verloren'+(r.lg?', −'+r.lg+' G':'')+'.</p>')+
       '<button class="btn" data-act="battle-end">Zurück</button>';
   }
   return '<div class="stage'+(B.door==='red'?' red':'')+'" style="--bc:'+(B.door==='red'?'#d81f3c':RK_COL[B.ri])+'">'+
@@ -1328,7 +1414,7 @@ function monBlock(){
     '<img class="mimg'+(hurt?' hurt':'')+(B.over==='win'?' dead':'')+'" alt="'+esc(m.name)+'" src="img/mon-'+m.img+'.webp" style="'+(m.fx?'filter:'+m.fx+' ':'')+'" onerror="this.remove()">'+
     '<div class="bot"><div><div class="who">'+esc(S.name)+'</div><div class="bar ok"><i style="width:'+(p.hp/p.max*100)+'%"></i></div><div class="qp">'+p.hp+' / '+p.max+' LP</div></div>'+
     '<div><div class="who dim">Mana</div><div class="bar mp"><i style="width:'+(p.mp/p.maxmp*100)+'%"></i></div><div class="qp">'+Math.round(p.mp)+' / '+p.maxmp+' MP</div></div></div></div>'+
-    '<section class="win"><div class="log" style="margin-bottom:12px" aria-live="polite">'+log+'</div><div class="acts">'+acts+'</div></section>';
+    '<section class="win">'+(B.over?scene(B.over==='win'?'victory':'defeat'):'')+'<div class="log" style="margin-bottom:12px" aria-live="polite">'+log+'</div><div class="acts">'+acts+'</div></section>';
 }
 function viewDungeon(){
   const d=S.quests.filter(q=>q.type==='dungeon');
@@ -1337,7 +1423,7 @@ function viewDungeon(){
   if(B)h+=monBlock();
   else{
     const ri=rankIdx(S.level),nx=RANKS[Math.min(5,ri+1)];
-    h+='<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Erkundung</div><h2>Türen</h2></div><span class="lbl" style="color:var(--warn)">Schlüssel: '+S.keys+'</span></div>'+
+    h+='<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Erkundung</div><h2>Türen</h2></div><span class="lbl ic" style="color:var(--warn)"><img class="mi" alt="" src="img/item-key.webp" onerror="this.remove()">Schlüssel: '+S.keys+'</span></div>'+
      (S.keys>0?'<div class="doors"><button class="door" data-act="door" data-id="safe" style="--dbg:url(img/dungeon-'+RK_BG[ri]+'.webp)"><img class="sil" alt="" src="img/mon-'+MON[ri][0][1]+'.webp" onerror="this.remove()"><b>Sichere Tür</b><span>Gegner Rang '+RANKS[ri]+'. Normale Beute.</span></button><button class="door red" data-act="door" data-id="red" style="--dbg:url(img/dungeon-lava.webp)"><img class="sil" alt="" src="img/mon-'+MON[Math.min(5,ri+1)][0][1]+'.webp" onerror="this.remove()"><b>Rote Tür</b><span>Gegner Rang '+nx+'. Härter, bessere Beute.</span></button></div>'
       :'<div class="empty">Kein Schlüssel. Du findest sie bei Quests (15 %), bei Dungeons, bei System-Quests und garantiert an jedem Tag mit allen Tagesquests.</div>')+
      '<p class="dim" style="font-size:13px;margin-top:10px">Ein Kampf dauert ein paar Klicks. Deine Stats, Fähigkeiten, Ausrüstung und Schatten entscheiden. Bei Niederlage verlierst du den Schlüssel und 10 % Gold.</p></section>';
@@ -1349,15 +1435,15 @@ function viewDungeon(){
   return h;
 }
 function invSection(){
-  const slot=(k,l)=>{const g=S.gear[k];return '<div class="item"><span class="lbl" style="min-width:68px">'+l+'</span>'+(g?'<span class="nm">'+esc(g.name)+'</span>'+rarChip(g.r)+'<span class="chip xp">+'+g.val+'</span><button class="btn ghost sm" data-act="unequip" data-id="'+k+'">Ablegen</button>':'<span class="nm dim">leer</span>')+'</div>'};
+  const slot=(k,l)=>{const g=S.gear[k];return '<div class="item"><span class="lbl" style="min-width:68px">'+l+'</span>'+(g?itemIco(g)+'<span class="nm">'+esc(g.name)+'</span>'+rarChip(g.r)+'<span class="chip xp">+'+g.val+'</span><button class="btn ghost sm" data-act="unequip" data-id="'+k+'">Ablegen</button>':'<span class="ico empty"></span><span class="nm dim">leer</span>')+'</div>'};
   const bag=S.bag.slice().sort((a,b)=>b.val-a.val);
   const row=it=>{const cur=S.gear[it.kind],d=it.val-(cur?cur.val:0);
-    return '<div class="item"><span class="nm">'+esc(it.name)+'</span>'+rarChip(it.r)+'<span class="chip xp">'+(it.kind==='weapon'?'Angriff':'Rüstung')+' +'+it.val+'</span><span class="chip" style="color:'+(d>0?'var(--ok)':d<0?'var(--bad)':'var(--dim)')+'">'+(d>0?'+':'')+d+'</span>'+
+    return '<div class="item">'+itemIco(it)+'<span class="nm">'+esc(it.name)+'</span>'+rarChip(it.r)+'<span class="chip xp">'+(it.kind==='weapon'?'Angriff':'Rüstung')+' +'+it.val+'</span><span class="chip" style="color:'+(d>0?'var(--ok)':d<0?'var(--bad)':'var(--dim)')+'">'+(d>0?'+':'')+d+'</span>'+
      '<button class="btn ok sm" data-act="equip" data-id="'+it.id+'">Ausrüsten</button><button class="btn '+(sellArmed===it.id?'bad':'ghost')+' sm" data-act="sell" data-id="'+it.id+'">'+(sellArmed===it.id?'Sicher? +'+sellPrice(it)+' G':'Verkaufen ('+sellPrice(it)+' G)')+'</button></div>'};
-  return '<section class="win"><div class="sub"><div><div class="lbl">Inventar</div><h2>Ausrüstung</h2></div><span class="lbl" style="color:var(--warn)">Gold: '+S.gold+'</span></div>'+
-    slot('weapon','Waffe')+slot('armor','Rüstung')+'<div class="item"><span class="lbl" style="min-width:68px">Tränke</span><span class="num">'+S.potions+'</span></div>'+
+  return '<section class="win"><div class="sub"><div><div class="lbl">Inventar</div><h2>Ausrüstung</h2></div><span class="lbl ic" style="color:var(--warn)"><img class="mi" alt="" src="img/item-gold.webp" onerror="this.remove()">Gold: '+S.gold+'</span></div>'+
+    slot('weapon','Waffe')+slot('armor','Rüstung')+'<div class="item"><span class="lbl" style="min-width:68px">Tränke</span>'+itemIco({kind:'potion'})+'<span class="nm"></span><span class="num">'+S.potions+'</span></div>'+
     '<div class="sub" style="margin-top:12px"><div class="lbl">Rucksack ('+bag.length+' / '+BAG_MAX+')</div>'+(bag.length>0?'<button class="btn ghost sm" data-act="sellweak">Schwächere verkaufen</button>':'')+'</div>'+
-    (bag.length?bag.map(row).join(''):'<div class="empty">Leer. Beute aus Dungeon-Kämpfen landet hier. Nur Waffe und Rüstung, die du trägst, zählen im Kampf und in Duellen.</div>')+'</section>';
+    (bag.length?bag.map(row).join(''):'<div class="empty"><img class="chest" alt="" src="img/item-chest.webp" onerror="this.remove()">Leer. Beute aus Dungeon-Kämpfen landet hier. Nur Waffe und Rüstung, die du trägst, zählen im Kampf und in Duellen.</div>')+'</section>';
 }
 function radar(){
   const vals=STATS.map(([k])=>S.stats[k]),mx=Math.max(30,...vals)*1.1,cx=150,cy=118,R=88;
@@ -1376,7 +1462,7 @@ function viewStatus(){
   const r=rankOf(S.level),p=pStats(),pf=getProfile();
   const gear='<div class="kv"><div><span class="lbl">Waffe</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.weapon?esc(S.gear.weapon.name)+' (+'+S.gear.weapon.val+')':'keine')+'</span></div><div><span class="lbl">Rüstung</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.armor?esc(S.gear.armor.name)+' (+'+S.gear.armor.val+')':'keine')+'</span></div><div><span class="lbl">Tränke</span><span class="num">'+S.potions+'</span></div></div>';
   const sk=SKILLS.map(k=>'<div class="skill '+(S.level>=k.lv?'':'lock')+'"><span class="nm">'+esc(k.name)+'</span><span class="qp">'+(S.level>=k.lv?k.mp+' MP':'ab LV '+k.lv)+'</span><span class="dim" style="flex-basis:100%;font-size:13px">'+esc(k.desc)+'</span></div>').join('');
-  return '<section class="win"><div class="sub"><div><div class="lbl">Status-Fenster</div><h2>'+esc(S.name)+'</h2></div>'+(S.free>0?'<span class="lbl" style="color:var(--warn)">Freie Punkte: '+S.free+'</span>':'')+'</div>'+
+  return '<section class="win hall" style="--sbg:url(img/ui-status.webp)"><div class="sub"><div><div class="lbl">Status-Fenster</div><h2>'+esc(S.name)+'</h2></div>'+(S.free>0?'<span class="lbl" style="color:var(--warn)">Freie Punkte: '+S.free+'</span>':'')+'</div>'+
    '<div class="char">'+avatarHtml('big',S.avatar,r,S.name,S.aura)+'<div class="info">'+
      (pf?'<div class="num" style="font-size:22px">'+esc(pf.klasse)+'</div>'+(pf.spitzname?'<div class="lbl">„'+esc(pf.spitzname)+'“</div>':'')+'<div class="lore">'+esc(pf.lore)+'</div>':'<div class="dim">'+(S.avatar?'Noch kein Profil.':'Lade ein Foto hoch, damit das System deinen Charakter erstellt.')+'</div>')+
      (aiMsg?'<div class="think">'+esc(aiMsg)+'</div>':'')+
@@ -1392,9 +1478,9 @@ function viewStatus(){
 }
 function viewShop(){
   const lock=S.penalties.length>0;
-  let h='<section class="win"><div class="sub"><div><div class="lbl">Shop</div><h2>Belohnungen</h2></div><span class="lbl" style="color:var(--warn)">Gold: '+S.gold+'</span></div>'+
+  let h='<section class="win">'+scene('shop')+'<div class="sub"><div><div class="lbl">Shop</div><h2>Belohnungen</h2></div><span class="lbl ic" style="color:var(--warn)"><img class="mi" alt="" src="img/item-gold.webp" onerror="this.remove()">Gold: '+S.gold+'</span></div>'+
    (lock?'<p style="color:var(--bad);margin-bottom:8px">Gesperrt: Leiste zuerst deine offenen Strafquests ab.</p>':'')+
-   S.shop.map(i=>'<div class="item"><span class="nm">'+esc(i.name)+'</span><span class="chip g">'+i.price+' G</span><button class="btn ok sm" data-act="buy" data-id="'+i.id+'"'+(S.gold<i.price||lock?' disabled':'')+'>Kaufen</button><button class="btn ghost sm" data-act="delshop" data-id="'+i.id+'" aria-label="Entfernen">✕</button></div>').join('')+
+   S.shop.map(i=>'<div class="item shp">'+tierIco(i.price)+'<span class="nm">'+esc(i.name)+'</span><span class="chip g">'+i.price+' G</span><button class="btn ok sm" data-act="buy" data-id="'+i.id+'"'+(S.gold<i.price||lock?' disabled':'')+'>Kaufen</button><button class="btn ghost sm" data-act="delshop" data-id="'+i.id+'" aria-label="Entfernen">✕</button></div>').join('')+
    (S.shop.length?'':'<div class="empty">Der Shop ist leer.</div>')+
    '<div class="grid" style="margin-top:12px"><label class="f wide">Eigene Belohnung<input type="text" id="shName" maxlength="60" placeholder="z. B. Kinoabend"></label><label class="f">Größe<select id="shTier">'+TIER_NAME.map((n,i)=>'<option value="'+i+'">'+n+' ('+TIER_PRICE[i]+' G)</option>').join('')+'</select></label><div style="display:flex;align-items:flex-end"><button class="btn" data-act="addshop" style="width:100%">Hinzufügen</button></div></div><p class="dim" style="font-size:13px;margin-top:8px">Den Preis legt das System fest. Große Belohnungen (z. B. ein freier Tag) werden automatisch höher eingestuft.</p></section>';
   h+='<section class="win"><div class="sub"><div class="lbl">Inventar</div></div>'+
@@ -1404,7 +1490,7 @@ function viewShop(){
 function viewArena(){
   const me=myCard();
   const shown=peers.filter(p=>showAll||isFriend(p));
-  let h='<section class="win"><div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde</h2></div></div>'+
+  let h='<section class="win">'+scene('arena')+'<div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde</h2></div></div>'+
     '<div class="peer">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura)+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+' <span class="dim" style="font-size:14px">(du)</span></div><div class="qp">LV '+me.level+' · Konstanz '+me.cons+' %'+(me.days?' ('+me.days+' Tage)':' (noch keine Daten)')+' · Bonus x'+mult(me.cons).toFixed(2)+'</div></div><div class="qp">Siege '+S.arena.w+' · Niederlagen '+S.arena.l+'</div></div>'+
     '<p class="dim" style="font-size:13px;margin-top:6px">Fairness: Gewonnen wird nicht nach dem Level, sondern nach Werten plus Konstanz. Wer die letzten 14 Tage dranbleibt, bekommt bis zu +25 %, wer schludert bis zu −25 %. Neueinsteiger zählen nur ab ihrem ersten Tag. Das Ergebnis ist festgelegt: dieselben Werte ergeben immer dasselbe Duell.</p></section>';
   if(online){
@@ -1457,10 +1543,10 @@ function viewVerlauf(){
 }
 function viewShadows(){
   const k=S.totalDone%SHADOW_EVERY;
-  return '<section class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Schattenarmee</div><h2>'+S.shadows.length+' Soldaten</h2></div></div>'+
+  return '<section class="win vio">'+scene('shadows')+'<div class="sub"><div><div class="lbl" style="color:var(--violet)">Schattenarmee</div><h2>'+S.shadows.length+' Soldaten</h2></div></div>'+
    '<div class="row" style="justify-content:space-between;font-family:var(--f-d);letter-spacing:.08em;font-size:13px;margin-bottom:3px"><span class="dim">Nächste Extraktion</span><span class="num">'+k+' / '+SHADOW_EVERY+'</span></div><div class="bar vio"><i style="width:'+(k/SHADOW_EVERY*100)+'%"></i></div>'+
    '<p class="dim" style="font-size:13px;margin:8px 0">Alle '+SHADOW_EVERY+' abgeschlossenen Quests wird ein Schatten extrahiert. Jeder Soldat greift in deinen Kämpfen mit und macht +1,5 Schaden pro Runde, auch im Duell.</p>'+
-   (S.shadows.length?S.shadows.slice().reverse().map(s=>'<div class="shadow"><span>'+esc(s.name)+'</span><span>Rang '+s.rank+'</span></div>').join(''):'<div class="empty">Noch keine Schatten. Schließe Quests ab.</div>')+'</section>';
+   (S.shadows.length?'<div class="sgrid">'+S.shadows.map((s,i)=>{const t=SH_T[i%3];return '<div class="sc"><img alt="" loading="lazy" src="img/shadow-'+t+'.webp" onerror="this.remove()"><b>'+esc(s.name)+'</b><small>'+SH_L[t]+' · Rang '+s.rank+'</small></div>'}).reverse().join('')+'</div>':'<div class="empty">Noch keine Schatten. Schließe Quests ab.</div>')+'</section>';
 }
 function render(){
   renderHdr();renderTabs();renderWarn();
@@ -1483,7 +1569,7 @@ setInterval(()=>{if(S.started&&dayKey()!==S.lastDay){rollover();render()}else ti
 function showIntro(){
   if(S.started||modalOpen)return;
   introSel={cls:'',aura:null,pack:'all'};
-  modal({title:'Spieler gefunden',act:'start',btn:'Annehmen',body:introBody()});
+  modal({pic:'intro',pos:'50% 62%',title:'Spieler gefunden',act:'start',btn:'Annehmen',body:introBody()});
 }
 
 /* ---------- events ---------- */
