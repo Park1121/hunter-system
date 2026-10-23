@@ -423,6 +423,16 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:60
 .obq span:nth-child(2){flex:1;min-width:0}
 .obq b{display:block;font-family:var(--f-d);font-size:19px;letter-spacing:.03em;line-height:1.15}
 .obq small{color:var(--dim);font-size:13px}
+/* Rahmen */
+.fr{position:relative;display:inline-block;flex:none;width:var(--w);height:var(--w);margin:0 calc((var(--h) - var(--w))/2 + 7px)}
+.fr>.avatar{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);border-radius:10px}
+.fr>.avatar .rt{font-size:11px;right:3px;bottom:0}
+.fr>.avatar .ph{font-size:20px}
+.fr>.fi{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;filter:drop-shadow(0 0 6px #0008)}
+.fr.nf{width:var(--h);height:var(--h);margin:0}
+.lb.fr3,.peer.fr3{padding-block:18px}
+.fr.nf>.avatar{position:static;width:100%;height:100%}
+.qp.champ{color:#ffd36b;font-weight:600}
 /* Rekorde */
 .gq{display:inline-block;flex:none;width:var(--gs,36px);height:var(--gs,36px);object-fit:cover;border-radius:9px;border:1px solid var(--line2);vertical-align:middle}
 .rcr{flex-wrap:nowrap;gap:10px}
@@ -1055,13 +1065,34 @@ function recRankSection(){
       let sub='';
       if(x.me)sub=i===0?(rows.length>1?'Du führst':''):'Noch '+fmtRec(r,rows[0].v-x.v)+' bis Platz 1';
       else if(me>=0){const d=x.v-mine;sub=d>0?fmtRec(r,d)+' vor dir':d<0?fmtRec(r,-d)+' hinter dir':'gleichauf'}
-      return '<div class="lb'+(x.me?' me':'')+'"><span class="pl'+(i<3?' t'+(i+1):'')+'">'+(i+1)+'</span>'+avatarHtml('sm',x.th,x.rk,x.n,x.au)+'<div class="mid"><div class="pn">'+esc(x.n)+(x.me?' <span class="dim" style="font-size:14px">(du)</span>':'')+'</div>'+(sub?'<div class="qp">'+sub+'</div>':'')+'</div><span class="num v">'+fmtRec(r,x.v)+'<small>'+esc(r.u)+'</small></span></div>';
+      return '<div class="lb'+(x.me?' me':'')+(rows.length>1&&i<3?' fr3':'')+'"><span class="pl'+(i<3?' t'+(i+1):'')+'">'+(i+1)+'</span>'+(rows.length>1&&i<3?framed(avatarHtml('sm',x.th,x.rk,x.n,x.au),['gold','silver','bronze'][i],46):avatarHtml('sm',x.th,x.rk,x.n,x.au))+'<div class="mid"><div class="pn">'+esc(x.n)+(x.me?' <span class="dim" style="font-size:14px">(du)</span>':'')+'</div>'+(sub?'<div class="qp">'+sub+'</div>':'')+'</div><span class="num v">'+fmtRec(r,x.v)+'<small>'+esc(r.u)+'</small></span></div>';
     }).join('');
     if(me>=0&&rows.length>1)body='<div class="qp" style="margin-bottom:6px">Du bist Platz '+(me+1)+' von '+rows.length+'.</div>'+body;
   }else body='<div class="empty">Noch keine Werte. Teste dich selbst und lade Freunde ein, dann erscheint hier die Rangliste.</div>';
   if(!mine)body+='<div class="acts" style="margin-top:8px"><button class="btn sm" data-act="rec-test" data-id="'+r.k+'">'+esc(r.n)+' jetzt testen</button></div>';
   return '<section class="win"><div class="sub"><div><div class="lbl">Rangliste unter Freunden</div><h2>Rekorde</h2></div></div>'+pick+body+'</section>';
 }
+/* Rahmen für die Besten: Gold, Silber, Bronze. Das Profilbild sitzt im Ausschnitt, x/y/Größe in Prozent des Rahmenbilds */
+const FRM={"gold": [20.36, 18.13, 59.11], "silver": [22.46, 21.1, 54.93], "bronze": [19.11, 18.23, 61.63]};
+function framed(av,kind,hole){
+  const f=FRM[kind];if(!f)return av;
+  const w=Math.round(hole/(f[2]/100));
+  return '<span class="fr" style="--w:'+w+'px;--h:'+hole+'px;--x:'+f[0]+'%;--y:'+f[1]+'%;--s:'+f[2]+'%">'+av+'<img class="fi" alt="" src="img/frame-'+kind+'.webp" onerror="this.parentNode.classList.add(\'nf\')"></span>';
+}
+/* Wer bei einer Übung unter dir und deinen Freunden vorne liegt (mindestens zwei Teilnehmer) */
+function champs(){
+  const out={};
+  REC.forEach(r=>{
+    const e=[],m=S.pr&&S.pr[r.k]?S.pr[r.k].v:0;
+    if(m>0)e.push(['me',m]);
+    peers.filter(isFriend).forEach(p=>{const c=cleanCard(p),v=c.rc&&c.rc[r.k];if(v>0)e.push([p.id,v])});
+    if(e.length<2)return;
+    const top=Math.max(...e.map(x=>x[1]));
+    e.filter(x=>x[1]===top).forEach(x=>(out[x[0]]=out[x[0]]||[]).push(r.n));
+  });
+  return out;
+}
+const champLine=n=>n&&n.length?'<div class="qp champ">Champion: '+n.map(esc).join(', ')+'</div>':'';
 function recLine(c){
   if(!c.rc)return '';
   const out=[];
@@ -1903,10 +1934,10 @@ function viewShop(){
   return h;
 }
 function viewArena(){
-  const me=myCard();
+  const me=myCard(),ch=champs();
   const shown=peers.filter(p=>showAll||isFriend(p));
   let h='<section class="win">'+scene('arena')+'<div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde</h2></div></div>'+
-    '<div class="peer">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura)+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+' <span class="dim" style="font-size:14px">(du)</span></div><div class="qp">LV '+me.level+' · Konstanz '+me.cons+' %'+(me.days?' ('+me.days+' Tage)':' (noch keine Daten)')+' · Bonus x'+mult(me.cons).toFixed(2)+'</div></div><div class="qp">Siege '+S.arena.w+' · Niederlagen '+S.arena.l+'</div></div>'+
+    '<div class="peer'+(ch.me?' fr3':'')+'">'+(ch.me?framed(avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura),'gold',46):avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura))+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+' <span class="dim" style="font-size:14px">(du)</span></div><div class="qp">LV '+me.level+' · Konstanz '+me.cons+' %'+(me.days?' ('+me.days+' Tage)':' (noch keine Daten)')+' · Bonus x'+mult(me.cons).toFixed(2)+'</div></div><div class="qp">Siege '+S.arena.w+' · Niederlagen '+S.arena.l+'</div>'+champLine(ch.me)+'</div>'+
     '<p class="dim" style="font-size:13px;margin-top:6px">Fairness: Gewonnen wird nicht nach dem Level, sondern nach Werten plus Konstanz. Wer die letzten 14 Tage dranbleibt, bekommt bis zu +25 %, wer schludert bis zu −25 %. Neueinsteiger zählen nur ab ihrem ersten Tag. Das Ergebnis ist festgelegt: dieselben Werte ergeben immer dasselbe Duell.</p></section>';
   if(online){
     const inc=duelsIn;
@@ -1923,7 +1954,7 @@ function viewArena(){
     h+=recRankSection();
     h+='<section class="win"><div class="sub"><div class="lbl">Hunter in der Arena</div></div>'+
       (shown.length?shown.map(p=>{const c=cleanCard(p);const f=fighter(c,mult(c.cons));const pw=Math.round(f.max/10+f.atk*2+f.def*3);
-        return '<div class="peer">'+avatarHtml('sm',c.thumb,c.rank,c.name,c.au)+'<div class="mid"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="qp">'+(c.cls?esc(c.cls)+' · ':'')+'LV '+c.level+' · Konstanz '+c.cons+' % · Kampfkraft '+pw+'</div>'+recLine(c)+'</div><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(S.friends.some(f=>f.id===p.id)?'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'" aria-label="Freund entfernen">✕</button>':'')+'</div>'}).join('')
+        return '<div class="peer'+(ch[p.id]?' fr3':'')+'">'+(ch[p.id]?framed(avatarHtml('sm',c.thumb,c.rank,c.name,c.au),'gold',46):avatarHtml('sm',c.thumb,c.rank,c.name,c.au))+'<div class="mid"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="qp">'+(c.cls?esc(c.cls)+' · ':'')+'LV '+c.level+' · Konstanz '+c.cons+' % · Kampfkraft '+pw+'</div>'+recLine(c)+champLine(ch[p.id])+'</div><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(S.friends.some(f=>f.id===p.id)?'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'" aria-label="Freund entfernen">✕</button>':'')+'</div>'}).join('')
       :'<div class="empty">'+(peersLoaded?'Noch keine Freunde in der Liste. Schick deinen Einladungs-Link oder füge oben einen Freundescode hinzu.':'Lade ...')+'</div>')+
       '<p class="dim" style="font-size:12px;margin-top:8px">Freunde sehen Name, Level, Rang, Werte, Konstanz und dein kleines Profilbild. Dein Freund sieht das Duell-Ergebnis in seinem Postfach, sobald er die App öffnet.</p></section>';
   }else{
