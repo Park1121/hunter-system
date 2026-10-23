@@ -84,6 +84,7 @@ p{margin:0}
 .pres{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:6px}
 .pz{border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-family:var(--f-d);font-size:15px;color:var(--dim);opacity:.55}
 .pz small{display:block;font-size:12px;font-family:var(--f-b)}
+.pz{display:flex;align-items:center;gap:8px}.pz .gi{--gs:46px;filter:grayscale(1) brightness(.7)}.pz.on .gi{filter:drop-shadow(0 0 8px #ffd36b88)}.pres{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
 .pz.on{opacity:1;color:#ffd36b;border-color:#ffd36b88;box-shadow:0 0 10px #ffd36b33}
 #modal .rankup{font-size:110px;line-height:1;color:var(--rk);text-shadow:0 0 30px var(--rk);animation:rkpulse 2s ease-in-out infinite}
 #modal .big.stars{color:#ffd36b;text-shadow:0 0 20px #ffd36b88}
@@ -201,7 +202,7 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:60
 .empty{color:var(--dim);padding:6px 0}
 
 /* stats + skills */
-.stat{display:grid;grid-template-columns:118px 1fr 38px auto;gap:10px;align-items:center;padding:6px 0}
+.stat{display:grid;grid-template-columns:150px 1fr 38px auto;gap:10px;align-items:center;padding:6px 0}
 .stat .nm{font-family:var(--f-d);font-weight:700;font-size:17px;white-space:nowrap;letter-spacing:.03em;text-transform:uppercase}
 .stat .v{font-size:24px;text-align:right;color:var(--glow)}
 .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
@@ -296,7 +297,7 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:60
 @media (prefers-reduced-motion:reduce){#modal .win,#toast div{animation:none}.think{animation:none}.bar>i{transition:none}}
 @media (max-width:420px){
   .pname{font-size:22px}
-  .stat{grid-template-columns:104px 1fr 32px auto;gap:8px}
+  .stat{grid-template-columns:136px 1fr 30px auto;gap:6px}.stat .nm{font-size:16px;gap:5px}.stat .nm .gi{--gs:22px}
   .avatar.big{width:112px;height:112px}
   .q.big .qn{font-size:27px}
   .door{padding-right:104px}
@@ -358,6 +359,21 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:60
 #modal .shd{display:block;height:190px;width:auto;margin:0 auto;filter:drop-shadow(0 0 16px #9b6bffaa)}
 .ico.tier{--rk:#ffc34a}
 .item.shp{flex-wrap:nowrap;gap:8px}.item.shp .nm{flex:1 1 0;min-width:0}.item.shp .ico{width:44px;height:44px}.item.shp .btn{flex:none}.item.shp .chip{flex:none}
+
+/* skill, stat, class icons */
+.gi{display:inline-block;flex:none;width:var(--gs,28px);height:var(--gs,28px);object-fit:contain;vertical-align:middle}
+.pick button.cl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:98px;min-height:92px;padding:6px 3px 7px}
+.pick button.cl .gi{--gs:54px;filter:drop-shadow(0 0 6px #0008)}
+.pick button.cl.on .gi{filter:drop-shadow(0 0 8px var(--glow))}
+.pick button.cl[disabled] .gi{filter:grayscale(1) brightness(.7)}
+.pick button.cl span{font-size:12.5px;letter-spacing:0;line-height:1.1;text-align:center;overflow-wrap:normal}
+.stat .nm{display:flex;align-items:center;gap:7px}
+.stat .nm .gi{--gs:26px}
+.skill .nm{display:inline-flex;align-items:center;gap:9px}
+.skill .nm .gi{--gs:38px}
+.bacts .btn .gi{--gs:26px;margin:-5px 6px -5px -6px}
+.cname{display:flex;align-items:center;gap:8px}
+.cname .gi{--gs:40px}
 </style>
 </head>
 <body>
@@ -462,18 +478,21 @@ const SH_T=['knight','assassin','beast'],SH_L={knight:'Schattenritter',assassin:
 function scene(n,cls,pos){return '<div class="scene '+(cls||'')+'"><img alt="" loading="lazy" src="img/ui-'+n+'.webp" style="object-position:'+(pos||'50% 40%')+'" onerror="this.parentNode.remove()"></div>'}
 const tierOf=pr=>Math.max(0,Math.min(3,TIER_PRICE.filter(x=>pr>=x).length-1));
 function tierIco(pr){return '<span class="ico tier"><img alt="" loading="lazy" src="img/shop-tier'+tierOf(pr)+'.webp" onerror="this.remove()"></span>'}
+const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer':'schattenlaeufer','Magier':'magier','Eiserner Wächter':'waechter','Assassine':'assassine','Paladin':'paladin','Berserker':'berserker','Schattenmonarch':'monarch'};
+const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
+const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 function rankSection(){
   const r=rankOf(S.level),i=rankIdx(S.level),lo=RANK_AT[i],hi=RANK_AT[i+1],pct=hi?Math.min(100,(S.level-lo)/(hi-lo)*100):100;
   return '<section class="win rankbox"><div class="rkrow">'+emblem(r,132,'big')+'<div class="rkinfo"><div class="lbl">Rang</div><div class="num" style="font-size:22px">'+esc(TITLES[r])+' '+stars(prestigeOf())+'</div>'+
     (hi?'<div class="qp">Nächster Rang '+RANKS[i+1]+' bei LV '+hi+' (noch '+(hi-S.level)+' Level)</div><div class="bar" style="margin-top:6px"><i style="width:'+pct+'%"></i></div>':'<div class="qp">Höchster Rang erreicht.</div>')+'</div></div>'+
-    '<div class="lbl" style="margin-top:12px">Prestige-Siegel für deine Serie</div><div class="pres">'+PRESTIGE.map((p,k)=>'<div class="pz'+((S.bestStreak||0)>=p.d?' on':'')+'">'+'★'.repeat(k+1)+' '+p.n+'<small>'+p.d+' Tage am Stück</small></div>').join('')+'</div>'+
+    '<div class="lbl" style="margin-top:12px">Prestige-Siegel für deine Serie</div><div class="pres">'+PRESTIGE.map((p,k)=>'<div class="pz'+((S.bestStreak||0)>=p.d?' on':'')+'">'+gico('seal-'+['bronze','silver','gold','diamond'][k])+'<div>'+'★'.repeat(k+1)+' '+p.n+'<small>'+p.d+' Tage am Stück</small></div></div>').join('')+'</div>'+
     '<div class="qp" style="margin-top:6px">Beste Serie: '+(S.bestStreak||0)+' Tage. Das Siegel steht neben deinem Namen, auch für deine Freunde.</div></section>';
 }
 function introBody(){
   return '<p>Du wurdest als Spieler ausgewählt.</p><p class="dim">Täglich trainieren, Quests erfüllen, Level aufsteigen, Fähigkeiten freischalten, Schatten rekrutieren. Wer die täglichen Quests nicht schafft, wird bestraft.</p>'+
    '<label class="f" style="text-align:left;margin-top:8px">Dein Name<input type="text" id="introName" maxlength="30" value="" placeholder="Spieler"></label>'+
    '<label class="f" style="text-align:left;margin-top:6px">Foto für deinen Charakter (optional)<input type="file" id="introPhoto" accept="image/*" style="display:block;background:#08122c;border:1px solid #2b6bff66;padding:8px 10px;width:100%"></label>'+
-   '<div class="f" style="text-align:left;margin-top:8px"><span>Klasse (optional)</span><div class="pick">'+CLASSES.filter(c=>c[1]<=1).map(c=>'<button type="button" data-act="i-cls" data-id="'+c[0]+'">'+c[0]+'</button>').join('')+'</div></div>'+
+   '<div class="f" style="text-align:left;margin-top:8px"><span>Klasse (optional)</span><div class="pick">'+CLASSES.filter(c=>c[1]<=1).map(c=>'<button type="button" class="cl" data-act="i-cls" data-id="'+c[0]+'">'+clsIco(c[0])+'<span>'+c[0]+'</span></button>').join('')+'</div></div>'+
    '<div class="f" style="text-align:left;margin-top:8px"><span>Dein Start-Training</span><div class="pick">'+Object.keys(PACKS).map(k=>'<button type="button" class="'+(k==='all'?'on':'')+'" data-act="i-pack" data-id="'+k+'">'+PACKS[k].n+'<small>'+PACKS[k].t+'</small></button>').join('')+'</div></div>';
 }
 let introSel={cls:'',aura:null,pack:'all'};
@@ -1401,7 +1420,7 @@ function monBlock(){
   let acts='';
   if(!B.over){
     acts='<div class="bacts"><button class="btn atk" data-act="battle" data-id="atk">Angriff</button>'+
-      SKILLS.filter(k=>S.level>=k.lv).map(k=>'<button class="btn vio" data-act="battle" data-id="skill:'+k.id+'"'+(p.mp<k.mp?' disabled':'')+' title="'+esc(k.desc)+'">'+esc(k.name)+'<small>'+k.mp+' MP</small></button>').join('')+
+      SKILLS.filter(k=>S.level>=k.lv).map(k=>'<button class="btn vio" data-act="battle" data-id="skill:'+k.id+'"'+(p.mp<k.mp?' disabled':'')+' title="'+esc(k.desc)+'">'+gico('skill-'+k.id)+esc(k.name)+'<small>'+k.mp+' MP</small></button>').join('')+
       '<button class="btn ok" data-act="battle" data-id="potion"'+(S.potions<1?' disabled':'')+'><img class="bi" alt="" src="img/item-potion.webp" onerror="this.remove()">Trank ('+S.potions+')</button></div>';
   }else{
     const r=B.res;
@@ -1457,14 +1476,14 @@ function radar(){
 }
 function viewStatus(){
   const mx=Math.max(50,...Object.values(S.stats));
-  const st=STATS.map(([k,l])=>'<div class="stat"><span class="nm">'+l+'</span><div class="bar"><i style="width:'+(S.stats[k]/mx*100)+'%"></i></div><span class="num v">'+S.stats[k]+'</span>'+(S.free>0?'<button class="btn sm" data-act="stat" data-id="'+k+'" aria-label="'+l+' erhöhen">+</button>':'<span></span>')+'</div>'+
+  const st=STATS.map(([k,l])=>'<div class="stat"><span class="nm">'+gico('stat-'+k)+'<span>'+l+'</span></span><div class="bar"><i style="width:'+(S.stats[k]/mx*100)+'%"></i></div><span class="num v">'+S.stats[k]+'</span>'+(S.free>0?'<button class="btn sm" data-act="stat" data-id="'+k+'" aria-label="'+l+' erhöhen">+</button>':'<span></span>')+'</div>'+
     '<div class="qp" style="margin:-4px 0 4px;font-size:12px">'+HINT[k]+' · nächster Punkt '+(S.prog[k]||0)+' / '+statNeed(S.stats[k])+'</div>').join('');
   const r=rankOf(S.level),p=pStats(),pf=getProfile();
   const gear='<div class="kv"><div><span class="lbl">Waffe</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.weapon?esc(S.gear.weapon.name)+' (+'+S.gear.weapon.val+')':'keine')+'</span></div><div><span class="lbl">Rüstung</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.armor?esc(S.gear.armor.name)+' (+'+S.gear.armor.val+')':'keine')+'</span></div><div><span class="lbl">Tränke</span><span class="num">'+S.potions+'</span></div></div>';
-  const sk=SKILLS.map(k=>'<div class="skill '+(S.level>=k.lv?'':'lock')+'"><span class="nm">'+esc(k.name)+'</span><span class="qp">'+(S.level>=k.lv?k.mp+' MP':'ab LV '+k.lv)+'</span><span class="dim" style="flex-basis:100%;font-size:13px">'+esc(k.desc)+'</span></div>').join('');
+  const sk=SKILLS.map(k=>'<div class="skill '+(S.level>=k.lv?'':'lock')+'"><span class="nm">'+gico('skill-'+k.id)+'<span>'+esc(k.name)+'</span></span><span class="qp">'+(S.level>=k.lv?k.mp+' MP':'ab LV '+k.lv)+'</span><span class="dim" style="flex-basis:100%;font-size:13px">'+esc(k.desc)+'</span></div>').join('');
   return '<section class="win hall" style="--sbg:url(img/ui-status.webp)"><div class="sub"><div><div class="lbl">Status-Fenster</div><h2>'+esc(S.name)+'</h2></div>'+(S.free>0?'<span class="lbl" style="color:var(--warn)">Freie Punkte: '+S.free+'</span>':'')+'</div>'+
    '<div class="char">'+avatarHtml('big',S.avatar,r,S.name,S.aura)+'<div class="info">'+
-     (pf?'<div class="num" style="font-size:22px">'+esc(pf.klasse)+'</div>'+(pf.spitzname?'<div class="lbl">„'+esc(pf.spitzname)+'“</div>':'')+'<div class="lore">'+esc(pf.lore)+'</div>':'<div class="dim">'+(S.avatar?'Noch kein Profil.':'Lade ein Foto hoch, damit das System deinen Charakter erstellt.')+'</div>')+
+     (pf?'<div class="num cname" style="font-size:22px">'+clsIco(pf.klasse)+'<span>'+esc(pf.klasse)+'</span></div>'+(pf.spitzname?'<div class="lbl">„'+esc(pf.spitzname)+'“</div>':'')+'<div class="lore">'+esc(pf.lore)+'</div>':'<div class="dim">'+(S.avatar?'Noch kein Profil.':'Lade ein Foto hoch, damit das System deinen Charakter erstellt.')+'</div>')+
      (aiMsg?'<div class="think">'+esc(aiMsg)+'</div>':'')+
      '<div class="acts"><button class="btn sm" data-act="photo">'+(S.avatar?'Foto ändern':'Foto wählen')+'</button>'+(S.avatar&&samp&&sampImg?'<button class="btn vio sm" data-act="profile">Profil neu erzeugen</button>':'')+'</div></div></div></section>'+
    rankSection()+'<section class="win"><div class="sub"><div class="lbl">Werte</div></div>'+radar()+'<div class="kv" style="margin:12px 0"><div><span class="lbl">Rang</span><span class="num">'+r+'</span></div><div><span class="lbl">Level</span><span class="num">'+S.level+'</span></div><div><span class="lbl">Lebenspunkte</span><span class="num">'+p.hp+'</span></div><div><span class="lbl">Mana</span><span class="num">'+p.mp+'</span></div><div><span class="lbl">Angriff</span><span class="num">'+Math.round(p.atk)+'</span></div><div><span class="lbl">Verteidigung</span><span class="num">'+Math.round(p.def)+'</span></div></div>'+
@@ -1474,7 +1493,7 @@ function viewStatus(){
    (online?(acct.guest
      ?'<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Konto</div><h2>Charakter sichern</h2></div></div><p class="dim" style="margin-bottom:10px">Du spielst als Gast. Ohne Konto ist dein Charakter weg, wenn du den Browser wechselst oder die Browserdaten löschst. Mit E-Mail und Passwort findest du ihn überall wieder.</p><div class="grid"><label class="f">E-Mail<input type="text" id="accMail" autocomplete="email" inputmode="email" autocapitalize="off"></label><label class="f">Passwort<input type="password" id="accPw" autocomplete="new-password"></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="acc-upgrade">Konto anlegen</button></div></section>'
      :'<section class="win"><div class="sub"><div><div class="lbl">Konto</div><h2>Angemeldet</h2></div></div><p class="dim" style="margin-bottom:10px;overflow-wrap:anywhere">'+esc(acct.email)+'</p><div class="acts"><button class="btn ghost" data-act="acc-out">Abmelden</button></div></section>'):'')+
-   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class="f wide"><span>Klasse</span><div class="pick">'+CLASSES.map(c=>'<button type="button" class="'+(pf.klasse===c[0]?'on':'')+'"'+(c[1]>S.level?' disabled':'')+' data-act="setcls" data-id="'+c[0]+'">'+c[0]+(c[1]>1?'<small>'+(c[1]>S.level?'ab LV '+c[1]:'freigeschaltet')+'</small>':'')+'</button>').join('')+'</div></div><div class="f wide dim" style="font-size:13px">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>';
+   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class="f wide"><span>Klasse</span><div class="pick">'+CLASSES.map(c=>'<button type="button" class="cl '+(pf.klasse===c[0]?'on':'')+'"'+(c[1]>S.level?' disabled':'')+' data-act="setcls" data-id="'+c[0]+'">'+clsIco(c[0])+'<span>'+c[0]+'</span>'+(c[1]>1?'<small>'+(c[1]>S.level?'ab LV '+c[1]:'freigeschaltet')+'</small>':'')+'</button>').join('')+'</div></div><div class="f wide dim" style="font-size:13px">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>';
 }
 function viewShop(){
   const lock=S.penalties.length>0;
