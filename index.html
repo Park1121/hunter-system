@@ -594,6 +594,7 @@ function migrate(){
     if(S.rcShare==null)S.rcShare=true;
     if(S.prof===undefined)S.prof=null;
     S.v=6;ch=true}
+  if((S.v||0)<7){S.v=7;ch=true}
   return ch;
 }
 const SHADOW_EVERY=20;
@@ -745,13 +746,20 @@ const QIMG=[[/burpee/i,'burpee'],[/mountain|kletter/i,'mountain'],[/hampel|seils
 const STAT_C={str:'#ff5468',vit:'#4fd6a8',agi:'#5ad2ff',int:'#9b6bff',dis:'#ffc34a'};
 function qKey(q){const n=q.name||'';for(const [re,k] of QIMG)if(re.test(n))return k;return {str:'weights',vit:'run',agi:'stretch',int:'study',dis:'meditate'}[q.stat]||'custom'}
 function qImgSrc(q,small){
-  if(q.type==='dungeon'){const i=Math.max(0,RANKS.indexOf(q.rank));return 'img/mon-'+RK_MON[i]+'.webp'}
+  if(q.type==='dungeon'||q.type==='boss'){const i=Math.max(0,RANKS.indexOf(q.rank));return 'img/mon-'+RK_MON[i]+'.webp'}
   return 'img/quest-'+qKey(q)+(small?'-s':'')+'.webp';
 }
 const SYS_T=[
-  {n:'Zügiges Gehen',u:'Min.',b:20,s:'vit'},{n:'Dehnen',u:'Min.',b:10,s:'agi'},{n:'Burpees',u:'Wdh.',b:15,s:'str'},
-  {n:'Planke',u:'Sek.',b:45,s:'str'},{n:'Fokus-Lernen',u:'Min.',b:25,s:'int'},{n:'Kalte Dusche',u:'',b:1,s:'dis'},
-  {n:'Treppensteigen',u:'Stockwerke',b:10,s:'vit'},{n:'Mobility-Flow',u:'Min.',b:12,s:'agi'}
+  {n:'Zügiges Gehen',u:'Min.',b:20,s:'vit'},{n:'Spazieren',u:'Min.',b:25,s:'vit'},{n:'Treppensteigen',u:'Stockwerke',b:10,s:'vit',x:['knee']},
+  {n:'Seilspringen',u:'Min.',b:3,s:'vit',x:['knee']},{n:'Radfahren',u:'Min.',b:30,s:'vit'},{n:'Schwimmen',u:'Min.',b:20,s:'vit'},{n:'Laufen',u:'km',b:2,s:'vit',x:['knee']},
+  {n:'Burpees',u:'Wdh.',b:15,s:'str',x:['knee','wrist','back']},{n:'Planke',u:'Sek.',b:45,s:'str'},{n:'Liegestütze',u:'Wdh.',b:20,s:'str',x:['shoulder','wrist']},
+  {n:'Kniebeugen',u:'Wdh.',b:30,s:'str',x:['knee']},{n:'Ausfallschritte',u:'Wdh.',b:20,s:'str',x:['knee']},{n:'Sit-ups',u:'Wdh.',b:25,s:'str',x:['back']},
+  {n:'Dips',u:'Wdh.',b:12,s:'str',x:['shoulder','wrist']},{n:'Mountain Climbers',u:'Wdh.',b:40,s:'str',x:['wrist','knee']},{n:'Wandsitzen',u:'Sek.',b:60,s:'str',x:['knee']},
+  {n:'Glute-Brücke',u:'Wdh.',b:25,s:'str'},{n:'Klimmzüge',u:'Wdh.',b:5,s:'str',x:['shoulder'],bar:1},
+  {n:'Dehnen',u:'Min.',b:10,s:'agi'},{n:'Mobility-Flow',u:'Min.',b:12,s:'agi'},{n:'Yoga',u:'Min.',b:15,s:'agi'},{n:'Hüft-Mobilität',u:'Min.',b:8,s:'agi'},{n:'Nacken- und Schulter-Mobilität',u:'Min.',b:5,s:'agi'},
+  {n:'Fokus-Lernen',u:'Min.',b:25,s:'int'},{n:'Lesen',u:'Min.',b:15,s:'int'},{n:'Vokabeln lernen',u:'Min.',b:15,s:'int'},{n:'Tagebuch schreiben',u:'',b:1,s:'int'},{n:'Morgen planen',u:'',b:1,s:'int'},
+  {n:'Kalte Dusche',u:'',b:1,s:'dis'},{n:'2 Liter Wasser trinken',u:'',b:1,s:'dis'},{n:'Aufräumen',u:'Min.',b:10,s:'dis'},{n:'Meditieren',u:'Min.',b:10,s:'dis'},
+  {n:'Früh ins Bett gehen',u:'',b:1,s:'dis'},{n:'Gesund essen',u:'',b:1,s:'dis'}
 ];
 
 /* ---------- Rekorde, Fragebogen, Quest-Planer ---------- */
@@ -843,7 +851,7 @@ function offerRetarget(keys){
 function applyRetarget(){
   let n=0;
   rtPend.forEach(c=>{const q=S.quests.find(x=>x.id===c.id);if(!q)return;q.target=c.to;q.xp=calcXP(q.target,q.unit,'daily');q.gold=calcGold(q.xp);q.cur=Math.min(q.cur,q.target);n++});
-  rtPend=[];if(n)toast(n+' Quest'+(n>1?'s':'')+' angepasst');
+  rtPend=[];if(n)S.growAt=dayKey();if(n)toast(n+' Quest'+(n>1?'s':'')+' angepasst');
 }
 
 /* Fragebogen: Auswahlwerte */
@@ -1010,14 +1018,14 @@ function obFinish(){
   obCollect();
   const P=obProf(),redo=ob.redo,file=ob.file;
   Object.keys(ob.test).forEach(k=>setRecord(k,ob.test[k]));
-  S.prof=P;S.onbSkip=true;
+  S.prof=P;S.onbSkip=true;S.growAt=dayKey();
   const qs=buildPlan(P,S.pr);
   if(redo)S.quests=qs.concat(S.quests.filter(q=>q.type!=='daily'));
   else{
     S.name=(ob.name||'').trim()||'Spieler';S.cls=clsOk(ob.cls,1)?ob.cls:'';
     S.quests=qs;S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};
   }
-  ob=null;obRender();save();render();
+  ensureLive();ob=null;obRender();save();render();
   if(file&&!redo)setAvatar(file);
   toast(redo?'Quests aktualisiert':'Dein Training ist bereit');
 }
@@ -1093,6 +1101,110 @@ function champs(){
   return out;
 }
 const champLine=n=>n&&n.length?'<div class="qp champ">Champion: '+n.map(esc).join(', ')+'</div>':'';
+/* ---------- Schritt 2: System-Dungeons, Steigerung, Wochen-Quest und Boss ---------- */
+const GSTAT={kraft:'str',ausdauer:'vit',abnehmen:'vit',beweglich:'agi',lernen:'int',alltag:'dis'};
+const BOSS_N=['Goblin-König','Ork-Häuptling','Skelett-Fürst','Dunkelritter','Dämonenfürst','Urdrache'];
+const WK_OK=['pushup','squat','situp','plank','pullup','lunge','run','walk','stairs','rope','stretch','mobility','focus','read'];
+const profP=()=>S.prof||{goals:[],place:'home',equip:[],level:'mid',time:30,days:3,limits:[]};
+function okEx(k){
+  const e=EXL[k],P=profP();if(!e)return false;
+  const bar=!S.prof||P.place==='gym'||(P.equip||[]).includes('bar');
+  if(k==='pullup'&&!bar)return false;
+  return !e[4].some(x=>(P.limits||[]).includes(x));
+}
+function tgtFor(k){
+  const e=EXL[k],P=profP(),lv=({anf:0,mid:1,adv:2})[P.level];
+  const rv=S.pr&&S.pr[k]&&S.pr[k].v;
+  if(rv>0&&recOf(k))return recTarget(k,rv);
+  const b=e[3][lv==null?1:lv];
+  return e[1]==='km'?Math.max(1,Math.round(b*2)/2):nice(b);
+}
+function keysForGoals(){
+  const P=profP(),bar=P.place==='gym'||(P.equip||[]).includes('bar'),ks=[];
+  (P.goals&&P.goals.length?P.goals:['kraft','ausdauer','beweglich','lernen']).forEach(g=>goalPool(g,P.place,bar).forEach(k=>{if(WK_OK.includes(k)&&okEx(k)&&!ks.includes(k))ks.push(k)}));
+  return ks.length?ks:['walk','stretch'];
+}
+const weekKey=(d=new Date())=>addDays(dayKey(d),-((d.getDay()+6)%7));
+function mkWeekly(wk){
+  const ks=keysForGoals(),k=ks[Math.floor(Math.random()*ks.length)],e=EXL[k];
+  const f=e[1]==='km'?2.5:4;
+  let t=tgtFor(k)*f*(1+S.level*0.01);
+  t=e[1]==='km'?Math.max(3,Math.round(t*2)/2):nice(t);
+  return {id:uid(),name:'Wochenziel: '+e[0],target:t,unit:e[1],stat:e[2],xp:120+Math.round(S.level*3),gold:60,type:'weekly',rank:'E',cur:0,done:false,wk};
+}
+function mkBoss(wk){
+  const ri=Math.min(5,rankIdx(S.level)+1),n=Math.max(3,Math.min(6,(S.prof&&S.prof.days)||4));
+  return {id:uid(),name:'Wochen-Boss: '+BOSS_N[ri],target:n,unit:'Tage',stat:'dis',xp:200+Math.round(S.level*5),gold:120,type:'boss',rank:RANKS[ri],cur:0,done:false,wk};
+}
+function bossGear(){
+  const ri=Math.min(5,rankIdx(S.level)+1),kind=Math.random()<.5?'weapon':'armor';
+  const base=kind==='weapon'?['Dolch','Schwert','Streitaxt']:['Lederweste','Kettenhemd','Plattenpanzer'];
+  return {kind,r:ri,val:Math.round(5+ri*3+S.level*0.25+rnd(0,2)),name:gearName(ri,base[Math.floor(Math.random()*3)])};
+}
+function weekHtml(){
+  const w=S.quests.filter(q=>q.type==='weekly'),b=S.quests.filter(q=>q.type==='boss');
+  if(!w.length&&!b.length)return '';
+  const left=Math.max(1,dayNum(S.week)+7-dayNum(dayKey()));
+  return '<section class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Diese Woche</div><h2>Wochen-Quests</h2></div><span class="lbl">noch '+left+' Tag'+(left===1?'':'e')+'</span></div>'+
+    w.map(qRow).join('')+
+    (b.length?'<p class="dim" style="font-size:13px;margin:10px 0 2px">Boss: Schließe an '+b[0].target+' Tagen alle täglichen Quests ab. Das zählt automatisch. Belohnung: Ausrüstung und ein Schlüssel.</p>'+b.map(qRow).join(''):'')+'</section>';
+}
+/* Das System öffnet Gates, der Spieler kann keine mehr erstellen */
+function spawnGate(force){
+  const open=S.quests.filter(q=>q.type==='dungeon'&&!q.done);
+  if(open.length>=GATE_MAX)return false;
+  const t=dayKey(),since=S.gateAt?dayNum(t)-dayNum(S.gateAt):99;
+  if(!force&&!(open.length===0&&since>=2)&&!(since>=3&&Math.random()<0.5))return false;
+  const ri=rankIdx(S.level),rk=Math.min(maxGate(),ri+(Math.random()<0.3?1:0)),R=RANKS[rk];
+  let ks=keysForGoals();const used=open.map(q=>q.name);
+  const fresh=ks.filter(k=>!used.includes('Gate: '+EXL[k][0]));if(fresh.length)ks=fresh;
+  const k=ks[Math.floor(Math.random()*ks.length)],e=EXL[k];
+  const f=e[1]==='km'?1.5:/^Min/.test(e[1])?2:2.5;
+  let tg=tgtFor(k)*f*(1+rk*0.25);
+  tg=e[1]==='km'?Math.max(2,Math.round(tg*2)/2):nice(tg);
+  S.quests.push({id:uid(),name:'Gate: '+e[0],target:tg,unit:e[1],stat:e[2],xp:DUNGEON_REWARD[R][0],gold:DUNGEON_REWARD[R][1],type:'dungeon',rank:R,cur:0,done:false,exp:addDays(t,7)});
+  S.gateAt=t;return true;
+}
+function ensureLive(){
+  if(!S.started)return;
+  const t=dayKey();
+  S.quests=S.quests.filter(q=>!(q.type==='dungeon'&&!q.done&&q.exp&&q.exp<t));
+  const wk=weekKey();
+  if(S.week!==wk){S.quests=S.quests.filter(q=>q.type!=='weekly'&&q.type!=='boss');S.quests.push(mkWeekly(wk),mkBoss(wk));S.week=wk}
+  if(!S.gateAt&&!S.quests.some(q=>q.type==='dungeon'&&!q.done))spawnGate(true);else spawnGate(false);
+  if(!S.growAt)S.growAt=t;
+}
+/* Steigerung: nach 7 geschafften Tagen etwa 10 % mehr */
+const GROW_CAP={'Wdh.':300,'Sek.':600,'Min.':120,'km':30,'Stockwerke':60};
+function fullDaysSince(k){let n=0;Object.keys(S.hist||{}).forEach(d=>{const h=S.hist[d];if(d>k&&h&&h.t>0&&h.d>=h.t)n++});return n}
+function growList(){
+  const out=[];
+  S.quests.filter(q=>q.type==='daily'&&q.target>1&&q.unit).forEach(q=>{
+    const cap=GROW_CAP[q.unit];if(!cap||q.target>=cap)return;
+    const t=Math.min(cap,q.unit==='km'?Math.round(q.target*1.1*2)/2:Math.max(q.target+1,nice(q.target*1.1)));
+    if(t>q.target)out.push({id:q.id,name:q.name,from:q.target,to:t,u:q.unit});
+  });
+  return out;
+}
+function growReady(){
+  if(!S.started||(S.growWait&&S.growWait>dayKey()))return null;
+  if(fullDaysSince(S.growAt||'')<7)return null;
+  const l=growList();return l.length?l:null;
+}
+function growCard(){
+  const l=growReady();if(!l)return '';
+  return '<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Steigerung bereit</div><h2>Zeit für mehr</h2></div></div><p style="margin-bottom:8px">An 7 Tagen hast du alle täglichen Quests geschafft. Das System schlägt vor, die Ziele um etwa 10 % zu erhöhen:</p>'+
+    l.map(c=>'<div class="rtrow"><span>'+esc(c.name)+'</span><b>'+String(c.from).replace('.',',')+' → '+String(c.to).replace('.',',')+' '+esc(c.u)+'</b></div>').join('')+
+    '<div class="acts" style="margin-top:10px"><button class="btn ok" data-act="grow-yes">Steigern</button><button class="btn ghost" data-act="grow-later">Später</button></div></section>';
+}
+function applyGrow(){
+  const l=growList();
+  l.forEach(c=>{const q=S.quests.find(x=>x.id===c.id);if(!q)return;q.target=c.to;q.xp=calcXP(q.target,q.unit,'daily');q.gold=calcGold(q.xp);q.cur=q.done?q.target:Math.min(q.cur,q.target)});
+  S.growAt=dayKey();S.growWait=null;
+  toast(l.length+' Quest'+(l.length===1?'':'s')+' gesteigert');
+}
+
+const expTxt=k=>{const d=dayNum(k)-dayNum(dayKey());return d<=0?'läuft heute ab':'noch '+d+' Tg.'};
 function recLine(c){
   if(!c.rc)return '';
   const out=[];
@@ -1118,7 +1230,7 @@ const statName=k=>{const s=STATS.find(x=>x[0]===k);return s?s[1]:''};
 function defaults(){
   const dq=(name,target,unit,stat)=>mkQ(name,target,unit,stat);
   return {
-    v:6,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
+    v:7,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
     stats:{str:10,vit:10,agi:10,int:10,dis:10},prog:{str:0,vit:0,agi:0,int:0,dis:0},
     quests:[
       dq('Liegestütze',50,'Wdh.','str',20,10),
@@ -1135,7 +1247,7 @@ function defaults(){
     inv:[],penaltyText:'20 Burpees pro verpasstem Tag',penalties:[],
     lastDay:null,lastComplete:null,streak:0,bestStreak:0,totalDone:0,shadows:[],savedAt:0,
     avatar:null,thumb:null,profile:null,hist:{},keys:1,potions:1,gear:{weapon:null,armor:null},
-    aura:null,cls:'',look:null,bag:[],plan:{d:[[],[],[],[],[],[],[]]},planBonus:null,cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0,prof:null,pr:{},rcShare:true,testQ:null,onbSkip:false
+    aura:null,cls:'',look:null,bag:[],plan:{d:[[],[],[],[],[],[],[]]},planBonus:null,cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0,prof:null,pr:{},rcShare:true,testQ:null,onbSkip:false,week:null,gateAt:null,growAt:null,growWait:null,sysLast:''
   };
 }
 
@@ -1261,7 +1373,7 @@ async function initRemote(){
     if(pendingAdd){await addFriendByCode(pendingAdd,false);try{history.replaceState(null,'',location.pathname)}catch(e){}}
     setInterval(()=>refreshOnline(false),30000);
     document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshOnline(false)});
-    if(S.started){rollover()}
+    if(S.started){rollover();ensureLive()}
     render();showIntro();
   }catch(e){
     online=false;
@@ -1383,6 +1495,7 @@ function completeQuest(q){
   q.done=true;q.cur=q.target;
   const c=capState();let gx=q.xp,gg=q.gold;
   if(q.type==='dungeon'){if(c.dg>=1){gx=0;gg=0}else c.dg++}
+  else if(q.type==='weekly'||q.type==='boss'){}
   else{const room=Math.max(0,dayCap()-c.xp);if(gx>room){gg=Math.round(gg*room/Math.max(1,gx));gx=room}c.xp+=gx}
   if(gx>0){
     S.gold+=gg;S.totalDone++;
@@ -1393,8 +1506,9 @@ function completeQuest(q){
     }
     toast('Quest abgeschlossen: +'+gx+' XP, +'+gg+' G'+(gx<q.xp?' (Tageslimit)':''));
     grantXP(gx);
-    const kc=q.type==='dungeon'?1:q.type==='system'?0.4:0.15;
+    const kc=q.type==='dungeon'||q.type==='weekly'||q.type==='boss'?1:q.type==='system'?0.4:0.15;
     if(Math.random()<kc)giveKey(q.type==='dungeon'?'Dungeon':'');
+    if(q.type==='boss'){const it=bossGear(),how=addToBag(it);S.keys++;modal({pic:'victory',kind:'vio',title:'Boss besiegt',body:'<p style="font-family:var(--f-d);font-size:22px">'+esc(q.name)+'</p><p>Beute: '+esc(it.name)+' (+'+it.val+' '+(it.kind==='weapon'?'Angriff':'Rüstung')+'), '+how+'</p><p>Dazu ein Schlüssel.</p>',btn:'Weiter'})}
     if(S.totalDone%SHADOW_EVERY===0){
       const n=S.shadows.length+1;
       S.shadows.push({id:uid(),name:'Schatten-Soldat #'+n,rank:rankOf(S.level)});
@@ -1411,6 +1525,7 @@ function completeQuest(q){
       S.gold+=bg;S.keys++;
       modal({pic:'daily',title:'Tagesquest geschafft',body:'<div class="big">'+S.streak+' 🔥</div><p>Serie: '+S.streak+' Tag'+(S.streak>1?'e':'')+' in Folge</p><p>Bonus: +'+bx+' XP, +'+bg+' G und ein Schlüssel</p>',btn:'Weiter'});
       grantXP(bx);
+      const bq=S.quests.find(x=>x.type==='boss'&&!x.done);if(bq)addProgress(bq,1);
     }
   }
   if(q.type==='plan'){
@@ -1429,12 +1544,18 @@ function addProgress(q,n){
 }
 function genSys(){
   const tq=pickTest();if(tq)return tq;
-  const lv=S.level;
+  const lv=S.level,P=S.prof||null,lim=(P&&P.limits)||[],bar=!P||P.place==='gym'||(P.equip||[]).includes('bar');
+  const ok=SYS_T.filter(t=>!(t.x||[]).some(x=>lim.includes(x))&&(!t.bar||bar)&&t.n!==S.sysLast);
   const weakest=STATS.map(s=>s[0]).sort((a,b)=>S.stats[a]-S.stats[b])[0];
-  let pool=SYS_T.filter(t=>t.s===weakest);
-  if(!pool.length||Math.random()>0.6)pool=SYS_T;
+  const gs=P&&P.goals?P.goals.map(g=>GSTAT[g]).filter(Boolean):[];
+  const r=Math.random();
+  const st=r<0.4?weakest:(r<0.8&&gs.length?gs[Math.floor(Math.random()*gs.length)]:null);
+  let pool=st?ok.filter(t=>t.s===st):ok;
+  if(!pool.length)pool=ok;if(!pool.length)pool=SYS_T;
   const t=pool[Math.floor(Math.random()*pool.length)];
-  const target=t.b===1?1:Math.round(t.b*(1+lv*0.03));
+  const lm=P?({anf:.85,mid:1,adv:1.2})[P.level]||1:1;
+  const target=t.b===1?1:Math.max(1,Math.round(t.b*lm*(1+lv*0.03)));
+  S.sysLast=t.n;
   return {n:t.n,u:t.u,s:t.s,target,xp:35+Math.round(lv*1.5),gold:20,weak:t.s===weakest};
 }
 
@@ -1465,6 +1586,7 @@ function rollover(){
   S.quests.forEach(q=>{if(q.type==='daily'){q.cur=0;q.done=false}});
   syncPlan();
   S.sys={day:t,q:genSys(),st:'open'};
+  ensureLive();
   S.lastDay=t;save();
 }
 
@@ -1521,15 +1643,17 @@ function battleAct(a){
   if(B.p.hp<=0)endBattle(false);
   if(B.log.length>40)B.log=B.log.slice(-40);
 }
+const GEAR_G={Dolch:'er',Schwert:'es',Streitaxt:'e',Lederweste:'e',Kettenhemd:'es',Plattenpanzer:'er'};
+const GEAR_P=['Rostig','Stählern','Verzaubert','Meisterhaft','Legendär'];
+const gearName=(ri,base)=>ri>=5?'Schatten-'+base:GEAR_P[ri]+GEAR_G[base]+' '+base;
 function lootItem(ri){
   const roll=Math.random();
   if(roll>0.6)return null;
   if(roll<0.15)return {kind:'potion',n:1+(Math.random()<.3?1:0)};
   const kind=roll<0.4?'weapon':'armor';
-  const pre=['Rostiges','Stählernes','Verzaubertes','Meisterhaftes','Legendäres','Schatten-'][ri];
   const base=kind==='weapon'?['Dolch','Schwert','Streitaxt']:['Lederweste','Kettenhemd','Plattenpanzer'];
   const val=Math.round(2+ri*3+S.level*0.25+rnd(0,2));
-  return {kind,val,name:pre+(pre.endsWith('-')?'':' ')+base[Math.floor(Math.random()*3)]};
+  return {kind,val,name:gearName(ri,base[Math.floor(Math.random()*3)])};
 }
 function endBattle(win){
   B.over=win?'win':'lose';
@@ -1756,18 +1880,18 @@ function qRow(q,big){
   let acts='',tools='';
   if(!q.done){
     if(q.test)acts+='<input class="amt" type="number" min="0" step="'+(recOf(q.test)&&recOf(q.test).dec?'0.1':'1')+'" id="tv-'+q.id+'" aria-label="Ergebnis" placeholder="Wert" style="width:88px"><button class="btn ok" data-act="test-submit" data-id="'+q.id+'">Ergebnis eintragen</button>';
-    else{
+    else if(q.type!=='boss'){
     if(q.target>1)acts+='<input class="amt" type="number" min="1" step="any" value="'+bestStep(q.target)+'" id="amt-'+q.id+'" aria-label="Menge"><button class="btn" data-act="add" data-id="'+q.id+'">+ Eintragen</button>';
     acts+='<button class="btn ok" data-act="done" data-id="'+q.id+'">Fertig</button>';
     }
   }
-  if(q.type!=='system'&&q.type!=='plan'){
-    tools='<div class="tools"><button class="btn ghost sm ic" data-act="edit" data-id="'+q.id+'" aria-label="Ändern" title="Ändern">✎</button>'+
+  if(q.type==='daily'||q.type==='dungeon'){
+    tools='<div class="tools">'+(q.type==='daily'?'<button class="btn ghost sm ic" data-act="edit" data-id="'+q.id+'" aria-label="Ändern" title="Ändern">✎</button>':'')+
       '<button class="btn '+(armed===q.id?'bad':'ghost')+' sm'+(armed===q.id?'':' ic')+'" data-act="del" data-id="'+q.id+'" aria-label="Löschen" title="Löschen">'+(armed===q.id?'Sicher?':'✕')+'</button></div>';
   }
-  const chips=(q.type==='dungeon'?'<span class="chip rk">'+q.rank+'-Rang</span>':'')+(q.type==='system'?'<span class="chip sys">System</span>':'')+(q.type==='plan'?'<span class="chip sys">Plan</span>':'')+'<span class="chip xp">+'+q.xp+' XP</span><span class="chip g">+'+q.gold+' G</span>'+(q.stat?'<span class="chip">'+statName(q.stat)+'</span>':'');
-  const mon=q.type==='dungeon'?' mon':'';
-  const c=q.type==='dungeon'?RK_COL[Math.max(0,RANKS.indexOf(q.rank))]:(STAT_C[q.stat]||'#2a5bff');
+  const chips=((q.type==='dungeon'||q.type==='boss')?'<span class="chip rk">'+q.rank+'-Rang</span>':'')+(q.type==='weekly'?'<span class="chip sys">Woche</span>':'')+(q.type==='boss'?'<span class="chip sys">Boss</span>':'')+(q.type==='dungeon'&&q.exp?'<span class="chip">'+expTxt(q.exp)+'</span>':'')+(q.type==='system'?'<span class="chip sys">System</span>':'')+(q.type==='plan'?'<span class="chip sys">Plan</span>':'')+'<span class="chip xp">+'+q.xp+' XP</span><span class="chip g">+'+q.gold+' G</span>'+(q.stat?'<span class="chip">'+statName(q.stat)+'</span>':'');
+  const mon=(q.type==='dungeon'||q.type==='boss')?' mon':'';
+  const c=(q.type==='dungeon'||q.type==='boss')?RK_COL[Math.max(0,RANKS.indexOf(q.rank))]:(STAT_C[q.stat]||'#2a5bff');
   const img=(sm)=>'<img alt="" loading="lazy" src="'+qImgSrc(q,sm)+'" onerror="this.remove()">';
   if(big&&!q.done){
     return '<div class="q big"><div class="pic'+mon+'" style="--c:'+c+'">'+img(false)+'<div class="tagrow">'+chips+'</div><div class="cap"><div class="qn">'+esc(q.name)+'</div>'+prog+'</div></div>'+
@@ -1782,7 +1906,6 @@ function formHtml(){
   const f=form;
   return '<section class="win" id="qform"><div class="sub"><h2>'+(f.id?'Quest ändern':'Neue Quest')+'</h2></div><div class="grid">'+
    '<label class="f wide">Name<input type="text" id="fName" maxlength="80" value="'+esc(f.name)+'"></label>'+
-   '<label class="f">Art<select id="fType"><option value="daily"'+(f.type==='daily'?' selected':'')+'>Täglich</option><option value="dungeon"'+(f.type==='dungeon'?' selected':'')+'>Dungeon (einmalig)</option></select></label>'+
    (f.type==='dungeon'?'<label class="f">Rang<select id="fRank">'+RANKS.slice(0,maxGate()+1).map(r=>'<option'+(f.rank===r?' selected':'')+'>'+r+'</option>').join('')+'</select></label>':'')+
    '<label class="f wide">Wirkt auf<select id="fStat">'+STATS.map(([k])=>'<option value="'+k+'"'+(f.stat===k?' selected':'')+'>'+HINT[k]+'</option>').join('')+'</select></label>'+
    '<label class="f">Ziel<input type="number" id="fTarget" min="1" step="any" value="'+f.target+'"></label>'+
@@ -1816,7 +1939,7 @@ function planHtml(){
 }
 function viewQuests(){
   const d=S.quests.filter(q=>q.type==='daily'),dn=d.filter(q=>q.done).length;
-  let h=onbCard();
+  let h=onbCard()+growCard();
   if(S.penalties.length){
     h+='<section class="win bad"><div class="banner"><img alt="" src="img/ui-penalty.webp" onerror="this.parentNode.remove()"></div><div class="sub"><h2>Strafzone</h2><span class="lbl">'+S.penalties.length+' offen</span></div>'+
       S.penalties.map(p=>'<div class="item"><div class="pic pth red" style="--c:#ff5468"><img alt="" loading="lazy" src="img/quest-'+qKey({name:p.text})+'-s.webp" onerror="this.remove()"></div><span class="nm">'+esc(p.text)+'</span><button class="btn bad sm" data-act="pen" data-id="'+p.id+'">Abgeleistet</button></div>').join('')+'</section>';
@@ -1835,6 +1958,7 @@ function viewQuests(){
     '<div class="row" style="margin-bottom:8px"><span class="qp">Abgeschlossen '+dn+' / '+d.length+'</span><span class="sp"></span><span class="dim" style="font-size:13px">Tageslimit: '+capState().xp+' / '+dayCap()+' XP</span></div>'+
     (d.length?(()=>{const f=d.find(x=>!x.done);return d.map(x=>qRow(x,x===f)).join('')})():'<div class="empty">Keine täglichen Quests. Lege unten eine an.</div>')+'</section>';
   h+=form&&form.type==='daily'?formHtml():'<button class="btn" data-act="newq" data-id="daily">+ Neue tägliche Quest</button>';
+  h+=weekHtml();
   h+=fitHtml();
   h+=planHtml();
   return h;
@@ -1873,10 +1997,9 @@ function viewDungeon(){
       :'<div class="empty">Kein Schlüssel. Du findest sie bei Quests (15 %), bei Dungeons, bei System-Quests und garantiert an jedem Tag mit allen Tagesquests.</div>')+
      '<p class="dim" style="font-size:13px;margin-top:10px">Ein Kampf dauert ein paar Klicks. Deine Stats, Fähigkeiten, Ausrüstung und Schatten entscheiden. Bei Niederlage verlierst du den Schlüssel und 10 % Gold.</p></section>';
   }
-  h+='<section class="win"><div class="sub"><div><div class="lbl">Gates</div><h2>Offene Dungeons</h2></div></div>'+
-    (open.length?open.map(qRow).join(''):'<div class="empty">Kein Gate offen. Dungeons sind einmalige, größere Aufgaben: ein Projekt, ein Lauf, eine Prüfung. Je höher der Rang, desto mehr Belohnung, dazu ein sicherer Schlüssel.</div>')+'</section>';
+  h+='<section class="win"><div class="sub"><div><div class="lbl">Gates</div><h2>Offene Dungeons</h2></div></div><p class="dim" style="font-size:13px;margin-bottom:6px">Das System öffnet Gates passend zu deinem Rang. Ein Gate ist eine größere Aufgabe und läuft nach 7 Tagen ab. Pro Tag bringt ein Gate Belohnung.</p>'+
+    (open.length?open.map(qRow).join(''):'<div class="empty">Kein Gate offen. Das System öffnet neue Gates, sobald du bereit bist. Je höher der Rang, desto mehr Belohnung, dazu ein sicherer Schlüssel.</div>')+'</section>';
   if(clr.length)h+='<section class="win"><div class="sub"><div class="lbl">Geräumt ('+clr.length+')</div></div>'+clr.map(qRow).join('')+'</section>';
-  h+=form&&form.type==='dungeon'?formHtml():'<button class="btn" data-act="newq" data-id="dungeon">+ Neuer Dungeon</button>';
   return h;
 }
 function invSection(){
@@ -2047,6 +2170,8 @@ document.addEventListener('click',e=>{
       if(done.length){save();toast(done.some(d=>d.best)?'Neuer Bestwert!':'Werte gespeichert');offerRetarget(done.map(d=>d.k))}
       break;
     }
+    case 'grow-yes':applyGrow();save();break;
+    case 'grow-later':S.growWait=addDays(dayKey(),3);save();break;
     case 'rt-apply':applyRetarget();nextModal();save();break;
     case 'rec-sel':recSel=id;break;
     case 'rcshare':S.rcShare=S.rcShare===false;save();break;
@@ -2170,7 +2295,7 @@ document.addEventListener('click',e=>{
       save();toast('Gespeichert');break;
     }
     case 'reset':
-      if(penArmed){S=defaults();S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};penArmed=false;tab='quests';B=null;save();toast('Neu gestartet')}else penArmed=true;break;
+      if(penArmed){S=defaults();S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};ensureLive();penArmed=false;tab='quests';B=null;save();toast('Neu gestartet')}else penArmed=true;break;
     case 'buy':{
       const it=S.shop.find(x=>x.id===id);
       if(it&&S.gold>=it.price&&!S.penalties.length){S.gold-=it.price;const h=S.inv.find(x=>x.name===it.name);if(h)h.n++;else S.inv.push({name:it.name,n:1});save();toast('Gekauft: '+it.name)}
@@ -2213,7 +2338,7 @@ document.addEventListener('change',e=>{
 });
 
 if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
-if(S.started){rollover();syncPlan()}
+if(S.started){rollover();syncPlan();ensureLive();save()}
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
 initRemote();
