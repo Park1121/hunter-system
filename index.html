@@ -592,6 +592,42 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .chart .tg{stroke:var(--warn);stroke-width:1.4;stroke-dasharray:5 4}
 .chart text.tgt{fill:var(--warn);font-weight:600}
 
+/* v20 */
+.scard{position:relative;border:2px solid var(--rc);border-radius:14px;padding:6px 6px 8px;background:linear-gradient(#150c34,#0a0818);text-align:center;min-width:0}
+.scard.r1{box-shadow:0 0 8px #d6dcec22}
+.scard.r2{box-shadow:0 0 14px #ffd36b44}
+.scard.r3{box-shadow:0 0 18px #7fe3ff77}
+.scard .sch{display:flex;justify-content:space-between;gap:4px;font-family:var(--f-d);font-weight:700;font-size:13px;letter-spacing:.04em}
+.scard .sct{color:var(--tc);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.scard .scl{color:var(--dim);white-space:nowrap}
+.scp{aspect-ratio:1;margin:4px 0;border-radius:10px;background:radial-gradient(80% 70% at 50% 40%,var(--tg),#0a0818)}
+.scp img{width:100%;height:100%;object-fit:contain;display:block}
+.scard b{display:block;font-family:var(--f-d);font-size:18px;line-height:1.1;overflow-wrap:anywhere}
+.scf{display:flex;align-items:center;justify-content:center;gap:4px;font-size:12.5px;color:var(--dim);margin:2px 0 4px}
+.scx{font-size:12px;color:var(--warn)}
+.scard .bar{height:5px;margin:4px 0}
+.scard .btn{width:100%;margin-top:6px;padding-inline:4px}
+.scard.big{width:210px}
+.steam{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.steam .scard b{font-size:15px}
+.steam .scard .scf{font-size:11.5px}
+.sgrid2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+.tychart{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.tyc{border:1px solid var(--tc);color:var(--tc);border-radius:99px;padding:3px 10px;font-size:13px;font-weight:600}
+.tychart i{color:var(--dim);font-style:normal}
+#rg{position:fixed;inset:0;z-index:48;display:grid;place-items:center;background:#02040bf2;padding:20px}
+.rg-in{width:100%;max-width:420px;text-align:center}
+.rg-in h2{margin-bottom:6px}
+.rg-b{display:grid;place-items:center;align-content:center;gap:4px;min-height:260px;margin:14px 0 8px;border-radius:22px;background:#0d1638;border:2px solid var(--line2);font-family:var(--f-d);font-size:44px;letter-spacing:.06em;text-transform:uppercase;user-select:none;-webkit-user-select:none;touch-action:manipulation;cursor:pointer}
+.rg-b small{font-family:var(--f-b);font-size:14px;color:var(--dim);text-transform:none;letter-spacing:0}
+.rg-b.w{background:#3a1220;border-color:#ff5468}
+.rg-b.g{background:#0f4a36;border-color:var(--ok);box-shadow:0 0 40px #4fd6a888}
+.rg-b.e{background:#3a2a12;border-color:var(--warn)}
+.rgl{text-align:center;margin:-2px 0 8px}
+.steam .sch{flex-direction:column;align-items:center;gap:0;font-size:12px}
+.steam .scard .btn{font-size:12px;letter-spacing:0;min-height:34px}
+.steam .scard{padding:6px 4px 8px}
+
 </style>
 </head>
 <body>
@@ -751,6 +787,11 @@ function migrate(){
     S.shop=[];if(!Array.isArray(S.inv))S.inv=[];
     S.items={shield:S.started?1:0,pardon:0,decree:0};S.buy=null;if(!Array.isArray(S.goals))S.goals=[];
     S.v=10;ch=true}
+  if((S.v||0)<11){
+    S.shadows=(S.shadows||[]).map((x,i)=>x.t?x:Object.assign({},x,{t:STK[i%5],r:({E:0,D:0,C:1,B:1,A:2,S:3})[x.rank]||0,lv:3,xp:0}));
+    S.team=S.shadows.slice().sort((a,b)=>sPow(b)-sPow(a)).slice(0,TEAM_MAX).map(x=>x.id);
+    if(S.sg===undefined)S.sg=null;if(S.wr==null)S.wr='';if(S.bk==null)S.bk='';
+    S.v=11;ch=true}
   return ch;
 }
 const SHADOW_EVERY=20;
@@ -1223,7 +1264,7 @@ function sesExHtml(x,i){
 function sesRestHtml(){
   const r=S.ses.rest;if(!r)return '';
   const rem=Math.max(0,(r.end-Date.now())/1000);
-  return '<div class="rb'+(rem<=0?' go':'')+'" id="rb"><img alt="" src="img/ico-timer.webp"><div class="rbt"><small id="rb-l">'+(rem<=0?'Weiter geht es':'Pause')+'</small><b id="rb-t">'+fmtT(rem)+'</b></div><div class="rbb"><button type="button" class="btn ghost sm" data-act="ses-rest" data-id="-15" aria-label="15 Sekunden weniger">−15</button><button type="button" class="btn ghost sm" data-act="ses-rest" data-id="15" aria-label="15 Sekunden mehr">+15</button><button type="button" class="btn sm" data-act="ses-rest" data-id="skip">Weiter</button></div></div>';
+  return '<div class="rb'+(rem<=0?' go':'')+'" id="rb"><img alt="" src="img/ico-timer.webp"><div class="rbt"><small id="rb-l">'+(rem<=0?'Weiter geht es':'Pause')+'</small><b id="rb-t">'+fmtT(rem)+'</b></div><div class="rbb"><button type="button" class="btn ghost sm" data-act="ses-rest" data-id="-15" aria-label="15 Sekunden weniger">−15</button><button type="button" class="btn ghost sm" data-act="ses-rest" data-id="15" aria-label="15 Sekunden mehr">+15</button><button type="button" class="btn sm" data-act="ses-rest" data-id="skip">Weiter</button></div></div><div class="rgl"><button type="button" class="btn ghost sm" data-act="rg-open">Reaktionsspiel in der Pause</button></div>';
 }
 function sesRender(){
   let el=document.getElementById('ses');
@@ -1869,7 +1910,7 @@ const statName=k=>{const s=STATS.find(x=>x[0]===k);return s?s[1]:''};
 function defaults(){
   const dq=(name,target,unit,stat)=>mkQ(name,target,unit,stat);
   return {
-    v:10,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
+    v:11,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
     stats:{str:10,vit:10,agi:10,int:10,dis:10},prog:{str:0,vit:0,agi:0,int:0,dis:0},
     quests:[
       dq('Liegestütze',50,'Wdh.','str',20,10),
@@ -1883,7 +1924,7 @@ function defaults(){
     inv:[],penaltyText:'20 Burpees pro verpasstem Tag',penalties:[],
     lastDay:null,lastComplete:null,streak:0,bestStreak:0,totalDone:0,shadows:[],savedAt:0,
     avatar:null,thumb:null,profile:null,hist:{},keys:1,potions:1,gear:{weapon:null,armor:null},
-    aura:null,cls:'',look:null,bag:[],plan:{d:[[],[],[],[],[],[],[]]},planBonus:null,tp:null,tlog:[],exl:{},exb:{},cx:[],ses:null,tpHide:false,cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0,prof:null,pr:{},rcShare:true,testQ:null,onbSkip:false,week:null,gateAt:null,growAt:null,growWait:null,sysLast:'',ach:{},title:'',cnt:{},prot:null,rem:null,tutOk:false,items:{shield:0,pardon:0,decree:0},buy:null,goals:[]
+    aura:null,cls:'',look:null,bag:[],plan:{d:[[],[],[],[],[],[],[]]},planBonus:null,tp:null,tlog:[],exl:{},exb:{},cx:[],ses:null,tpHide:false,cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0,prof:null,pr:{},rcShare:true,testQ:null,onbSkip:false,week:null,gateAt:null,growAt:null,growWait:null,sysLast:'',ach:{},title:'',cnt:{},prot:null,rem:null,tutOk:false,items:{shield:0,pardon:0,decree:0},buy:null,goals:[],team:[],sg:null,wr:'',bk:''
   };
 }
 
@@ -1918,6 +1959,8 @@ const ACH=[
  ['w50','gold','Torbrecher','50 Kämpfe gewinnen','Torbrecher',()=>S.wins,50,'Kampf'],
  ['sd5','silver','Schattenführer','5 Schatten-Soldaten','Schattenführer',()=>(S.shadows||[]).length,5,'Kampf'],
  ['sd20','diamond','Schattenkönig','20 Schatten-Soldaten','Schattenkönig',()=>(S.shadows||[]).length,20,'Kampf'],
+ ['sdg','gold','Seltene Seele','Einen Gold-Schatten besitzen','Seelensammler',()=>(S.shadows||[]).filter(x=>x.r>=2).length,1,'Kampf'],
+ ['sdt','silver','Typenmeister','Alle 5 Schatten-Typen besitzen','Typenmeister',()=>new Set((S.shadows||[]).map(x=>x.t)).size,5,'Kampf'],
  ['bo1','silver','Bosskiller','Einen Wochen-Boss besiegen','Bosskiller',()=>cntOf('boss'),1,'Kampf'],
  ['wk5','gold','Zielstrebig','5 Wochenziele erfüllen','Zielstrebig',()=>cntOf('weekly'),5,'Kampf']
 ];
@@ -2183,9 +2226,211 @@ function viewVerlauf(){
 /* Status in Unterreiter */
 function stSplit(str){
   const p=str.split(/[\u0001-\u0005]/),T=[['ueber','Profil'],['erf','Erfolge'],['aus','Rucksack'],['konto','Konto']];
-  const body={ueber:p[0]+p[4],erf:p[1],aus:p[3],konto:p[2]+p[5]}[stSub]||p[0];
+  const body={ueber:p[0]+p[4],erf:p[1],aus:p[3],konto:p[2]+p[5]+backupSection()}[stSub]||p[0];
   return '<div class="seg c4" role="tablist" style="margin-bottom:12px">'+T.map(([k,l])=>'<button role="tab" aria-selected="'+(stSub===k)+'" data-act="st-sub" data-id="'+k+'">'+l+'</button>').join('')+'</div>'+body;
 }
+
+/* ---------- v20: Schatten-Karten, Team, Pausen-Spiel, Backup, Wochenrückblick ---------- */
+const STYPE={
+ kraft:{n:'Kraft',s:'str',c:'#ff6a3d',e:'Schatten-Berserker',nm:['Grimmak','Borag','Thrukk','Hakon','Brann']},
+ ausdauer:{n:'Ausdauer',s:'vit',c:'#3de0b0',e:'Schattenwolf',nm:['Fenrix','Skoll','Varg','Rhuun','Ylva']},
+ beweglichkeit:{n:'Beweglichkeit',s:'agi',c:'#4aa3ff',e:'Schatten-Assassine',nm:['Nyx','Kael','Zeph','Sirin','Vesper']},
+ geist:{n:'Geist',s:'int',c:'#a56bff',e:'Schatten-Magier',nm:['Mordai','Ilthis','Orrun','Seraph','Veyra']},
+ disziplin:{n:'Disziplin',s:'dis',c:'#cfd8ff',e:'Schatten-Ritter',nm:['Aldric','Kerron','Bastion','Torvald','Garr']}
+};
+const STK=['kraft','beweglichkeit','geist','disziplin','ausdauer'];
+const STAT2T={str:'kraft',vit:'ausdauer',agi:'beweglichkeit',int:'geist',dis:'disziplin'};
+const SRAR=[{n:'Bronze',c:'#cd8a4a',b:1.5,seal:'seal-bronze'},{n:'Silber',c:'#d6dcec',b:3,seal:'seal-silver'},{n:'Gold',c:'#ffd36b',b:5,seal:'seal-gold'},{n:'Diamant',c:'#7fe3ff',b:8,seal:'seal-diamond'}];
+const SR_W=[[80,18,2,0],[60,32,7,1],[40,40,17,3],[25,40,28,7],[10,35,40,15],[0,25,45,30]];
+const SMAXLV=20,TEAM_MAX=3;
+const sNeed=lv=>30+lv*15;
+const sPow=s=>SRAR[s.r].b+(s.lv-1)*0.25;
+const beats=(a,b)=>STK[(STK.indexOf(a)+1)%5]===b;
+function teamList(){const t=Array.isArray(S.team)?S.team:[];return t.map(id=>S.shadows.find(s=>s.id===id)).filter(Boolean).slice(0,TEAM_MAX)}
+function shadowPow(){
+  const tm=teamList(),ids=new Set(tm.map(s=>s.id));
+  return tm.reduce((a,s)=>a+sPow(s),0)+0.4*S.shadows.filter(s=>!ids.has(s.id)).reduce((a,s)=>a+sPow(s),0);
+}
+function rollRar(ri){const w=SR_W[Math.max(0,Math.min(5,ri))],x=Math.random()*100;let a=0;for(let i=0;i<4;i++){a+=w[i];if(x<a)return i}return 0}
+function mkShadow(t,ri){
+  const T=STYPE[t],base=T.nm[Math.floor(Math.random()*T.nm.length)],k=S.shadows.filter(s=>s.name===base||s.name.startsWith(base+' ')).length;
+  return {id:uid(),name:k?base+' '+(k+1):base,t,r:rollRar(ri),lv:1,xp:0,rank:rankOf(S.level)};
+}
+function addShadow(s){
+  S.shadows.push(s);
+  if(!Array.isArray(S.team))S.team=[];
+  if(teamList().length<TEAM_MAX)S.team.push(s.id);
+}
+function cardHtml(s,o){
+  o=o||{};const T=STYPE[s.t],R=SRAR[s.r],need=sNeed(s.lv);
+  return '<div class="scard r'+s.r+(o.big?' big':'')+'" style="--rc:'+R.c+';--tc:'+T.c+';--tg:'+T.c+'44'+'"><div class="sch"><span class="sct">'+T.n+'</span><span class="scl">Lv '+s.lv+'</span></div>'+
+   '<div class="scp"><img alt="" loading="lazy" src="img/sh-'+s.t+'.webp" onerror="this.remove()"></div>'+
+   '<b>'+esc(s.name)+'</b><div class="scf">'+gico(R.seal,18)+'<span>'+R.n+' · '+fmtN(sPow(s))+'</span></div>'+
+   (s.lv<SMAXLV?'<div class="bar vio"><i style="width:'+Math.min(100,(s.xp||0)/need*100)+'%"></i></div>':'<div class="scx">Maximal</div>')+(o.extra||'')+'</div>';
+}
+function shadowXp(n,stat){
+  const tm=teamList();if(!tm.length||!(n>0))return;
+  const ty=STAT2T[stat];
+  const ups=[];
+  tm.forEach(s=>{
+    if(s.lv>=SMAXLV)return;
+    const l0=s.lv;
+    s.xp=(s.xp||0)+Math.round(n*(ty&&s.t===ty?2:1));
+    while(s.lv<SMAXLV&&s.xp>=sNeed(s.lv)){s.xp-=sNeed(s.lv);s.lv++}
+    if(s.lv>=SMAXLV)s.xp=0;
+    if(s.lv>l0)ups.push(s.name+' Lv '+s.lv);
+  });
+  if(ups.length)toast('Level-Up: '+ups.slice(0,3).join(', ')+(ups.length>3?' ...':''));
+}
+function extractModal(s,title,txt){
+  modal({pic:'shadows',kind:'vio',title:title,body:'<div style="display:flex;justify-content:center">'+cardHtml(s,{big:true})+'</div><p style="margin-top:10px">'+txt+'</p><p class="dim" style="font-size:13px">'+(S.team.includes(s.id)?'Er kämpft jetzt in deinem Team.':'Weise ihn im Tab Schatten deinem Team zu.')+'</p>',btn:'Aufstehen'});
+}
+function teamHit(){
+  const tm=teamList(),mt=B.mon.shadow;
+  const ids=new Set(tm.map(s=>s.id));
+  let tot=0,adv=0,dis=0;
+  tm.forEach(s=>{let p=sPow(s)*rnd(.9,1.1);if(mt){if(beats(s.t,mt)){p*=1.5;adv++}else if(beats(mt,s.t)){p*=.7;dis++}}tot+=p});
+  tot+=0.4*S.shadows.filter(s=>!ids.has(s.id)).reduce((a,s)=>a+sPow(s),0);
+  tot=Math.round(tot);
+  if(tot<1)return;
+  B.mon.hp=Math.max(0,B.mon.hp-tot);
+  B.log.push({t:'Dein Team greift an: '+tot+' Schaden'+(adv?' (Typ-Vorteil!)':dis&&!adv?' (Typ-Nachteil)':'')+'.',c:'hit'});
+}
+/* Backup */
+function backupSave(){
+  try{
+    const j=JSON.stringify(Object.assign({},S,{ses:null}));
+    const u=URL.createObjectURL(new Blob([j],{type:'application/json'})),a=document.createElement('a');
+    a.href=u;a.download='hunter-sicherung-'+dayKey()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
+    S.bk=dayKey();save();toast('Sicherung gespeichert');
+  }catch(e){toast('Das Speichern ging nicht')}
+}
+let bkPending=null;
+function backupRead(file){
+  if(!file)return;
+  if(file.size>8e6){toast('Die Datei ist zu groß');return}
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const o=JSON.parse(String(r.result));
+      if(!o||typeof o!=='object'||typeof o.name!=='string'||!Array.isArray(o.quests)||typeof o.level!=='number')throw 0;
+      bkPending=o;
+      modal({kind:'bad',title:'Sicherung laden?',nobtn:true,body:'<p>Datei von <b>'+esc(o.name)+'</b>, Level '+(o.level|0)+'.</p><p>Dein jetziger Stand wird ersetzt.</p><div class="btnrow"><button class="btn bad" data-act="bk-load">Laden</button><button class="btn ghost" data-act="modal-ok">Abbrechen</button></div>'});
+      render();
+    }catch(e){toast('Das ist keine gültige Sicherung')}
+  };
+  r.readAsText(file);
+}
+function backupApply(){
+  if(!bkPending)return;
+  const o=bkPending;bkPending=null;
+  S=Object.assign(defaults(),o);S.ses=null;
+  try{migrate()}catch(e){}
+  S.savedAt=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  if(online){dirty=true;flush()}
+  tab='quests';nextModal();toast('Sicherung geladen');
+}
+let instEv=null;
+function backupSection(){
+  const last=S.bk?'Letzte Sicherung: '+S.bk+'.':'Noch nie gesichert.';
+  return '<section class="win"><div class="sub"><div><div class="lbl">Sicherung</div><h2>Spielstand als Datei</h2></div></div><p class="dim" style="font-size:14px;margin-bottom:10px">'+last+' Speichere die Datei an einem sicheren Ort. Mit ihr kannst du deinen Charakter auf jedem Gerät wiederherstellen.</p>'+
+   '<div class="acts"><button class="btn" data-act="bk-save">Sicherung speichern</button><label class="btn ghost" style="cursor:pointer">Sicherung laden<input type="file" id="bkFile" accept="application/json,.json" style="display:none"></label></div></section>'+
+   '<section class="win"><div class="sub"><div><div class="lbl">App</div><h2>Auf dem Startbildschirm</h2></div></div><p class="dim" style="font-size:14px;margin-bottom:8px">Installiert startet Hunter wie eine App, ohne Browserleiste.</p>'+
+   '<p style="margin:6px 0;font-size:14px"><b>Android (Chrome):</b> Menü ⋮ → „App installieren“ oder „Zum Startbildschirm“.</p>'+
+   '<p style="margin:6px 0;font-size:14px"><b>iPhone (Safari):</b> Teilen-Symbol → „Zum Home-Bildschirm“.</p>'+(instEv?'<div class="acts" style="margin-top:10px"><button class="btn ok" data-act="inst">Jetzt installieren</button></div>':'')+'</section>';
+}
+/* Pausen-Spiel */
+let rg=null;
+function rgEl(){let e=document.getElementById('rg');if(!e){e=document.createElement('div');e.id='rg';e.setAttribute('role','dialog');e.setAttribute('aria-modal','true');e.setAttribute('aria-label','Reaktionstest');document.body.appendChild(e)}return e}
+function rgRender(){
+  if(!rg){const e=document.getElementById('rg');if(e)e.remove();return}
+  const e=rgEl(),b=S.sg&&S.sg.best?'Bestzeit: '+S.sg.best+' ms':'';
+  let m='';
+  if(rg.st==='ready')m='<h2>Reaktionstest</h2><p class="dim">Warte auf Grün, dann tippe so schnell du kannst. Drei Runden. Dein Team bekommt Schatten-XP.</p><div class="rg-b" data-act="rg-go"><b>Start</b></div><p class="qp">'+b+'</p>';
+  else if(rg.st==='wait')m='<div class="rg-b w" data-rg="tap"><b>Warte ...</b></div><p class="qp">Runde '+(rg.r.length+1)+' von 3</p>';
+  else if(rg.st==='go')m='<div class="rg-b g" data-rg="tap"><b>JETZT!</b></div><p class="qp">Runde '+(rg.r.length+1)+' von 3</p>';
+  else if(rg.st==='early')m='<div class="rg-b e" data-act="rg-next"><b>Zu früh</b><small>Tippe zum Weitermachen</small></div>';
+  else if(rg.st==='mid')m='<div class="rg-b" data-act="rg-next"><b>'+rg.r[rg.r.length-1]+' ms</b><small>Weiter</small></div><p class="qp">Runde '+rg.r.length+' von 3</p>';
+  else m='<h2>'+rg.avg+' ms</h2><p class="dim">Durchschnitt aus drei Runden.</p><p style="font-family:var(--f-d);font-size:22px;color:var(--ok)">'+(rg.gain>0?'+'+rg.gain+' Schatten-XP für dein Team':(teamList().length?'Heute ist das Limit erreicht':'Du hast noch keine Schatten im Team'))+'</p><div class="acts" style="justify-content:center"><button class="btn" data-act="rg-open">Nochmal</button><button class="btn ghost" data-act="rg-close">Schließen</button></div>';
+  e.innerHTML='<div class="rg-in">'+m+(rg.st!=='done'?'<button class="btn ghost sm" data-act="rg-close" style="margin-top:14px">Abbrechen</button>':'')+'</div>';
+}
+function rgOpen(){rg={st:'ready',r:[],t0:0,tm:null,avg:0,gain:0};rgRender()}
+function rgGo(){
+  rg.st='wait';rgRender();
+  clearTimeout(rg.tm);
+  rg.tm=setTimeout(()=>{if(!rg)return;rg.st='go';rg.t0=performance.now();rgRender()},1200+Math.random()*2600);
+}
+function rgTap(){
+  if(!rg)return;
+  if(rg.st==='wait'){clearTimeout(rg.tm);rg.st='early';rg.lock=performance.now()+450;rgRender();return}
+  if(rg.st==='go'){
+    const ms=Math.max(1,Math.round(performance.now()-rg.t0));
+    rg.r.push(ms);
+    if(rg.r.length>=3){rg.lock=performance.now()+450;rgDone()}else{rg.st='mid';rg.lock=performance.now()+450;rgRender()}
+  }
+}
+function rgDone(){
+  const avg=Math.round(rg.r.reduce((a,b)=>a+b,0)/3);
+  rg.avg=avg;rg.st='done';
+  const t=dayKey();if(!S.sg||S.sg.day!==t)S.sg=Object.assign({},S.sg,{day:t,n:0});
+  const want=Math.max(1,Math.min(8,Math.round((520-avg)/40)));
+  const room=Math.max(0,40-S.sg.n);
+  const g=teamList().length?Math.min(want,room):0;
+  rg.gain=g;
+  if(g>0){S.sg.n+=g;shadowXp(g)}
+  const mn=Math.min(...rg.r);if(!S.sg.best||mn<S.sg.best)S.sg.best=mn;
+  save();rgRender();
+}
+function rgNext(){
+  if(!rg||performance.now()<(rg.lock||0))return;
+  if(rg.st==='early'||rg.st==='mid')rgGo();
+}
+/* Wochenrückblick */
+function weekReview(){
+  const w0=addDays(weekStart(),-7),w1=addDays(w0,6),p0=addDays(w0,-7),p1=addDays(w0,-1);
+  const inW=(a,b)=>Object.keys(S.hist||{}).filter(k=>k>=a&&k<=b).map(k=>[k,S.hist[k]]);
+  const hw=inW(w0,w1),hp=inW(p0,p1);
+  if(hw.length<3)return null;
+  const full=hw.filter(x=>x[1].t>0&&x[1].d>=x[1].t).length,done=hw.reduce((a,x)=>a+x[1].d,0),tot=hw.reduce((a,x)=>a+x[1].t,0);
+  const fullP=hp.filter(x=>x[1].t>0&&x[1].d>=x[1].t).length;
+  const tl=(S.tlog||[]).filter(e=>e.d>=w0&&e.d<=w1),vol=tl.reduce((a,e)=>a+(e.vol||0),0);
+  const plan=trainDays();
+  return {w0,w1,full,days:hw.length,done,tot,fullP,hasP:hp.length>=3,units:tl.length,plan,vol,pct:tot?Math.round(done/tot*100):0};
+}
+function weekTip(r){
+  if(r.pct<50)return 'Weniger ist mehr: Kürze für die neue Woche deine Tagesquests, aber mach sie jeden Tag. Eine Serie zählt mehr als ein großer Tag.';
+  if(r.plan>0&&r.units<r.plan)return 'Du hast '+r.units+' von '+r.plan+' Einheiten geschafft. Lege dein Training fest auf Tage, an denen du sicher Zeit hast, und stell dir die Erinnerung ein.';
+  if(r.full>=6)return 'Starke Woche. Erhöhe in dieser Woche ein einziges Ziel um etwa 10 %, zum Beispiel mit dem Stift an einer Quest.';
+  return 'Gute Basis. Suche dir die Quest, die du am häufigsten ausgelassen hast, und mach sie zuerst am Tag.';
+}
+function reviewCard(){
+  if(!S.started||S.wr===weekStart())return '';
+  const r=weekReview();if(!r)return '';
+  const dd=r.hasP?(r.full-r.fullP):null;
+  return '<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Wochenrückblick</div><h2>Deine letzte Woche</h2></div><span class="qp">'+shortD(r.w0)+' – '+shortD(r.w1)+'</span></div>'+
+   '<div class="kv"><div><span class="lbl">Volle Tage</span><span class="num">'+r.full+' / '+r.days+'</span></div><div><span class="lbl">Quests</span><span class="num">'+r.pct+' %</span></div><div><span class="lbl">Einheiten</span><span class="num">'+r.units+(r.plan?' / '+r.plan:'')+'</span></div></div>'+
+   '<p class="dim" style="font-size:14px;margin:10px 0 0">'+(r.vol?'Du hast '+fmtN(Math.round(r.vol/100)/10)+' t bewegt. ':'')+(dd==null?'':dd>0?'Das sind '+dd+' volle Tage mehr als davor.':dd<0?'Das sind '+(-dd)+' volle Tage weniger als davor.':'Gleich viele volle Tage wie davor.')+'</p>'+
+   '<p style="margin:10px 0 0;font-size:15px"><b>Tipp:</b> '+esc(weekTip(r))+'</p>'+
+   '<div class="acts" style="margin-top:12px"><button class="btn ok" data-act="wr-ok">Neue Woche starten</button></div></section>';
+}
+/* Schatten-Ansicht */
+function viewShadows(){
+  const k=S.totalDone%SHADOW_EVERY,tm=teamList(),all=S.shadows.slice().sort((a,b)=>b.r-a.r||b.lv-a.lv),ids=new Set(tm.map(s=>s.id));
+  let h='<section class="win vio">'+scene('shadows')+'<div class="sub"><div><div class="lbl" style="color:var(--violet)">Schattenarmee</div><h2>'+S.shadows.length+' Schatten</h2></div><span class="qp">Stärke '+fmtN(shadowPow())+'</span></div>'+
+   '<div class="row" style="justify-content:space-between;font-family:var(--f-d);letter-spacing:.08em;font-size:13px;margin-bottom:3px"><span class="dim">Nächste Extraktion</span><span class="num">'+k+' / '+SHADOW_EVERY+'</span></div><div class="bar vio"><i style="width:'+(k/SHADOW_EVERY*100)+'%"></i></div>'+
+   '<p class="dim" style="font-size:13px;margin:8px 0 0">Alle '+SHADOW_EVERY+' Quests extrahierst du einen Schatten, sein Typ folgt der Quest. Im Dungeon kannst du Schatten-Gegner besiegen und ihre Seele nehmen.</p></section>';
+  h+='<section class="win"><div class="sub"><div><div class="lbl">Dein Team</div><h2>'+tm.length+' / '+TEAM_MAX+'</h2></div></div>'+
+   (tm.length?'<div class="steam">'+tm.map(s=>cardHtml(s,{extra:'<button class="btn ghost sm" data-act="sh-team" data-id="'+s.id+'">Entlassen</button>'})).join('')+'</div>':'<div class="empty">Dein Team ist leer. Wähle unten bis zu '+TEAM_MAX+' Schatten. Sie kämpfen im Dungeon mit und sammeln Erfahrung, wenn du Quests schaffst.</div>')+
+   '<p class="dim" style="font-size:13px;margin-top:10px">Schatten außerhalb des Teams helfen mit 40 % ihrer Stärke.</p></section>';
+  h+='<section class="win"><div class="sub"><div class="lbl">Typen</div></div><div class="tychart">'+STK.map((t,i)=>'<span class="tyc" style="--tc:'+STYPE[t].c+'">'+STYPE[t].n+'</span><i>›</i>').join('')+'<span class="tyc" style="--tc:'+STYPE.kraft.c+'">Kraft</span></div><p class="dim" style="font-size:13px;margin-top:8px">Jeder Typ schlägt den nächsten: 1,5× Schaden. Gegen den vorherigen sind es 0,7×. Das zählt gegen Schatten-Gegner im Dungeon.</p></section>';
+  h+='<section class="win"><div class="sub"><div class="lbl">Sammlung</div><span class="qp">sortiert nach Seltenheit</span></div>'+
+   (all.length?'<div class="sgrid2">'+all.map(s=>cardHtml(s,{extra:'<button class="btn '+(ids.has(s.id)?'ghost':'ok')+' sm" data-act="sh-team" data-id="'+s.id+'">'+(ids.has(s.id)?'Im Team':'Ins Team')+'</button>'})).join('')+'</div>':'<div class="empty">Noch keine Schatten. Schließe Quests ab oder besiege Schatten-Gegner im Dungeon.</div>')+'</section>';
+  return h;
+}
+
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEv=e});
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
 
 /* ---------- state + persistence ---------- */
 let S=defaults();
@@ -2408,12 +2653,12 @@ function isFriend(p){return S.friends.some(f=>f.id===p.id)||(Array.isArray(p.fl)
 function myCard(){
   const c=consistency();
   return {name:S.name,level:S.level,rank:rankOf(S.level),stats:Object.assign({},S.stats),cons:c.pct,days:c.days,
-    gw:S.gear.weapon?S.gear.weapon.val:0,ga:S.gear.armor?S.gear.armor.val:0,sh:S.shadows.length,thumb:S.thumb||null,
+    gw:S.gear.weapon?S.gear.weapon.val:0,ga:S.gear.armor?S.gear.armor.val:0,sh:Math.min(999,Math.round(shadowPow()/1.5)),thumb:S.thumb||null,
     cls:String(getProfile().klasse||'').slice(0,40),ti:titleOf(),au:null,pr:prestigeOf(),fc:myFc(),fl:S.friends.map(f=>f.id).slice(0,100),rc:recVals()};
 }
 function pStats(){
   const s=S.stats;
-  return {hp:50+s.vit*5,mp:20+s.int*3,atk:4+s.str*0.9+(S.gear.weapon?S.gear.weapon.val:0)+S.shadows.length*1.5,
+  return {hp:50+s.vit*5,mp:20+s.int*3,atk:4+s.str*0.9+(S.gear.weapon?S.gear.weapon.val:0)+shadowPow(),
     def:s.vit*0.25+(S.gear.armor?S.gear.armor.val:0),dodge:Math.min(.35,s.agi*.004),crit:Math.min(.4,s.dis*.005)};
 }
 
@@ -2455,10 +2700,11 @@ function completeQuest(q){
     const kc=q.type==='dungeon'||q.type==='weekly'||q.type==='boss'?1:q.type==='gym'?0.35:q.type==='system'?0.4:0.15;
     if(Math.random()<kc)giveKey(q.type==='dungeon'?'Dungeon':'');
     if(q.type==='boss'){const it=bossGear(),how=addToBag(it);S.keys++;modal({pic:'victory',kind:'vio',title:'Boss besiegt',body:'<p style="font-family:var(--f-d);font-size:22px">'+esc(q.name)+'</p><p>Beute: '+esc(it.name)+' (+'+it.val+' '+(it.kind==='weapon'?'Angriff':'Rüstung')+'), '+how+'</p><p>Dazu ein Schlüssel.</p>',btn:'Weiter'})}
+    shadowXp(Math.max(1,Math.round(gx/10)),q.stat);
     if(S.totalDone%SHADOW_EVERY===0){
-      const n=S.shadows.length+1;
-      S.shadows.push({id:uid(),name:'Schatten-Soldat #'+n,rank:rankOf(S.level)});
-      modal({pic:'shadows',kind:'vio',title:'Extraktion',body:'<img class="shd" alt="" src="img/shadow-'+SH_T[(n-1)%3]+'.webp" onerror="this.remove()"><div class="big" style="color:var(--violet);text-shadow:0 0 20px var(--violet)">Schatten #'+n+'</div><p>Ein neuer Soldat dient dir jetzt, Rang '+rankOf(S.level)+'. Er verstärkt dich im Kampf.</p>',btn:'Aufstehen'});
+      const ty=STAT2T[q.stat]||STK[Math.floor(Math.random()*5)],sh=mkShadow(ty,rankIdx(S.level));
+      addShadow(sh);
+      extractModal(sh,'Extraktion','Aus deinen Quests ist ein neuer Schatten entstanden, '+STYPE[ty].n+'-Typ.');
     }
   }else toast(q.type==='dungeon'?'Heute war schon ein Dungeon dran: keine Belohnung mehr.':'Tageslimit erreicht: Diese Quest bringt heute keine Belohnung mehr.');
   if(q.type==='daily'){
@@ -2552,10 +2798,10 @@ function startBattle(door){
   if(S.keys<1||B)return;
   const ri=Math.min(5,rankIdx(S.level)+(door==='red'?1:0));
   const L=S.level,p=pStats();
-  const mo=MON[ri][Math.floor(Math.random()*3)],name=mo[0];
+  const mo=MON[ri][Math.floor(Math.random()*3)],sh=Math.random()<0.4,ty=STK[Math.floor(Math.random()*5)],name=sh?STYPE[ty].e:mo[0];
   const mhp=Math.round(40+L*8+ri*25);
-  B={ri,door,mon:{name,img:mo[1],fx:mo[2],hp:mhp,max:mhp,atk:6+L*1.5+ri*4},p:{hp:p.hp,max:p.hp,mp:p.mp,maxmp:p.mp},
-     log:[{t:'Eine '+(door==='red'?'rote ':'')+'Tür öffnet sich. '+name+' (Rang '+RANKS[ri]+') greift an!',c:''}],stun:0,dodge:false,over:null,res:null};
+  B={ri,door,mon:{name,img:mo[1],fx:sh?'':mo[2],src:sh?'img/sh-'+ty+'.webp':null,shadow:sh?ty:null,hp:mhp,max:mhp,atk:6+L*1.5+ri*4},p:{hp:p.hp,max:p.hp,mp:p.mp,maxmp:p.mp},
+     log:[{t:'Eine '+(door==='red'?'rote ':'')+'Tür öffnet sich. '+name+' (Rang '+RANKS[ri]+') greift an!'+(sh?' Typ: '+STYPE[ty].n+'.':''),c:''}],stun:0,dodge:false,over:null,res:null};
 }
 function monsterTurn(){
   const m=B.mon,p=pStats();
@@ -2573,7 +2819,7 @@ function playerHit(mulT,txt){
   dmg=Math.max(1,Math.round(dmg));
   B.mon.hp=Math.max(0,B.mon.hp-dmg);B.hit=true;
   B.log.push({t:txt+' '+dmg+' Schaden'+(crit?' (kritisch!)':'')+'.',c:'hit'});
-  if(S.shadows.length){const sd=Math.round(S.shadows.length*1.5);B.mon.hp=Math.max(0,B.mon.hp-sd);B.log.push({t:'Deine Schatten greifen an: '+sd+' Schaden.',c:'hit'})}
+  teamHit();
 }
 function battleAct(a){
   if(!B||B.over)return;
@@ -2630,8 +2876,13 @@ function endBattle(win){
       }
     }
     B.res={win:true,xp,g,lt,li};
+    let ext=null;
+    if(Math.random()<(B.mon.shadow?(B.door==='red'?0.7:0.45):0.08)){
+      const ty=B.mon.shadow||STK[Math.floor(Math.random()*5)];ext=mkShadow(ty,B.ri+(B.door==='red'?1:0));addShadow(ext);
+    }
     B.log.push({t:B.mon.name+' ist besiegt!',c:'good'});
     save();grantXP(xp);
+    if(ext)extractModal(ext,'Schatten extrahiert','Du nimmst dem besiegten Gegner seine Seele. Er dient jetzt dir.');
   }else{
     const lg=Math.round(S.gold*0.1);S.gold-=lg;
     B.res={win:false,lg};
@@ -2896,7 +3147,7 @@ function planHtml(){
 }
 function viewQuests(){
   const d=S.quests.filter(q=>q.type==='daily'),dn=d.filter(q=>q.done).length;
-  let h=onbCard()+tutCard()+growCard();
+  let h=onbCard()+tutCard()+reviewCard()+growCard();
   if(S.penalties.length){
     h+='<section class="win bad" id="pen-zone"><div class="banner"><img alt="" src="img/ui-penalty.webp" onerror="this.parentNode.remove()"></div><div class="sub"><h2>Strafzone</h2><span class="lbl">'+S.penalties.length+' offen</span></div>'+
       S.penalties.map(p=>'<div class="item"><div class="pic pth red" style="--c:#ff5468"><img alt="" loading="lazy" src="img/quest-'+qKey({name:p.text})+'-s.webp" onerror="this.remove()"></div><span class="nm">'+esc(p.text)+'</span>'+(hasIt('pardon')?'<button class="btn ghost sm" data-act="pen-erlass" data-id="'+p.id+'" title="Strafen-Erlass einsetzen">Erlass ('+hasIt('pardon')+')</button>':'')+'<button class="btn bad sm" data-act="pen" data-id="'+p.id+'">Abgeleistet</button></div>').join('')+'</section>';
@@ -2936,8 +3187,8 @@ function monBlock(){
   }
   return '<div class="stage'+(B.door==='red'?' red':'')+'" style="--bc:'+(B.door==='red'?'#d81f3c':RK_COL[B.ri])+'">'+
     '<img class="bg" alt="" src="img/dungeon-'+(B.door==='red'?'lava':RK_BG[B.ri])+'.webp" onerror="this.remove()">'+
-    '<div class="top"><div class="who"><span>'+esc(m.name)+'</span><small>Rang '+RANKS[B.ri]+'</small></div><div class="bar red"><i style="width:'+(m.hp/m.max*100)+'%"></i></div><div class="qp">'+m.hp+' / '+m.max+' LP</div></div>'+
-    '<img class="mimg'+(hurt?' hurt':'')+(B.over==='win'?' dead':'')+'" alt="'+esc(m.name)+'" src="img/mon-'+m.img+'.webp" style="'+(m.fx?'filter:'+m.fx+' ':'')+'" onerror="this.remove()">'+
+    '<div class="top"><div class="who"><span>'+esc(m.name)+'</span><small>Rang '+RANKS[B.ri]+(m.shadow?' · '+STYPE[m.shadow].n:'')+'</small></div><div class="bar red"><i style="width:'+(m.hp/m.max*100)+'%"></i></div><div class="qp">'+m.hp+' / '+m.max+' LP</div></div>'+
+    '<img class="mimg'+(hurt?' hurt':'')+(B.over==='win'?' dead':'')+'" alt="'+esc(m.name)+'" src="'+(m.src||'img/mon-'+m.img+'.webp')+'" style="'+(m.fx?'filter:'+m.fx+' ':'')+'" onerror="this.remove()">'+
     '<div class="bot"><div><div class="who">'+esc(S.name)+'</div><div class="bar ok"><i style="width:'+(p.hp/p.max*100)+'%"></i></div><div class="qp">'+p.hp+' / '+p.max+' LP</div></div>'+
     '<div><div class="who dim">Mana</div><div class="bar mp"><i style="width:'+(p.mp/p.maxmp*100)+'%"></i></div><div class="qp">'+Math.round(p.mp)+' / '+p.maxmp+' MP</div></div></div></div>'+
     '<section class="win">'+(B.over?scene(B.over==='win'?'victory':'defeat'):'')+'<div class="log" style="margin-bottom:12px" aria-live="polite">'+log+'</div><div class="acts">'+acts+'</div></section>';
@@ -3056,13 +3307,6 @@ function viewKalender(){
    '<div class="heat" role="img" aria-label="Kalender der letzten 12 Wochen">'+cells+'</div>'+
    '<div class="legend"><span><i style="background:#2a1220;border:1px solid #ff546855"></i>nichts</span><span><i style="background:#16337a"></i>teilweise</span><span><i style="background:#2a6cd6"></i>fast alles</span><span><i style="background:var(--ok)"></i>alles</span><span>Spalten sind Wochen, Zeilen Mo bis So. Heute ist umrandet.</span></div></section>'+
    '<section class="win"><div class="sub"><div class="lbl">Bilanz</div></div><div class="kv"><div><span class="lbl">Konstanz (14 Tage)</span><span class="num">'+(c.days?c.pct+' %':'–')+'</span></div><div><span class="lbl">Serie</span><span class="num">'+S.streak+'</span></div><div><span class="lbl">Beste Serie</span><span class="num">'+S.bestStreak+'</span></div><div><span class="lbl">Volle Tage</span><span class="num">'+full+'</span></div><div><span class="lbl">Quests gesamt</span><span class="num">'+S.totalDone+'</span></div><div><span class="lbl">Kämpfe gewonnen</span><span class="num">'+S.wins+'</span></div></div></section>';
-}
-function viewShadows(){
-  const k=S.totalDone%SHADOW_EVERY;
-  return '<section class="win vio">'+scene('shadows')+'<div class="sub"><div><div class="lbl" style="color:var(--violet)">Schattenarmee</div><h2>'+S.shadows.length+' Soldaten</h2></div></div>'+
-   '<div class="row" style="justify-content:space-between;font-family:var(--f-d);letter-spacing:.08em;font-size:13px;margin-bottom:3px"><span class="dim">Nächste Extraktion</span><span class="num">'+k+' / '+SHADOW_EVERY+'</span></div><div class="bar vio"><i style="width:'+(k/SHADOW_EVERY*100)+'%"></i></div>'+
-   '<p class="dim" style="font-size:13px;margin:8px 0">Alle '+SHADOW_EVERY+' abgeschlossenen Quests wird ein Schatten extrahiert. Jeder Soldat greift in deinen Kämpfen mit und macht +1,5 Schaden pro Runde, auch im Duell.</p>'+
-   (S.shadows.length?'<div class="sgrid">'+S.shadows.map((s,i)=>{const t=SH_T[i%3];return '<div class="sc"><img alt="" loading="lazy" src="img/shadow-'+t+'.webp" onerror="this.remove()"><b>'+esc(s.name)+'</b><small>'+SH_L[t]+' · Rang '+s.rank+'</small></div>'}).reverse().join('')+'</div>':'<div class="empty">Noch keine Schatten. Schließe Quests ab.</div>')+'</section>';
 }
 function render(){
   if(S.started&&checkAch())save();
@@ -3387,6 +3631,22 @@ document.addEventListener('click',e=>{
       S.quests=S.quests.filter(q=>q.type!=='gym');S.ses=null;sesOn=false;sesRender();save();toast('Trainingsplan entfernt');break;
     }
     case 'tp-on':S.tpHide=false;tab='plan';break;
+    case 'sh-team':{
+      if(!Array.isArray(S.team))S.team=[];
+      if(!S.shadows.some(x=>x.id===id))return;
+      if(S.team.includes(id))S.team=S.team.filter(x=>x!==id);
+      else if(teamList().length>=TEAM_MAX){toast('Dein Team ist voll. Entlasse zuerst einen Schatten.');return}
+      else S.team.push(id);
+      save();break;
+    }
+    case 'bk-save':backupSave();return;
+    case 'bk-load':backupApply();break;
+    case 'inst':if(instEv){instEv.prompt();instEv=null}break;
+    case 'rg-open':rgOpen();return;
+    case 'rg-go':rgGo();return;
+    case 'rg-next':rgNext();return;
+    case 'rg-close':if(rg)clearTimeout(rg.tm);rg=null;rgRender();return;
+    case 'wr-ok':S.wr=weekStart();save();break;
     case 'use':{
       const h=S.inv.find(x=>x.name===id);
       if(h){h.n--;if(h.n<=0)S.inv=S.inv.filter(x=>x!==h);save();toast('Eingelöst: '+id)}
@@ -3397,6 +3657,8 @@ document.addEventListener('click',e=>{
   render();
   doJump();
 });
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='bkFile'){backupRead(e.target.files[0]);e.target.value=''}});
+document.addEventListener('pointerdown',e=>{const t=e.target.closest&&e.target.closest('[data-rg=tap]');if(t&&rg){e.preventDefault();rgTap()}});
 document.addEventListener('input',e=>{
   if(e.target.dataset&&e.target.dataset.si){sesInput(e.target);return}
   if(e.target.id==='vEx'){vEx=e.target.value;render();return}
