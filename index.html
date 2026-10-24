@@ -570,6 +570,28 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:60
 .win.vio .ob-feat{margin-top:6px}
 input[type=time]{color-scheme:dark;font-size:16px}
 
+/* v19 */
+.seg.c4{grid-template-columns:repeat(4,1fr)}
+.seg.c4 button{font-size:14px;letter-spacing:0;padding:8px 1px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.si{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.si .sm b{display:block;font-family:var(--f-d);font-size:20px;letter-spacing:.03em;line-height:1.15}
+.si .sm small{display:block;color:var(--dim);font-size:13px;line-height:1.35;margin-top:2px}
+.si .btn{min-width:74px}
+.flash{animation:flash 1.8s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 2px var(--glow),0 0 28px #5ad2ffaa}100%{box-shadow:0 0 0 0 transparent}}
+@media (prefers-reduced-motion:reduce){.flash{animation:none;outline:2px solid var(--glow)}}
+[id=pen-zone],[id=gymc],[id=stat-pts],[id=doors],[id=duel-in]{scroll-margin-top:10px}
+.chart{width:100%;height:auto;display:block;margin-top:8px}
+.chart text{fill:var(--dim);font-size:10px;font-family:var(--f-b)}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart .cb{fill:#2a6cd6}
+.chart .cb.now{fill:var(--glow)}
+.chart .ln{fill:none;stroke:var(--glow);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}
+.chart .pt{fill:#0d1233;stroke:var(--glow);stroke-width:2}
+.chart .pt.now{fill:var(--glow)}
+.chart .tg{stroke:var(--warn);stroke-width:1.4;stroke-dasharray:5 4}
+.chart text.tgt{fill:var(--warn);font-weight:600}
+
 </style>
 </head>
 <body>
@@ -630,7 +652,7 @@ function shopMinTier(name){
 }
 function genPenalty(){
   const t=PEN_T[Math.floor(Math.random()*PEN_T.length)];
-  const n=Math.max(5,Math.round(t.b*(1+S.level*0.02)/5)*5);
+  const n=Math.max(10,Math.round(t.b*1.5*(1+S.level*0.03)/5)*5);
   return n+' '+t.u+' '+t.n;
 }
 function mkQ(name,target,unit,stat){const xp=calcXP(target,unit,'daily');return {id:uid(),name,target,unit,stat,xp,gold:calcGold(xp),type:'daily',rank:'E',cur:0,done:false}}
@@ -725,6 +747,10 @@ function migrate(){
     S.cnt.vol=Math.max(S.cnt.vol||0,tl.reduce((a,e)=>a+(e.vol||0),0));
     if(S.tutOk==null)S.tutOk=false;
     S.v=9;ch=true}
+  if((S.v||0)<10){
+    S.shop=[];if(!Array.isArray(S.inv))S.inv=[];
+    S.items={shield:S.started?1:0,pardon:0,decree:0};S.buy=null;if(!Array.isArray(S.goals))S.goals=[];
+    S.v=10;ch=true}
   return ch;
 }
 const SHADOW_EVERY=20;
@@ -1002,15 +1028,15 @@ const trainDays=()=>S.tp?S.tp.days.filter(isTrain).length:0;
 const catThumb=(c,sz)=>'<img class="gq" alt="" loading="lazy" src="img/cat-'+c+'-s.webp" style="--gs:'+(sz||44)+'px" onerror="this.remove()">';
 const tgtTxt=(e,x)=>(e.m==='min'||e.m==='km')?x.r+' '+unitOf(e):x.s+' × '+x.r+' '+unitOf(e);
 function gymCard(){
-  if(!S.tp)return '<section class="win gym"><div class="gbanner"><img alt="" src="img/ui-plan.webp" onerror="this.remove()"><span class="gtag">GYM</span><div class="gcap"><div class="gt">Trainingsplan</div><div class="gs">Übungen, Sätze und Ruhetage</div></div></div><p class="gx">Lass dir einen Wochenplan erstellen. An jedem Trainingstag erscheint hier deine GYM-Quest.</p><div class="acts"><button class="btn" data-act="go-plan">Plan erstellen</button></div></section>';
+  if(!S.tp)return '<section id="gymc" class="win gym"><div class="gbanner"><img alt="" src="img/ui-plan.webp" onerror="this.remove()"><span class="gtag">GYM</span><div class="gcap"><div class="gt">Trainingsplan</div><div class="gs">Übungen, Sätze und Ruhetage</div></div></div><p class="gx">Lass dir einen Wochenplan erstellen. An jedem Trainingstag erscheint hier deine GYM-Quest.</p><div class="acts"><button class="btn" data-act="go-plan">Plan erstellen</button></div></section>';
   const t=wdToday(),d=S.tp.days[t],q=S.quests.find(x=>x.type==='gym'&&x.day===dayKey());
   if(!isTrain(d)){
     const nx=nextTrain();
-    return '<section class="win gym rest"><div class="gr">'+gico('ico-rest',64)+'<div><div class="lbl">Heute</div><h2>Ruhetag</h2><p class="dim" style="font-size:14px;margin-top:2px">Erholung gehört zum Training.'+(nx?' Nächste Einheit: '+(nx.k===1?'morgen':WDL[nx.i])+', '+esc(nx.d.n)+'.':'')+'</p>'+(S.started&&protLeft()>0?'<div class="chips" style="margin-top:8px"><span class="chip sys">Serie geschützt</span></div>':'')+'</div></div></section>';
+    return '<section id="gymc" class="win gym rest"><div class="gr">'+gico('ico-rest',64)+'<div><div class="lbl">Heute</div><h2>Ruhetag</h2><p class="dim" style="font-size:14px;margin-top:2px">Erholung gehört zum Training.'+(nx?' Nächste Einheit: '+(nx.k===1?'morgen':WDL[nx.i])+', '+esc(nx.d.n)+'.':'')+'</p>'+(S.started&&protLeft()>0?'<div class="chips" style="margin-top:8px"><span class="chip sys">Serie geschützt</span></div>':'')+'</div></div></section>';
   }
   const st=dayStats(d),cat=mainCat(d),done=q&&q.done,S0=S.ses&&S.ses.day===dayKey()?S.ses:null;
   const names=d.ex.map(x=>{const e=exOf(x.e);return e?esc(e.n):''}).filter(Boolean);
-  let h='<section class="win gym'+(done?' done':'')+'"><div class="gbanner"><img alt="" src="img/cat-'+cat+'.webp" onerror="this.remove()"><span class="gtag">GYM</span><div class="gcap"><div class="gt">'+esc(d.n)+'</div><div class="gs">'+st.n+' Übungen · '+st.sets+' Sätze · ca. '+st.min+' Min.</div></div></div>';
+  let h='<section id="gymc" class="win gym'+(done?' done':'')+'"><div class="gbanner"><img alt="" src="img/cat-'+cat+'.webp" onerror="this.remove()"><span class="gtag">GYM</span><div class="gcap"><div class="gt">'+esc(d.n)+'</div><div class="gs">'+st.n+' Übungen · '+st.sets+' Sätze · ca. '+st.min+' Min.</div></div></div>';
   if(done){
     const lg=(S.tlog||[]).filter(e=>e.d===dayKey()).slice(-1)[0];
     h+='<div class="gdone">'+gico('ico-setdone',44)+'<div><b>Erledigt</b><small>'+(lg?(lg.direct?'Ohne Protokoll abgehakt':lg.sets+' Sätze'+(lg.vol?' · '+lg.vol+' kg Volumen':'')):'Training geschafft')+' · +'+q.xp+' XP</small></div></div></section>';
@@ -1081,6 +1107,7 @@ function planSettings(){
   const s=S.tp.set;
   let h='<section class="win"><div class="sub"><div><div class="lbl">Einstellungen</div><h2>Plan neu aufbauen</h2></div><button class="btn ghost sm" data-act="tp-setopen">'+(tpSetOpen?'Schließen':'Öffnen')+'</button></div><div class="chips"><span class="chip">'+(s.place==='gym'?'Studio':'Zu Hause')+'</span><span class="chip">'+s.days+' Tage</span><span class="chip">'+(s.time===60?'60+':s.time)+' Min.</span><span class="chip">'+(SPLITS[s.split]||SPLITS.fb).n+'</span></div>';
   if(tpSetOpen)h+=setForm()+'<div class="acts" style="margin-top:14px"><button class="btn '+(tpArm==='gen'?'bad':'warn')+'" data-act="tp-gen">'+(tpArm==='gen'?'Sicher? Alle Tage werden ersetzt':'Plan neu erstellen')+'</button></div><p class="ob-note">Eigene Änderungen an den Tagen gehen dabei verloren. Deine Gewichte und Bestwerte bleiben erhalten.</p>';
+  h+='<div class="acts" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><button class="btn '+(tpArm==='off'?'bad':'ghost')+' sm" data-act="tp-off">'+(tpArm==='off'?'Sicher? Plan und Tages-GYM-Quest verschwinden':'Keinen Trainingsplan mehr')+'</button></div><p class="ob-note">Deine Protokolle, Bestwerte und Gewichte bleiben erhalten. Du kannst später jederzeit einen neuen Plan erstellen.</p>';
   return h+'</section>';
 }
 function histSection(){
@@ -1842,7 +1869,7 @@ const statName=k=>{const s=STATS.find(x=>x[0]===k);return s?s[1]:''};
 function defaults(){
   const dq=(name,target,unit,stat)=>mkQ(name,target,unit,stat);
   return {
-    v:9,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
+    v:10,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
     stats:{str:10,vit:10,agi:10,int:10,dis:10},prog:{str:0,vit:0,agi:0,int:0,dis:0},
     quests:[
       dq('Liegestütze',50,'Wdh.','str',20,10),
@@ -1852,14 +1879,11 @@ function defaults(){
       dq('Lernen',30,'Min.','int',25,12),
       dq('Früh aufstehen und Bett machen',1,'','dis',15,8)
     ],
-    shop:[
-      {id:uid(),name:'1 Folge Anime',price:40},{id:uid(),name:'Snack nach Wahl',price:40},
-      {id:uid(),name:'1 Std. Gaming',price:100},{id:uid(),name:'Freier Abend',price:250},{id:uid(),name:'Cheat-Meal',price:300}
-    ],
+    shop:[],
     inv:[],penaltyText:'20 Burpees pro verpasstem Tag',penalties:[],
     lastDay:null,lastComplete:null,streak:0,bestStreak:0,totalDone:0,shadows:[],savedAt:0,
     avatar:null,thumb:null,profile:null,hist:{},keys:1,potions:1,gear:{weapon:null,armor:null},
-    aura:null,cls:'',look:null,bag:[],plan:{d:[[],[],[],[],[],[],[]]},planBonus:null,tp:null,tlog:[],exl:{},exb:{},cx:[],ses:null,tpHide:false,cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0,prof:null,pr:{},rcShare:true,testQ:null,onbSkip:false,week:null,gateAt:null,growAt:null,growWait:null,sysLast:'',ach:{},title:'',cnt:{},prot:null,rem:null,tutOk:false
+    aura:null,cls:'',look:null,bag:[],plan:{d:[[],[],[],[],[],[],[]]},planBonus:null,tp:null,tlog:[],exl:{},exb:{},cx:[],ses:null,tpHide:false,cap:{day:null,xp:0,dg:0},arena:{w:0,l:0,day:null,n:0,dk:[]},duelSeen:0,friends:[],sys:{day:null,q:null,st:'none'},wins:0,prof:null,pr:{},rcShare:true,testQ:null,onbSkip:false,week:null,gateAt:null,growAt:null,growWait:null,sysLast:'',ach:{},title:'',cnt:{},prot:null,rem:null,tutOk:false,items:{shield:0,pardon:0,decree:0},buy:null,goals:[]
   };
 }
 
@@ -1988,6 +2012,179 @@ async function pwSave(){
   m('Einen Moment ...');
   try{const r=await sb.auth.updateUser({password:v});if(r.error)throw r.error;nextModal();toast('Passwort geändert');render()}
   catch(e){m(authErr(e))}
+}
+
+/* ---------- v19: Shop im Spiel, Vorschläge, Sprünge, Grafiken, Wunschziele ---------- */
+let sugOpen=false,stSub='ueber',vSub='kal',vEx='',gForm=false,gArm=null,tpOffArm=false,jump=null;
+const SHOPI=[
+ {id:'shield',n:'Straf-Schild',d:'Fängt die nächste Strafe von selbst ab und rettet deine Serie.',b:300,max:3,ic:'shop-tier2'},
+ {id:'pardon',n:'Strafen-Erlass',d:'Streicht eine offene Strafquest.',b:150,max:5,ic:'shop-tier1'},
+ {id:'decree',n:'Tages-Erlass',d:'Schließt alle offenen Tagesquests ab, ohne Belohnung. Die Serie läuft weiter.',b:700,max:2,ic:'shop-tier3'},
+ {id:'potion',n:'Trank',d:'Heilt dich im Dungeon-Kampf um 40 %.',b:60,max:20,ic:'item-potion'},
+ {id:'key',n:'Dungeon-Schlüssel',d:'Öffnet eine Tür im Dungeon. Höchstens 2 pro Tag.',b:220,max:99,ic:'item-key'}
+];
+const itemPrice=it=>it.id==='potion'?it.b:Math.round(it.b*(1+S.level*0.02)/10)*10;
+const hasIt=k=>((S.items&&S.items[k])||0);
+const ownedOf=it=>it.id==='potion'?(S.potions||0):it.id==='key'?(S.keys||0):hasIt(it.id);
+function buyItem(id){
+  const it=SHOPI.find(x=>x.id===id);if(!it)return false;
+  const pr=itemPrice(it);
+  if(S.gold<pr){toast('Zu wenig Gold');return false}
+  if(ownedOf(it)>=it.max){toast('Du trägst schon die Höchstzahl');return false}
+  if(!S.items)S.items={shield:0,pardon:0,decree:0};
+  if(it.id==='key'){
+    const t=dayKey();if(!S.buy||S.buy.day!==t)S.buy={day:t,key:0};
+    if(S.buy.key>=2){toast('Heute gibt es keine Schlüssel mehr');return false}
+    S.buy.key++;S.keys++;
+  }else if(it.id==='potion')S.potions=(S.potions||0)+1;
+  else S.items[it.id]=hasIt(it.id)+1;
+  S.gold-=pr;toast('Gekauft: '+it.n);return true;
+}
+function usePardon(pid){
+  if(hasIt('pardon')<1)return false;
+  if(!S.penalties.some(p=>p.id===pid))return false;
+  S.penalties=S.penalties.filter(p=>p.id!==pid);S.items.pardon--;toast('Strafe gestrichen');return true;
+}
+function useDecree(){
+  const open=S.quests.filter(q=>q.type==='daily'&&!q.done);
+  if(hasIt('decree')<1||!open.length)return false;
+  S.items.decree--;
+  open.forEach(q=>{q.done=true;q.cur=q.target});
+  const t=dayKey(),y=addDays(t,-1);
+  if(S.lastComplete!==t){S.streak=(S.lastComplete===y)?S.streak+1:1;S.lastComplete=t;S.bestStreak=Math.max(S.bestStreak,S.streak)}
+  modal({kind:'vio',title:'Tages-Erlass',body:'<p>Alle Tagesquests gelten als erledigt. Dafür gibt es keine Belohnung.</p><p class="dim">Deine Serie: '+S.streak+' Tag'+(S.streak===1?'':'e')+'.</p>',btn:'Weiter'});
+  return true;
+}
+function viewShop(){
+  const lg=S.inv&&S.inv.length;
+  let h='<section class="win">'+scene('shop')+'<div class="sub"><div><div class="lbl">Shop</div><h2>Ausrüstung des Hunters</h2></div><span class="lbl ic" style="color:var(--warn)"><img class="mi" alt="" src="img/item-gold.webp" onerror="this.remove()">Gold: '+S.gold+'</span></div>'+
+   '<p class="dim" style="font-size:14px;margin-bottom:4px">Hier kaufst du Dinge, die dir im Spiel helfen. Gold verdienst du mit Quests und Dungeons.</p>'+
+   SHOPI.map(it=>{const pr=itemPrice(it),n=ownedOf(it),full=n>=it.max;
+     return '<div class="si">'+gico(it.ic,46)+'<div class="sm"><b>'+esc(it.n)+(n>0?' <span class="chip" style="vertical-align:middle">×'+n+'</span>':'')+'</b><small>'+esc(it.d)+'</small></div><button class="btn ok sm" data-act="buy" data-id="'+it.id+'"'+(S.gold<pr||full?' disabled':'')+'>'+(full?'Voll':pr+' G')+'</button></div>'}).join('')+'</section>';
+  if(S.penalties.length||hasIt('decree')||hasIt('pardon'))h+='<section class="win"><div class="sub"><div class="lbl">Einsatz</div></div><p class="dim" style="font-size:14px">Erlasse setzt du dort ein, wo sie wirken: den Strafen-Erlass bei jeder Strafe in der Strafzone, den Tages-Erlass bei den Tagesquests. Das Straf-Schild wirkt von selbst.</p></section>';
+  if(lg)h+='<section class="win"><div class="sub"><div class="lbl">Alte Belohnungen</div></div>'+S.inv.map(i=>'<div class="item"><span class="nm">'+esc(i.name)+'</span><span class="chip">x'+i.n+'</span><button class="btn sm" data-act="use" data-id="'+esc(i.name)+'">Einlösen</button></div>').join('')+'</section>';
+  return h;
+}
+/* rote Punkte mit Sprung */
+function tabDot(k){
+  if(k==='quests'&&S.penalties.length)return 'pen-zone';
+  if(k==='plan'&&S.tp){const q=S.quests.find(x=>x.type==='gym');if(q&&!q.done)return 'gymc'}
+  if(k==='status'&&S.free>0)return 'stat-pts';
+  if(k==='dungeon'&&S.keys>0&&!B)return 'doors';
+  if(k==='arena'&&duelsIn.some(d=>d.t>(S.duelSeen||0)))return 'duel-in';
+  return '';
+}
+function doJump(){
+  const id=jump;jump=null;if(!id)return;
+  const el=document.getElementById(id);if(!el)return;
+  try{el.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){el.scrollIntoView()}
+  el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),2000);
+}
+/* Quest-Vorschläge */
+function sugItems(){
+  const have=new Set(S.quests.filter(q=>q.type==='daily').map(q=>q.name));
+  const all=SYS_T.concat([{n:'Früh aufstehen und Bett machen',u:'',b:1,s:'dis'}]);
+  const seen=new Set();
+  return all.filter(t=>{if(seen.has(t.n))return false;seen.add(t.n);return !have.has(t.n)});
+}
+function sugHtml(){
+  if(!sugOpen)return '';
+  const L=sugItems(),lim=limsOf();
+  if(!L.length)return '<section class="win"><div class="empty">Alle Vorschläge sind schon bei deinen Quests.</div></section>';
+  let h='<section class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Vorschläge</div><h2>Quest hinzufügen</h2></div></div><p class="dim" style="font-size:13.5px;margin-bottom:6px">Tippe auf +, dann steht die Quest bei deinen Tagesquests. Ändern kannst du sie danach mit dem Stift.</p>';
+  STATS.forEach(([k,l])=>{
+    const g=L.filter(t=>t.s===k);if(!g.length)return;
+    h+='<div class="lbl" style="margin:12px 0 2px">'+l+'</div>'+g.map(t=>{const i=SYS_T.indexOf(t),idx=i>=0?i:'x',w=(t.x||[]).filter(x=>lim.includes(x)).length;
+      return '<div class="item"><span class="nm">'+esc(t.n)+'<small class="dim" style="display:block;font-weight:400">'+(t.b>1||t.u?t.b+(t.u?' '+esc(t.u):''):'einmal am Tag')+(w?' · belastet deine Gelenke':'')+'</small></span><span class="chip xp">+'+calcXP(t.b,t.u,'daily')+' XP</span><button class="btn ok sm" data-act="sug-add" data-id="'+esc(t.n)+'" aria-label="'+esc(t.n)+' hinzufügen">+</button></div>'}).join('');
+  });
+  return h+'</section>';
+}
+/* Grafiken */
+const fmtN=v=>v>=1000?(Math.round(v/100)/10)+'k':String(Math.round(v*10)/10).replace('.',',');
+const shortD=k=>{const p=k.split('-');return Number(p[2])+'.'+Number(p[1])+'.'};
+function svgBars(vals,labs,label){
+  const W=320,H=150,pl=34,pb=22,pt=10,n=vals.length,mx=Math.max(1,...vals),bw=(W-pl-6)/n;
+  let g='';
+  [0,.5,1].forEach(f=>{const y=pt+(H-pt-pb)*(1-f);g+='<line class="gl" x1="'+pl+'" x2="'+(W-4)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(pl-5)+'" y="'+(y+3)+'" text-anchor="end">'+fmtN(mx*f)+'</text>'});
+  vals.forEach((v,i)=>{const h=(H-pt-pb)*v/mx,x=pl+i*bw+bw*.16;g+='<rect class="cb'+(i===n-1?' now':'')+'" x="'+x.toFixed(1)+'" y="'+(H-pb-Math.max(v>0?2:0,h)).toFixed(1)+'" width="'+(bw*.68).toFixed(1)+'" height="'+Math.max(v>0?2:0,h).toFixed(1)+'" rx="3"/>'});
+  labs.forEach((l,i)=>{if(l)g+='<text x="'+(pl+i*bw+bw/2).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle">'+l+'</text>'});
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+'">'+g+'</svg>';
+}
+function svgLine(pts,tg,label){
+  const W=320,H=170,pl=38,pr=12,pt=14,pb=24;
+  const xs=pts.map(p=>dayNum(p[0])),ys=pts.map(p=>p[1]);
+  let lo=Math.min(...ys),hi=Math.max(...ys);if(tg!=null){lo=Math.min(lo,tg);hi=Math.max(hi,tg)}
+  if(hi===lo){hi+=1;lo-=1}
+  const pd=(hi-lo)*.12;lo-=pd;hi+=pd;
+  const x0=Math.min(...xs),x1=Math.max(...xs),X=d=>pl+(x1===x0?(W-pl-pr)/2:(d-x0)/(x1-x0)*(W-pl-pr)),Y=v=>pt+(H-pt-pb)*(1-(v-lo)/(hi-lo));
+  let g='';
+  [lo,(lo+hi)/2,hi].forEach(v=>{const y=Y(v);g+='<line class="gl" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'"/><text x="'+(pl-5)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fmtN(v)+'</text>'});
+  if(tg!=null){const y=Y(tg);g+='<line class="tg" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'"/><text class="tgt" x="'+(W-pr)+'" y="'+(y-4).toFixed(1)+'" text-anchor="end">Ziel '+fmtN(tg)+'</text>'}
+  const P=pts.map((p,i)=>[X(xs[i]),Y(ys[i])]);
+  if(P.length>1)g+='<path class="ln" d="'+P.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+'"/>';
+  P.forEach((p,i)=>{g+='<circle class="pt'+(i===P.length-1?' now':'')+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(i===P.length-1?4.5:3)+'"/>'});
+  g+='<text x="'+pl+'" y="'+(H-6)+'" text-anchor="start">'+shortD(pts[0][0])+'</text>';
+  if(pts.length>1)g+='<text x="'+(W-pr)+'" y="'+(H-6)+'" text-anchor="end">'+shortD(pts[pts.length-1][0])+'</text>';
+  return '<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(label)+'">'+g+'</svg>';
+}
+function exSeries(id){
+  const e=exOf(id),out=[];if(!e)return out;
+  (S.tlog||[]).forEach(t=>{(t.ex||[]).forEach(x=>{
+    if(x[0]!==id)return;
+    let best=0;x[1].forEach(s=>{const w=s[0],r=s[1],sc=e.m==='kg'?(w>0?w*(1+r/30):0):r;if(sc>best)best=sc});
+    if(best>0)out.push([t.d,Math.round(best*10)/10]);
+  })});
+  return out;
+}
+function viewTrain(){
+  const tl=S.tlog||[];
+  if(!tl.length)return '<section class="win"><div class="empty">Noch keine Einheit protokolliert. Sobald du im Training-Tab ein Training abschließt, siehst du hier deine Entwicklung.</div></section>';
+  const wk=weekKeys(12),cnt=wk.map(w=>tl.filter(e=>e.d>=w&&e.d<=addDays(w,6)).length),vol=wk.map(w=>Math.round(tl.filter(e=>e.d>=w&&e.d<=addDays(w,6)).reduce((a,e)=>a+(e.vol||0),0)/10)/100);
+  const labs=wk.map((w,i)=>((11-i)%3===0)?shortD(w):'');
+  const sets=cntOf('sets'),vt=cntOf('vol');
+  let h='<section class="win"><div class="sub"><div class="lbl">Bilanz</div></div><div class="kv"><div><span class="lbl">Einheiten</span><span class="num">'+tl.length+'</span></div><div><span class="lbl">Sätze</span><span class="num">'+fmtN(sets)+'</span></div><div><span class="lbl">Bewegt</span><span class="num">'+(vt?fmtN(Math.round(vt/100)/10)+' t':'–')+'</span></div></div></section>';
+  h+='<section class="win"><div class="sub"><div><div class="lbl">Pro Woche</div><h2>Einheiten</h2></div><span class="qp">letzte 12 Wochen</span></div>'+svgBars(cnt,labs,'Einheiten pro Woche, letzte 12 Wochen. Diese Woche: '+cnt[11])+'</section>';
+  if(vol.some(v=>v>0))h+='<section class="win"><div class="sub"><div><div class="lbl">Pro Woche</div><h2>Bewegtes Gewicht</h2></div><span class="qp">in Tonnen</span></div>'+svgBars(vol,labs,'Bewegtes Gewicht pro Woche in Tonnen. Diese Woche: '+vol[11])+'</section>';
+  const cn={};tl.forEach(t=>(t.ex||[]).forEach(x=>{cn[x[0]]=(cn[x[0]]||0)+1}));
+  const ids=Object.keys(cn).filter(i=>exOf(i)).sort((a,b)=>cn[b]-cn[a]);
+  if(ids.length){
+    if(!ids.includes(vEx))vEx=ids[0];
+    const e=exOf(vEx),ser=exSeries(vEx);
+    h+='<section class="win"><div class="sub"><div><div class="lbl">Übung</div><h2>Entwicklung</h2></div></div><label class="f"><select id="vEx" aria-label="Übung wählen">'+ids.map(i=>'<option value="'+esc(i)+'"'+(i===vEx?' selected':'')+'>'+esc(exOf(i).n)+' ('+cn[i]+'×)</option>').join('')+'</select></label>'+
+      (ser.length?svgLine(ser,null,esc(e.n)+': '+ser.length+' Einheiten, zuletzt '+ser[ser.length-1][1]):'<div class="empty">Keine Daten.</div>')+
+      '<p class="dim" style="font-size:12.5px;margin-top:4px">'+(e.m==='kg'?'Geschätzter Bestwert pro Einheit in kg (Gewicht und Wiederholungen zusammengerechnet).':'Beste Leistung pro Einheit in '+unitOf(e).replace(/\.$/,'')+'.')+'</p></section>';
+  }
+  return h;
+}
+const weekKeys=n=>{const w=weekStart();return Array.from({length:n},(_,i)=>addDays(w,-7*(n-1-i)))};
+/* Wunschziele */
+function goalPts(g){const f=g.log.length?g.log[0][0]:g.at;return [[f<=g.at?addDays(f,-1):g.at,g.s]].concat(g.log)}
+function goalCur(g){return g.log.length?g.log[g.log.length-1][1]:g.s}
+function goalDone(g){const c=goalCur(g);return g.t>=g.s?c>=g.t:c<=g.t}
+function goalHtml(g){
+  const c=goalCur(g),span=g.t-g.s,pct=span===0?100:Math.max(0,Math.min(100,(c-g.s)/span*100)),dn=goalDone(g);
+  return '<section class="win'+(dn?' gold':'')+'"><div class="sub"><div><div class="lbl">'+(dn?'Erreicht':'Wunschziel')+'</div><h2>'+esc(g.n)+'</h2></div><span class="qp">'+fmtN(g.s)+' → '+fmtN(g.t)+(g.u?' '+esc(g.u):'')+'</span></div>'+
+   '<div class="row" style="justify-content:space-between;margin-bottom:3px"><span class="qp">Jetzt: <b style="color:var(--fg)">'+fmtN(c)+(g.u?' '+esc(g.u):'')+'</b></span><span class="qp">'+Math.round(pct)+' %</span></div><div class="bar ok"><i style="width:'+pct+'%"></i></div>'+
+   (g.log.length?svgLine(goalPts(g),g.t,g.n+': jetzt '+c+', Ziel '+g.t):'<p class="dim" style="font-size:13.5px;margin-top:8px">Trage deinen ersten Wert ein, dann siehst du die Kurve.</p>')+
+   '<div class="acts" style="margin-top:10px"><input class="amt" type="number" step="any" id="gv-'+g.id+'" aria-label="Neuer Wert" placeholder="Wert" style="width:100px"><button class="btn" data-act="goal-log" data-id="'+g.id+'">Eintragen</button><button class="btn '+(gArm===g.id?'bad':'ghost')+' sm" data-act="goal-del" data-id="'+g.id+'">'+(gArm===g.id?'Sicher?':'Löschen')+'</button></div></section>';
+}
+function viewGoals(){
+  const G=S.goals||[];
+  let h=G.map(goalHtml).join('');
+  if(gForm)h+='<section class="win vio"><div class="sub"><h2>Neues Wunschziel</h2></div><div class="grid"><label class="f wide">Name<input type="text" id="gn" maxlength="40" placeholder="z. B. Körpergewicht oder Bankdrücken"></label><label class="f">Start<input type="number" id="gs" step="any" placeholder="85"></label><label class="f">Ziel<input type="number" id="gt" step="any" placeholder="78"></label><label class="f wide">Einheit<input type="text" id="gu" maxlength="10" placeholder="kg, km, Wdh."></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="goal-save">Speichern</button><button class="btn ghost" data-act="goal-new">Abbrechen</button></div></section>';
+  else if(G.length<6)h+='<button class="btn" data-act="goal-new">+ Neues Wunschziel</button>';
+  if(!G.length&&!gForm)h='<section class="win"><div class="empty">Setze dir ein Ziel mit Zahlen: Körpergewicht, Bankdrücken, 5 km Zeit. Du trägst ab und zu deinen Wert ein und siehst, wie nah du bist.</div></section>'+h;
+  return h;
+}
+function viewVerlauf(){
+  const T=[['kal','Kalender'],['train','Training'],['ziele','Ziele']];
+  return '<div class="seg" role="tablist" style="margin-bottom:12px">'+T.map(([k,l])=>'<button role="tab" aria-selected="'+(vSub===k)+'" data-act="v-sub" data-id="'+k+'">'+l+'</button>').join('')+'</div>'+({kal:viewKalender,train:viewTrain,ziele:viewGoals})[vSub]();
+}
+/* Status in Unterreiter */
+function stSplit(str){
+  const p=str.split(/[\u0001-\u0005]/),T=[['ueber','Profil'],['erf','Erfolge'],['aus','Rucksack'],['konto','Konto']];
+  const body={ueber:p[0]+p[4],erf:p[1],aus:p[3],konto:p[2]+p[5]}[stSub]||p[0];
+  return '<div class="seg c4" role="tablist" style="margin-bottom:12px">'+T.map(([k,l])=>'<button role="tab" aria-selected="'+(stSub===k)+'" data-act="st-sub" data-id="'+k+'">'+l+'</button>').join('')+'</div>'+body;
 }
 
 /* ---------- state + persistence ---------- */
@@ -2320,20 +2517,23 @@ function rollover(){
       const w0=addDays(S.lastDay,-wdOf(S.lastDay)),w1=addDays(w0,6);
       if(t>w1&&trainDays()>0&&(S.tlog||[]).filter(e=>e.d>=w0&&e.d<=w1).length>=trainDays())S.cnt.pw=(S.cnt.pw||0)+1;
     }
-    if(failed===0&&shielded>0&&diff-1<=2){
+    let amulet=0;
+    if(failed>0&&S.items&&S.items.shield>0){amulet=Math.min(failed,S.items.shield);S.items.shield-=amulet;failed-=amulet}
+    if(amulet>0)modal({kind:'vio',title:'Straf-Schild',body:'<p>Dein Straf-Schild hat '+(amulet>1?amulet+' Strafen':'die Strafe')+' abgefangen. Es ist verbraucht.</p><p class="dim">Noch '+S.items.shield+' Schild'+(S.items.shield===1?'':'e')+' übrig.</p>',btn:'Weiter'});
+    if(failed===0&&(shielded>0||amulet>0)&&diff-1<=2){
       const keepS=S.streak>0;
       S.lastComplete=addDays(t,-1);
-      if(keepS){
+      if(keepS&&shielded>0){
         S.cnt.shield=(S.cnt.shield||0)+shielded;
         modal({kind:'vio',title:'Serie geschützt',body:'<p>Dein Ruhetag war geplant. Deine Serie von <b>'+S.streak+'</b> Tag'+(S.streak>1?'en':'')+' bleibt bestehen.</p><p class="dim">Pro Woche schützen höchstens 2 Ruhetage deine Serie.</p>',btn:'Weiter'});
       }
     }
     if(failed>0){
       const sx=dailies.reduce((a,q)=>a+q.xp,0),sg=dailies.reduce((a,q)=>a+q.gold,0);
-      const lx=Math.min(S.xp,Math.round(sx*0.5*failed)),lg=Math.min(S.gold,Math.round(sg*0.25*failed));
+      const lx=Math.min(S.xp,Math.round(sx*0.75*failed)),lg=Math.min(S.gold,Math.round(sg*0.4*failed));
       S.xp-=lx;S.gold-=lg;S.streak=0;
       const ptx=[];for(let i=0;i<failed;i++){const tx=genPenalty();ptx.push(tx);S.penalties.push({id:uid(),text:tx})}
-      modal({kind:'bad',title:'Strafe',body:'<p>Die täglichen Quests wurden nicht abgeschlossen.</p><p style="color:var(--bad);font-family:var(--f-d);font-size:20px">−'+lx+' XP, −'+lg+' G</p><p>Strafquest'+(failed>1?'s':'')+':<br>'+ptx.map(esc).join('<br>')+'</p><p class="dim">Die Serie ist zurückgesetzt. Solange Strafen offen sind, ist der Shop gesperrt.</p>',btn:'Verstanden'});
+      modal({kind:'bad',title:'Strafe',body:'<p>Die täglichen Quests wurden nicht abgeschlossen.</p><p style="color:var(--bad);font-family:var(--f-d);font-size:20px">−'+lx+' XP, −'+lg+' G</p><p>Strafquest'+(failed>1?'s':'')+':<br>'+ptx.map(esc).join('<br>')+'</p><p class="dim">Die Serie ist zurückgesetzt. Leiste die Strafe ab oder streiche sie mit einem Strafen-Erlass aus dem Shop.</p>',btn:'Verstanden'});
     }
     const keys=Object.keys(S.hist).sort();
     while(keys.length>150)delete S.hist[keys.shift()];
@@ -2625,7 +2825,7 @@ function renderTabs(){
   const T=[['quests','Quests'],['plan','Training'],['dungeon','Dungeon'],['status','Status'],['arena','Arena'],['shop','Mehr']];
   document.getElementById('tabs').innerHTML=T.map(([k,l])=>{
     const sel=k==='shop'?SUBTABS.includes(tab):tab===k;
-    const dot=(k==='quests'&&S.penalties.length)||(k==='plan'&&S.tp&&(()=>{const q=S.quests.find(x=>x.type==='gym');return q&&!q.done})())||(k==='status'&&S.free>0)||(k==='dungeon'&&S.keys>0&&!B)||(k==='arena'&&duelsIn.some(d=>d.t>(S.duelSeen||0)))?'<span class="dot"></span>':'';
+    const dot=tabDot(k)?'<span class="dot"></span>':'';
     return '<button role="tab" aria-selected="'+sel+'" data-act="tab" data-id="'+k+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+IC[k]+'</svg>'+l+dot+'</button>';
   }).join('');
 }
@@ -2698,8 +2898,8 @@ function viewQuests(){
   const d=S.quests.filter(q=>q.type==='daily'),dn=d.filter(q=>q.done).length;
   let h=onbCard()+tutCard()+growCard();
   if(S.penalties.length){
-    h+='<section class="win bad"><div class="banner"><img alt="" src="img/ui-penalty.webp" onerror="this.parentNode.remove()"></div><div class="sub"><h2>Strafzone</h2><span class="lbl">'+S.penalties.length+' offen</span></div>'+
-      S.penalties.map(p=>'<div class="item"><div class="pic pth red" style="--c:#ff5468"><img alt="" loading="lazy" src="img/quest-'+qKey({name:p.text})+'-s.webp" onerror="this.remove()"></div><span class="nm">'+esc(p.text)+'</span><button class="btn bad sm" data-act="pen" data-id="'+p.id+'">Abgeleistet</button></div>').join('')+'</section>';
+    h+='<section class="win bad" id="pen-zone"><div class="banner"><img alt="" src="img/ui-penalty.webp" onerror="this.parentNode.remove()"></div><div class="sub"><h2>Strafzone</h2><span class="lbl">'+S.penalties.length+' offen</span></div>'+
+      S.penalties.map(p=>'<div class="item"><div class="pic pth red" style="--c:#ff5468"><img alt="" loading="lazy" src="img/quest-'+qKey({name:p.text})+'-s.webp" onerror="this.remove()"></div><span class="nm">'+esc(p.text)+'</span>'+(hasIt('pardon')?'<button class="btn ghost sm" data-act="pen-erlass" data-id="'+p.id+'" title="Strafen-Erlass einsetzen">Erlass ('+hasIt('pardon')+')</button>':'')+'<button class="btn bad sm" data-act="pen" data-id="'+p.id+'">Abgeleistet</button></div>').join('')+'</section>';
   }
   const sq=S.quests.filter(q=>q.type==='system');
   if(S.sys.q&&S.sys.st==='open'){
@@ -2713,9 +2913,9 @@ function viewQuests(){
   if(sq.length)h+='<section class="win gold"><div class="sub"><div class="lbl" style="color:var(--warn)">System-Quest (heute)</div></div>'+sq.map(qRow).join('')+'</section>';
   h+=S.tp?gymCard():(S.tpHide?'':gymCard().replace('<div class="acts"><button class="btn" data-act="go-plan">Plan erstellen</button></div>','<div class="acts"><button class="btn" data-act="go-plan">Plan erstellen</button><button class="btn ghost" data-act="tp-hide">Ausblenden</button></div>'));
   h+='<section class="win"><div class="sub"><div><div class="lbl">Tägliche Quest</div><h2>Training des Hunters</h2></div><div style="text-align:right"><div class="lbl">Zeitlimit</div><div class="cd" id="cd">--:--:--</div></div></div>'+
-    '<div class="row" style="margin-bottom:8px"><span class="qp">Abgeschlossen '+dn+' / '+d.length+'</span><span class="sp"></span><span class="dim" style="font-size:13px">Tageslimit: '+capState().xp+' / '+dayCap()+' XP</span></div>'+
+    '<div class="row" style="margin-bottom:8px"><span class="qp">Abgeschlossen '+dn+' / '+d.length+'</span><span class="sp"></span><span class="dim" style="font-size:13px">Tageslimit: '+capState().xp+' / '+dayCap()+' XP</span></div>'+(hasIt('shield')||(hasIt('decree')&&d.some(x=>!x.done))?'<div class="acts" style="margin-bottom:8px">'+(hasIt('shield')?'<span class="chip sys">Straf-Schild ×'+hasIt('shield')+'</span>':'')+(hasIt('decree')&&d.some(x=>!x.done)?'<button class="btn vio sm" data-act="decree">Tages-Erlass einsetzen ('+hasIt('decree')+')</button>':'')+'</div>':'')+
     (d.length?(()=>{const f=d.find(x=>!x.done);return d.map(x=>qRow(x,x===f)).join('')})():'<div class="empty">Keine täglichen Quests. Lege unten eine an.</div>')+'</section>';
-  h+=form&&form.type==='daily'?formHtml():'<button class="btn" data-act="newq" data-id="daily">+ Neue tägliche Quest</button>';
+  h+=form&&form.type==='daily'?formHtml():'<div class="acts"><button class="btn" data-act="newq" data-id="daily">+ Eigene Quest</button><button class="btn vio" data-act="sug-toggle" aria-expanded="'+sugOpen+'">'+(sugOpen?'Vorschläge schließen':'Vorschläge')+'</button></div>'+sugHtml();
   h+=weekHtml();
   h+=planHtml();
   return h;
@@ -2749,7 +2949,7 @@ function viewDungeon(){
   if(B)h+=monBlock();
   else{
     const ri=rankIdx(S.level),nx=RANKS[Math.min(5,ri+1)];
-    h+='<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Erkundung</div><h2>Türen</h2></div><span class="lbl ic" style="color:var(--warn)"><img class="mi" alt="" src="img/item-key.webp" onerror="this.remove()">Schlüssel: '+S.keys+'</span></div>'+
+    h+='<section id="doors" class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Erkundung</div><h2>Türen</h2></div><span class="lbl ic" style="color:var(--warn)"><img class="mi" alt="" src="img/item-key.webp" onerror="this.remove()">Schlüssel: '+S.keys+'</span></div>'+
      (S.keys>0?'<div class="doors"><button class="door" data-act="door" data-id="safe" style="--dbg:url(img/dungeon-'+RK_BG[ri]+'.webp)"><img class="sil" alt="" src="img/mon-'+MON[ri][0][1]+'.webp" onerror="this.remove()"><b>Sichere Tür</b><span>Gegner Rang '+RANKS[ri]+'. Normale Beute.</span></button><button class="door red" data-act="door" data-id="red" style="--dbg:url(img/dungeon-lava.webp)"><img class="sil" alt="" src="img/mon-'+MON[Math.min(5,ri+1)][0][1]+'.webp" onerror="this.remove()"><b>Rote Tür</b><span>Gegner Rang '+nx+'. Härter, bessere Beute.</span></button></div>'
       :'<div class="empty">Kein Schlüssel. Du findest sie bei Quests (15 %), bei Dungeons, bei System-Quests und garantiert an jedem Tag mit allen Tagesquests.</div>')+
      '<p class="dim" style="font-size:13px;margin-top:10px">Ein Kampf dauert ein paar Klicks. Deine Stats, Fähigkeiten, Ausrüstung und Schatten entscheiden. Bei Niederlage verlierst du den Schlüssel und 10 % Gold.</p></section>';
@@ -2787,31 +2987,20 @@ function viewStatus(){
   const r=rankOf(S.level),p=pStats(),pf=getProfile();
   const gear='<div class="kv"><div><span class="lbl">Waffe</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.weapon?esc(S.gear.weapon.name)+' (+'+S.gear.weapon.val+')':'keine')+'</span></div><div><span class="lbl">Rüstung</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.armor?esc(S.gear.armor.name)+' (+'+S.gear.armor.val+')':'keine')+'</span></div><div><span class="lbl">Tränke</span><span class="num">'+S.potions+'</span></div></div>';
   const sk=SKILLS.map(k=>'<div class="skill '+(S.level>=k.lv?'':'lock')+'"><span class="nm">'+gico('skill-'+k.id)+'<span>'+esc(k.name)+'</span></span><span class="qp">'+(S.level>=k.lv?k.mp+' MP':'ab LV '+k.lv)+'</span><span class="dim" style="flex-basis:100%;font-size:13px">'+esc(k.desc)+'</span></div>').join('');
-  return '<section class="win hall" style="--sbg:url(img/ui-status.webp)"><div class="sub"><div><div class="lbl">Status-Fenster</div><h2>'+esc(S.name)+'</h2></div>'+(S.free>0?'<span class="lbl" style="color:var(--warn)">Freie Punkte: '+S.free+'</span>':'')+'</div>'+
+  return stSplit('<section class="win hall" style="--sbg:url(img/ui-status.webp)"><div class="sub"><div><div class="lbl">Status-Fenster</div><h2>'+esc(S.name)+'</h2></div>'+(S.free>0?'<span class="lbl" style="color:var(--warn)">Freie Punkte: '+S.free+'</span>':'')+'</div>'+
    '<div class="char">'+avatarHtml('big',S.avatar,r,S.name,S.aura)+'<div class="info">'+
      (pf?'<div class="num cname" style="font-size:22px">'+clsIco(pf.klasse)+'<span>'+esc(pf.klasse)+'</span></div>'+(pf.spitzname?'<div class="lbl">„'+esc(pf.spitzname)+'“</div>':'')+'<div class="lore">'+esc(pf.lore)+'</div>':'<div class="dim">'+(S.avatar?'Noch kein Profil.':'Lade ein Foto hoch, damit das System deinen Charakter erstellt.')+'</div>')+
      (aiMsg?'<div class="think">'+esc(aiMsg)+'</div>':'')+
      '<div class="acts"><button class="btn sm" data-act="photo">'+(S.avatar?'Foto ändern':'Foto wählen')+'</button>'+(S.avatar&&samp&&sampImg?'<button class="btn vio sm" data-act="profile">Profil neu erzeugen</button>':'')+'</div></div></div></section>'+
-   rankSection()+'<section class="win"><div class="sub"><div class="lbl">Werte</div></div>'+radar()+'<div class="kv" style="margin:12px 0"><div><span class="lbl">Rang</span><span class="num">'+r+'</span></div><div><span class="lbl">Level</span><span class="num">'+S.level+'</span></div><div><span class="lbl">Lebenspunkte</span><span class="num">'+p.hp+'</span></div><div><span class="lbl">Mana</span><span class="num">'+p.mp+'</span></div><div><span class="lbl">Angriff</span><span class="num">'+Math.round(p.atk)+'</span></div><div><span class="lbl">Verteidigung</span><span class="num">'+Math.round(p.def)+'</span></div></div>'+
+   rankSection()+'<section id="stat-pts" class="win"><div class="sub"><div class="lbl">Werte</div></div>'+radar()+'<div class="kv" style="margin:12px 0"><div><span class="lbl">Rang</span><span class="num">'+r+'</span></div><div><span class="lbl">Level</span><span class="num">'+S.level+'</span></div><div><span class="lbl">Lebenspunkte</span><span class="num">'+p.hp+'</span></div><div><span class="lbl">Mana</span><span class="num">'+p.mp+'</span></div><div><span class="lbl">Angriff</span><span class="num">'+Math.round(p.atk)+'</span></div><div><span class="lbl">Verteidigung</span><span class="num">'+Math.round(p.def)+'</span></div></div>'+
    st+'<p class="dim" style="margin:8px 0 0;font-size:13px">Jede Level-Stufe gibt 3 Punkte. Außerdem wächst jeder Stat durch passende Quests, mit steigendem Aufwand pro Punkt.</p></section>'+
-   recSection()+achSection()+profSection()+
+   '\u0001'+recSection()+achSection()+'\u0002'+profSection()+'\u0003'+
    invSection()+
-   '<section class="win vio"><div class="sub"><div class="lbl" style="color:var(--violet)">Fähigkeiten</div></div>'+sk+'</section>'+
-   (online?(acct.guest
+   '\u0004'+'<section class="win vio"><div class="sub"><div class="lbl" style="color:var(--violet)">Fähigkeiten</div></div>'+sk+'</section>'+
+   '\u0005'+(online?(acct.guest
      ?'<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Konto</div><h2>Charakter sichern</h2></div></div><p class="dim" style="margin-bottom:10px">Du spielst als Gast. Ohne Konto ist dein Charakter weg, wenn du den Browser wechselst oder die Browserdaten löschst. Mit E-Mail und Passwort findest du ihn überall wieder.</p><div class="grid"><label class="f">E-Mail<input type="text" id="accMail" autocomplete="email" inputmode="email" autocapitalize="off"></label><label class="f">Passwort<input type="password" id="accPw" autocomplete="new-password"></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="acc-upgrade">Konto anlegen</button></div></section>'
      :'<section class="win"><div class="sub"><div><div class="lbl">Konto</div><h2>Angemeldet</h2></div></div><p class="dim" style="margin-bottom:10px;overflow-wrap:anywhere">'+esc(acct.email)+'</p><div class="acts"><button class="btn ghost" data-act="pw-change">Passwort ändern</button><button class="btn ghost" data-act="acc-out">Abmelden</button></div></section>'):'')+
-   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class="f wide"><span>Klasse</span><div class="pick">'+CLASSES.map(c=>'<button type="button" class="cl '+(pf.klasse===c[0]?'on':'')+'"'+(c[1]>S.level?' disabled':'')+' data-act="setcls" data-id="'+c[0]+'">'+clsIco(c[0])+'<span>'+c[0]+'</span>'+(c[1]>1?'<small>'+(c[1]>S.level?'ab LV '+c[1]:'freigeschaltet')+'</small>':'')+'</button>').join('')+'</div></div><div class="f wide dim" style="font-size:13px">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>';
-}
-function viewShop(){
-  const lock=S.penalties.length>0;
-  let h='<section class="win">'+scene('shop')+'<div class="sub"><div><div class="lbl">Shop</div><h2>Belohnungen</h2></div><span class="lbl ic" style="color:var(--warn)"><img class="mi" alt="" src="img/item-gold.webp" onerror="this.remove()">Gold: '+S.gold+'</span></div>'+
-   (lock?'<p style="color:var(--bad);margin-bottom:8px">Gesperrt: Leiste zuerst deine offenen Strafquests ab.</p>':'')+
-   S.shop.map(i=>'<div class="item shp">'+tierIco(i)+'<span class="nm">'+esc(i.name)+'</span><span class="chip g">'+i.price+' G</span><button class="btn ok sm" data-act="buy" data-id="'+i.id+'"'+(S.gold<i.price||lock?' disabled':'')+'>Kaufen</button><button class="btn ghost sm" data-act="delshop" data-id="'+i.id+'" aria-label="Entfernen">✕</button></div>').join('')+
-   (S.shop.length?'':'<div class="empty">Der Shop ist leer.</div>')+
-   '<div class="grid" style="margin-top:12px"><label class="f wide">Eigene Belohnung<input type="text" id="shName" maxlength="60" placeholder="z. B. Kinoabend"></label><label class="f">Größe<select id="shTier">'+TIER_NAME.map((n,i)=>'<option value="'+i+'">'+n+' ('+TIER_PRICE[i]+' G)</option>').join('')+'</select></label><div style="display:flex;align-items:flex-end"><button class="btn" data-act="addshop" style="width:100%">Hinzufügen</button></div></div><p class="dim" style="font-size:13px;margin-top:8px">Den Preis legt das System fest. Große Belohnungen (z. B. ein freier Tag) werden automatisch höher eingestuft.</p></section>';
-  h+='<section class="win"><div class="sub"><div class="lbl">Inventar</div></div>'+
-   (S.inv.length?S.inv.map(i=>'<div class="item"><span class="nm">'+esc(i.name)+'</span><span class="chip">x'+i.n+'</span><button class="btn sm" data-act="use" data-id="'+esc(i.name)+'">Einlösen</button></div>').join(''):'<div class="empty">Leer. Verdiene Gold mit Quests und kaufe dir etwas.</div>')+'</section>';
-  return h;
+   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class="f wide"><span>Klasse</span><div class="pick">'+CLASSES.map(c=>'<button type="button" class="cl '+(pf.klasse===c[0]?'on':'')+'"'+(c[1]>S.level?' disabled':'')+' data-act="setcls" data-id="'+c[0]+'">'+clsIco(c[0])+'<span>'+c[0]+'</span>'+(c[1]>1?'<small>'+(c[1]>S.level?'ab LV '+c[1]:'freigeschaltet')+'</small>':'')+'</button>').join('')+'</div></div><div class="f wide dim" style="font-size:13px">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>');
 }
 function viewArena(){
   const me=myCard(),ch=champs();
@@ -2822,7 +3011,7 @@ function viewArena(){
   if(online){
     const inc=duelsIn;
     const dw=inc.filter(d=>!d.fw).length,dl=inc.length-dw;
-    h+='<section class="win"><div class="sub"><div><div class="lbl">Postfach</div><h2>Herausforderungen an dich</h2></div>'+(inc.length?'<span class="qp">verteidigt '+dw+' · verloren '+dl+'</span>':'')+'</div>'+
+    h+='<section id="duel-in" class="win"><div class="sub"><div><div class="lbl">Postfach</div><h2>Herausforderungen an dich</h2></div>'+(inc.length?'<span class="qp">verteidigt '+dw+' · verloren '+dl+'</span>':'')+'</div>'+
       (inc.length?inc.slice(0,15).map(d=>{const nw=d.t>arenaSince;return '<div class="item"><span class="nm">'+esc(d.fn)+' hat dich herausgefordert</span>'+(nw?'<span class="chip sys">NEU</span>':'')+'<span class="chip '+(d.fw?'':'sys')+'" style="'+(d.fw?'color:var(--bad);border-color:#ff546877':'')+'">'+(d.fw?'Du hast verloren':'Du hast gewonnen')+'</span><span class="dim" style="font-size:12px">'+esc(new Date(d.t).toLocaleDateString('de-CH'))+'</span></div>'}).join('')
        :'<div class="empty">Noch keine Herausforderungen. Wenn ein Freund dich im Duell herausfordert, siehst du hier das Ergebnis.</div>')+'</section>';
     h+='<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Freunde</div><h2>Einladen und hinzufügen</h2></div></div>'+
@@ -2848,7 +3037,7 @@ function viewArena(){
     '<div class="acts" style="margin-top:8px"><button class="btn bad" data-act="duelcode">Duell</button></div></section>';
   return h;
 }
-function viewVerlauf(){
+function viewKalender(){
   const c=consistency(),today=dayKey();
   const dow=(new Date().getDay()+6)%7;
   const start=addDays(today,-(dow+77));
@@ -2902,7 +3091,7 @@ document.addEventListener('click',e=>{
   if(a!=='del')armed=null;
   if(a!=='reset')penArmed=false;
   if(a!=='sell')sellArmed=null;
-  if(a!=='tp-gen')tpArm=null;
+  if(a!=='tp-gen'&&a!=='tp-off')tpArm=null;if(a!=='goal-del')gArm=null;
   if(a!=='ses-end'&&a!=='ses-cancel')sesArm=false;
   const q=S.quests.find(x=>x.id===id);
   switch(a){
@@ -2946,7 +3135,7 @@ document.addEventListener('click',e=>{
       break;
     }
     case 'setcls':if(clsOk(id,S.level)){S.cls=id;save()}break;
-    case 'tab':tab=id;form=null;if(id==='arena'){arenaSince=S.duelSeen||0;markSeen()}break;
+    case 'tab':jump=tabDot(id)||null;tab=id;form=null;if(id==='status'&&S.free>0)stSub='ueber';if(id==='arena'){arenaSince=S.duelSeen||0;markSeen()}break;
     case 'add':{const i=document.getElementById('amt-'+id);if(q)addProgress(q,Number(i&&i.value));save();break}
     case 'done':if(q){completeQuest(q);save()}break;
     case 'del':
@@ -3156,20 +3345,48 @@ document.addEventListener('click',e=>{
     }
     case 'reset':
       if(penArmed){S=defaults();S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};ensureLive();penArmed=false;tab='quests';B=null;save();toast('Neu gestartet')}else penArmed=true;break;
-    case 'buy':{
-      const it=S.shop.find(x=>x.id===id);
-      if(it&&S.gold>=it.price&&!S.penalties.length){S.gold-=it.price;const h=S.inv.find(x=>x.name===it.name);if(h)h.n++;else S.inv.push({name:it.name,n:1});save();toast('Gekauft: '+it.name)}
-      break;
+    case 'buy':if(!buyItem(id))return;save();break;
+    case 'pen-erlass':if(!usePardon(id))return;save();break;
+    case 'decree':if(!useDecree())return;save();break;
+    case 'sug-toggle':sugOpen=!sugOpen;break;
+    case 'sug-add':{
+      const t=sugItems().find(x=>x.n===id);
+      if(!t)return;
+      if(S.quests.filter(y=>y.type==='daily').length>=QUEST_MAX){toast('Höchstens '+QUEST_MAX+' tägliche Quests');return}
+      S.quests.push(mkQ(t.n,t.b,t.u,t.s));save();toast('Hinzugefügt: '+t.n);break;
     }
-    case 'delshop':S.shop=S.shop.filter(x=>x.id!==id);save();break;
-    case 'addshop':{
-      const n=document.getElementById('shName').value.trim();
-      if(!n){toast('Gib der Belohnung einen Namen');return}
-      if(S.shop.length>=SHOP_MAX){toast('Höchstens '+SHOP_MAX+' Belohnungen');return}
-      const want=Math.max(0,Math.min(3,Number(document.getElementById('shTier').value)||0)),tier=Math.max(want,shopMinTier(n));
-      S.shop.push({id:uid(),name:n.slice(0,60),price:TIER_PRICE[tier]});save();
-      toast(tier>want?'Das System stuft das höher ein: '+TIER_PRICE[tier]+' G':'Hinzugefügt: '+TIER_PRICE[tier]+' G');break;
+    case 'st-sub':stSub=id;break;
+    case 'v-sub':vSub=id;gForm=false;gArm=null;break;
+    case 'goal-new':gForm=!gForm;break;
+    case 'goal-save':{
+      const v=i=>(document.getElementById(i)||{}).value;
+      const n=String(v('gn')||'').trim().slice(0,40),a=parseFloat(String(v('gs')).replace(',','.')),b=parseFloat(String(v('gt')).replace(',','.')),u=String(v('gu')||'').trim().slice(0,10);
+      if(!n){toast('Gib dem Ziel einen Namen');return}
+      if(!isFinite(a)||!isFinite(b)||a===b){toast('Start und Ziel müssen verschiedene Zahlen sein');return}
+      if(!Array.isArray(S.goals))S.goals=[];
+      if(S.goals.length>=6){toast('Höchstens 6 Wunschziele');return}
+      S.goals.push({id:uid(),n,u,s:a,t:b,at:dayKey(),log:[]});gForm=false;save();toast('Wunschziel angelegt');break;
     }
+    case 'goal-log':{
+      const g=(S.goals||[]).find(x=>x.id===id);if(!g)return;
+      const v=parseFloat(String((document.getElementById('gv-'+id)||{}).value||'').replace(',','.'));
+      if(!isFinite(v)){toast('Trage eine Zahl ein');return}
+      const was=goalDone(g),t=dayKey();
+      g.log=g.log.filter(x=>x[0]!==t);g.log.push([t,Math.round(v*100)/100]);g.log=g.log.slice(-60);
+      if(!was&&goalDone(g)&&!g.rew){g.rew=1;S.gold+=100;grantXP(150);modal({pic:'victory',kind:'vio',title:'Wunschziel erreicht',body:'<p style="font-family:var(--f-d);font-size:22px">'+esc(g.n)+'</p><div class="big">+150 XP</div><p>+100 G. Setz dir das nächste Ziel.</p>',btn:'Weiter'})}
+      else toast('Eingetragen');
+      save();break;
+    }
+    case 'goal-del':{
+      if(gArm!==id){gArm=id;break}
+      S.goals=(S.goals||[]).filter(x=>x.id!==id);gArm=null;save();break;
+    }
+    case 'tp-off':{
+      if(tpArm!=='off'){tpArm='off';break}
+      S.tp=null;S.tpHide=true;tpArm=null;tpd=null;tpSetOpen=false;tpOpenEx=null;tpFocus=false;
+      S.quests=S.quests.filter(q=>q.type!=='gym');S.ses=null;sesOn=false;sesRender();save();toast('Trainingsplan entfernt');break;
+    }
+    case 'tp-on':S.tpHide=false;tab='plan';break;
     case 'use':{
       const h=S.inv.find(x=>x.name===id);
       if(h){h.n--;if(h.n<=0)S.inv=S.inv.filter(x=>x!==h);save();toast('Eingelöst: '+id)}
@@ -3178,9 +3395,11 @@ document.addEventListener('click',e=>{
     default:return;
   }
   render();
+  doJump();
 });
 document.addEventListener('input',e=>{
   if(e.target.dataset&&e.target.dataset.si){sesInput(e.target);return}
+  if(e.target.id==='vEx'){vEx=e.target.value;render();return}
   if(e.target.id==='pk-q'&&pk){pk.q=e.target.value;const l=document.getElementById('pk-list');if(l)l.innerHTML=pkRows();return}
   if(!form||(e.target.id!=='fTarget'&&e.target.id!=='fUnit'))return;
   const p=document.getElementById('fPrev');if(p)p.textContent=prevText(readForm());
