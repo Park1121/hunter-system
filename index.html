@@ -2017,11 +2017,11 @@ async function pwSave(){
 /* ---------- v19: Shop im Spiel, Vorschläge, Sprünge, Grafiken, Wunschziele ---------- */
 let sugOpen=false,stSub='ueber',vSub='kal',vEx='',gForm=false,gArm=null,tpOffArm=false,jump=null;
 const SHOPI=[
- {id:'shield',n:'Straf-Schild',d:'Fängt die nächste Strafe von selbst ab und rettet deine Serie.',b:300,max:3,ic:'shop-tier2'},
- {id:'pardon',n:'Strafen-Erlass',d:'Streicht eine offene Strafquest.',b:150,max:5,ic:'shop-tier1'},
- {id:'decree',n:'Tages-Erlass',d:'Schließt alle offenen Tagesquests ab, ohne Belohnung. Die Serie läuft weiter.',b:700,max:2,ic:'shop-tier3'},
+ {id:'shield',n:'Straf-Schild',d:'Fängt die nächste Strafe von selbst ab und rettet deine Serie.',b:300,max:3,ic:'item-shield'},
+ {id:'pardon',n:'Strafen-Erlass',d:'Streicht eine offene Strafquest.',b:150,max:5,ic:'item-pardon'},
+ {id:'decree',n:'Tages-Erlass',d:'Schließt alle offenen Tagesquests ab, ohne Belohnung. Die Serie läuft weiter.',b:700,max:2,ic:'item-decree'},
  {id:'potion',n:'Trank',d:'Heilt dich im Dungeon-Kampf um 40 %.',b:60,max:20,ic:'item-potion'},
- {id:'key',n:'Dungeon-Schlüssel',d:'Öffnet eine Tür im Dungeon. Höchstens 2 pro Tag.',b:220,max:99,ic:'item-key'}
+ {id:'key',n:'Dungeon-Schlüssel',d:'Öffnet eine Tür im Dungeon. Höchstens 2 pro Tag.',b:220,max:99,ic:'item-shadowkey'}
 ];
 const itemPrice=it=>it.id==='potion'?it.b:Math.round(it.b*(1+S.level*0.02)/10)*10;
 const hasIt=k=>((S.items&&S.items[k])||0);
