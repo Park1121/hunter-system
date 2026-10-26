@@ -628,6 +628,29 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .steam .scard .btn{font-size:12px;letter-spacing:0;min-height:34px}
 .steam .scard{padding:6px 4px 8px}
 
+/* v21 */
+.amw{display:inline-flex;align-items:center;gap:6px}
+.amu{color:var(--dim);font-size:14px;font-weight:600;white-space:nowrap}
+.dpick{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.dp{min-width:44px;min-height:44px;border-radius:10px;border:1px solid #2a3a63;background:#0b1226;color:var(--dim);font:600 15px var(--f-b,inherit);cursor:pointer}
+.dp.on{background:#16337a;border-color:#4aa3ff;color:#fff}
+.dpre{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.offd{margin-top:10px;border-top:1px solid #1d2a4f;padding-top:8px}
+.offd summary{cursor:pointer;color:var(--dim);font-size:14px;padding:6px 0;min-height:32px}
+.offd .item{margin-top:6px}
+.peer .mid.tap{cursor:pointer}
+.cmp{margin:8px 0}
+.cmpn{display:flex;align-items:center;gap:8px;font-size:15px}
+.cmpn b{margin-left:auto;font-family:var(--f-d);font-size:20px}
+.cmpn small{font-size:12px}
+.cmp .bar{position:relative;margin-top:4px}
+.cmp .bar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:#fff;opacity:.85;text-decoration:none;border-radius:1px}
+.achg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.achg .ag{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid #243256;border-radius:10px;background:#0b1226;font-size:13px;line-height:1.2}
+.skl{font-size:12px}
+.profk{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important}
+.profk>div{padding:6px 8px!important;min-width:0}
+.profk .num{font-size:20px!important}
 </style>
 </head>
 <body>
@@ -668,6 +691,10 @@ function effortMin(target,unit){
   if(/km/.test(u))return t*6;
   if(/stock|etage/.test(u))return t*0.5;
   if(/seite|kapitel/.test(u))return t*3;
+  if(/^l$|liter/.test(u))return t*2;
+  if(/glas|gläs/.test(u))return t*0.5;
+  if(/^m$|meter/.test(u))return t/100;
+  if(/schritt/.test(u))return t/120;
   if(/wdh|rep|stück|mal|^x$|satz|sätze/.test(u))return t*0.15;
   return Math.min(t,60)*0.3;
 }
@@ -677,7 +704,7 @@ function calcXP(target,unit,type,rank){
 }
 function calcGold(xp,type,rank){return type==='dungeon'?DUNGEON_REWARD[DUNGEON_REWARD[rank]?rank:'E'][1]:Math.round(xp/2)}
 const dayCap=()=>200+S.level*8;
-function capState(){const t=dayKey();if(!S.cap||S.cap.day!==t)S.cap={day:t,xp:0,dg:0};return S.cap}
+function capState(){const t=dayKey();if(!S.cap||S.cap.day!==t)S.cap={day:t,xp:0,dg:0,sx:{}};return S.cap}
 const maxGate=()=>Math.min(5,rankIdx(S.level)+1);
 function shopMinTier(name){
   const n=String(name||'').toLowerCase();
@@ -792,6 +819,16 @@ function migrate(){
     S.team=S.shadows.slice().sort((a,b)=>sPow(b)-sPow(a)).slice(0,TEAM_MAX).map(x=>x.id);
     if(S.sg===undefined)S.sg=null;if(S.wr==null)S.wr='';if(S.bk==null)S.bk='';
     S.v=11;ch=true}
+  if((S.v||0)<12){
+    if(!S.sx||typeof S.sx!=='object')S.sx={};
+    ['str','vit','agi','int','dis'].forEach(k=>{if(!(S.sx[k]>0))S.sx[k]=Math.max(0,((S.stats&&S.stats[k])||10)-10)*40});
+    if(!Array.isArray(S.units))S.units=[];
+    S.v=12;ch=true}
+  if((S.v||0)<13){
+    S.quests=(S.quests||[]).filter(q=>q.type!=='boss');
+    if(S.ach&&S.ach.bo1)delete S.ach.bo1;
+    if(S.title==='bo1')S.title='';
+    S.v=13;ch=true}
   return ch;
 }
 const SHADOW_EVERY=20;
@@ -1783,7 +1820,6 @@ function champs(){
 const champLine=n=>n&&n.length?'<div class="qp champ">Champion: '+n.map(esc).join(', ')+'</div>':'';
 /* ---------- Schritt 2: System-Dungeons, Steigerung, Wochen-Quest und Boss ---------- */
 const GSTAT={kraft:'str',ausdauer:'vit',abnehmen:'vit',beweglich:'agi',lernen:'int',alltag:'dis'};
-const BOSS_N=['Goblin-König','Ork-Häuptling','Skelett-Fürst','Dunkelritter','Dämonenfürst','Urdrache'];
 const WK_OK=['pushup','squat','situp','plank','pullup','lunge','run','walk','stairs','rope','stretch','mobility','focus','read'];
 const profP=()=>S.prof||{goals:[],place:'home',equip:[],level:'mid',time:30,days:3,limits:[]};
 function okEx(k){
@@ -1812,22 +1848,12 @@ function mkWeekly(wk){
   t=e[1]==='km'?Math.max(3,Math.round(t*2)/2):nice(t);
   return {id:uid(),name:'Wochenziel: '+e[0],target:t,unit:e[1],stat:e[2],xp:120+Math.round(S.level*3),gold:60,type:'weekly',rank:'E',cur:0,done:false,wk};
 }
-function mkBoss(wk){
-  const ri=Math.min(5,rankIdx(S.level)+1),n=Math.max(3,Math.min(6,(S.prof&&S.prof.days)||4));
-  return {id:uid(),name:'Wochen-Boss: '+BOSS_N[ri],target:n,unit:'Tage',stat:'dis',xp:200+Math.round(S.level*5),gold:120,type:'boss',rank:RANKS[ri],cur:0,done:false,wk};
-}
-function bossGear(){
-  const ri=Math.min(5,rankIdx(S.level)+1),kind=Math.random()<.5?'weapon':'armor';
-  const base=kind==='weapon'?['Dolch','Schwert','Streitaxt']:['Lederweste','Kettenhemd','Plattenpanzer'];
-  return {kind,r:ri,val:Math.round(5+ri*3+S.level*0.25+rnd(0,2)),name:gearName(ri,base[Math.floor(Math.random()*3)])};
-}
 function weekHtml(){
-  const w=S.quests.filter(q=>q.type==='weekly'),b=S.quests.filter(q=>q.type==='boss');
-  if(!w.length&&!b.length)return '';
+  const w=S.quests.filter(q=>q.type==='weekly');
+  if(!w.length)return '';
   const left=Math.max(1,dayNum(S.week)+7-dayNum(dayKey()));
   return '<section class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Diese Woche</div><h2>Wochen-Quests</h2></div><span class="lbl">noch '+left+' Tag'+(left===1?'':'e')+'</span></div>'+
-    w.map(qRow).join('')+
-    (b.length?'<p class="dim" style="font-size:13px;margin:10px 0 2px">Boss: Schließe an '+b[0].target+' Tagen alle täglichen Quests ab. Das zählt automatisch. Belohnung: Ausrüstung und ein Schlüssel.</p>'+b.map(qRow).join(''):'')+'</section>';
+    w.map(qRow).join('')+'</section>';
 }
 /* Das System öffnet Gates, der Spieler kann keine mehr erstellen */
 function spawnGate(force){
@@ -1850,7 +1876,8 @@ function ensureLive(){
   const t=dayKey();
   S.quests=S.quests.filter(q=>!(q.type==='dungeon'&&!q.done&&q.exp&&q.exp<t));
   const wk=weekKey();
-  if(S.week!==wk){S.quests=S.quests.filter(q=>q.type!=='weekly'&&q.type!=='boss');S.quests.push(mkWeekly(wk),mkBoss(wk));S.week=wk}
+  if(S.week!==wk){S.quests=S.quests.filter(q=>q.type!=='weekly');S.quests.push(mkWeekly(wk));S.week=wk}
+  S.quests=S.quests.filter(q=>q.type!=='boss');
   if(!S.gateAt&&!S.quests.some(q=>q.type==='dungeon'&&!q.done))spawnGate(true);else spawnGate(false);
   if(!S.growAt)S.growAt=t;
 }
@@ -1910,8 +1937,8 @@ const statName=k=>{const s=STATS.find(x=>x[0]===k);return s?s[1]:''};
 function defaults(){
   const dq=(name,target,unit,stat)=>mkQ(name,target,unit,stat);
   return {
-    v:11,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
-    stats:{str:10,vit:10,agi:10,int:10,dis:10},prog:{str:0,vit:0,agi:0,int:0,dis:0},
+    v:13,started:false,name:'Spieler',level:1,xp:0,gold:0,free:0,
+    stats:{str:10,vit:10,agi:10,int:10,dis:10},prog:{str:0,vit:0,agi:0,int:0,dis:0},sx:{str:0,vit:0,agi:0,int:0,dis:0},units:[],
     quests:[
       dq('Liegestütze',50,'Wdh.','str',20,10),
       dq('Sit-ups',50,'Wdh.','str',15,8),
@@ -1961,7 +1988,6 @@ const ACH=[
  ['sd20','diamond','Schattenkönig','20 Schatten-Soldaten','Schattenkönig',()=>(S.shadows||[]).length,20,'Kampf'],
  ['sdg','gold','Seltene Seele','Einen Gold-Schatten besitzen','Seelensammler',()=>(S.shadows||[]).filter(x=>x.r>=2).length,1,'Kampf'],
  ['sdt','silver','Typenmeister','Alle 5 Schatten-Typen besitzen','Typenmeister',()=>new Set((S.shadows||[]).map(x=>x.t)).size,5,'Kampf'],
- ['bo1','silver','Bosskiller','Einen Wochen-Boss besiegen','Bosskiller',()=>cntOf('boss'),1,'Kampf'],
  ['wk5','gold','Zielstrebig','5 Wochenziele erfüllen','Zielstrebig',()=>cntOf('weekly'),5,'Kampf']
 ];
 const ACHM={};ACH.forEach(a=>{ACHM[a[0]]=a});
@@ -2039,7 +2065,7 @@ function tutCard(){
   return '<section class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Kurz erklärt</div><h2>So funktioniert das System</h2></div></div><div class="ob-feat" style="margin:6px 0 12px">'+
     row(gico('stat-dis',40),'Tägliche Quests','Erledige sie jeden Tag. Sonst gibt es eine Strafe. Wer alles schafft, baut eine Serie auf.')+
     row(gico('ico-setdone',40),'Training','Im Tab Training steht dein Wochenplan. An Trainingstagen wartet oben bei den Quests die GYM-Quest. Ruhetage schützen deine Serie.')+
-    row(gico('item-key',40),'Dungeon und Boss','Schlüssel öffnen Türen mit Gegnern. Wochenziel und Wochen-Boss bringen große Belohnungen.')+
+    row(gico('item-key',40),'Dungeon','Schlüssel öffnen Türen mit Gegnern. Das Wochenziel bringt eine große Belohnung.')+
     row(gico('seal-gold',40),'Erfolge und Titel','Im Status-Fenster schaltest du Erfolge frei und trägst einen Titel neben deinem Namen.')+
     row(gico('stat-str',40),'Arena','Füge Freunde per Code hinzu, vergleiche Rekorde und fordere sie zum Duell heraus.')+
     '</div><div class="acts"><button class="btn ok" data-act="tut-ok">Verstanden</button></div></section>';
@@ -2089,7 +2115,7 @@ function usePardon(pid){
   S.penalties=S.penalties.filter(p=>p.id!==pid);S.items.pardon--;toast('Strafe gestrichen');return true;
 }
 function useDecree(){
-  const open=S.quests.filter(q=>q.type==='daily'&&!q.done);
+  const open=dailyOn().filter(q=>!q.done);
   if(hasIt('decree')<1||!open.length)return false;
   S.items.decree--;
   open.forEach(q=>{q.done=true;q.cur=q.target});
@@ -2432,6 +2458,99 @@ function viewShadows(){
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEv=e});
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol)){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
 
+/* ---------- v21: Einheiten, Wochentage, Fähigkeiten, Boss, Profile ---------- */
+const UNITS=['Wdh.','Min.','Std.','Sek.','km','m','Seiten','Liter','Gläser','Schritte','Stockwerke','Sätze','Mal'];
+const unitAll=()=>UNITS.concat((Array.isArray(S.units)?S.units:[]).filter(u=>!UNITS.includes(u)));
+function rememberUnit(u){
+  u=String(u||'').trim().slice(0,12);
+  if(!u||UNITS.includes(u))return;
+  if(!Array.isArray(S.units))S.units=[];
+  if(!S.units.includes(u)){S.units.push(u);if(S.units.length>8)S.units.shift()}
+}
+function unitSel(f){
+  const cur=f.unit||'',known=unitAll().includes(cur),isNew=!!f.newUnit||(!!cur&&!known);
+  return '<label class="f">Einheit<select id="fUnitSel" aria-label="Einheit"><option value=""'+(!cur&&!isNew?' selected':'')+'>ohne Einheit</option>'+
+    unitAll().map(u=>'<option'+(!isNew&&cur===u?' selected':'')+'>'+esc(u)+'</option>').join('')+
+    '<option value="__new"'+(isNew?' selected':'')+'>Eigene Einheit ...</option></select></label>'+
+    (isNew?'<label class="f wide">Name der Einheit<input type="text" id="fUnit" maxlength="12" placeholder="z. B. Runden" value="'+esc(known?'':cur)+'"></label>':'');
+}
+/* Wochentage pro Quest */
+const DAYSALL=[0,1,2,3,4,5,6];
+const dOn=(q,k)=>{const d=q.days;return !Array.isArray(d)||!d.length||d.length>=7||d.includes(wdOf(k||dayKey()))};
+const dailyOn=k=>S.quests.filter(q=>q.type==='daily'&&dOn(q,k));
+const dayTxt=d=>!Array.isArray(d)||!d.length||d.length>=7?'Täglich':d.slice().sort((a,b)=>a-b).map(i=>WD[i]).join(' ');
+function prevActive(){
+  const t=dayKey();
+  for(let i=1;i<=7;i++){const k=addDays(t,-i);if(dailyOn(k).length)return k}
+  return addDays(t,-1);
+}
+function daysHtml(f){
+  const sel=Array.isArray(f.days)?f.days:DAYSALL;
+  const pre=[['all','Jeden Tag'],['mwf','Mo Mi Fr'],['tts','Di Do Sa'],['wk','Mo bis Fr'],['we','Wochenende']];
+  return '<div class="f wide"><span>An diesen Tagen</span><div class="dpick">'+WD.map((l,i)=>'<button type="button" class="dp'+(sel.includes(i)?' on':'')+'" data-act="fday" data-id="'+i+'" aria-pressed="'+sel.includes(i)+'">'+l+'</button>').join('')+'</div>'+
+    '<div class="dpre">'+pre.map(([k,l])=>'<button type="button" class="btn ghost sm" data-act="fpre" data-id="'+k+'">'+l+'</button>').join('')+'</div>'+
+    '<div class="dim" style="font-size:12.5px;margin-top:4px">An freien Tagen zählt die Quest nicht, kostet keine Strafe und unterbricht keine Serie.</div></div>';
+}
+function offHtml(off){
+  if(!off.length)return '';
+  return '<details class="offd"><summary>Heute nicht dran ('+off.length+')</summary>'+off.map(q=>'<div class="item"><span class="nm">'+esc(q.name)+' <span class="dim">'+fmtN(q.target)+(q.unit?' '+esc(q.unit):'')+'</span></span><span class="chip">'+dayTxt(q.days)+'</span><button class="btn ghost sm ic" data-act="edit" data-id="'+q.id+'" aria-label="Ändern">✎</button><button class="btn '+(armed===q.id?'bad':'ghost')+' sm'+(armed===q.id?'':' ic')+'" data-act="del" data-id="'+q.id+'" aria-label="Löschen">'+(armed===q.id?'Sicher?':'✕')+'</button></div>').join('')+'</details>';
+}
+/* Fähigkeit passend zum Namen vorschlagen */
+const STAT_KW={
+ str:/liegest|push|kniebeug|squat|sit-?up|klimm|pull-?up|hantel|gewicht|kraft|plank|dips|burpee|bankdr|crunch|bizeps|muskel|gym/i,
+ vit:/lauf|renn|jog|\brun|schwimm|\brad\b|velo|bike|spazier|walk|wander|treppe|seil|ausdauer|cardio|sprint|marsch/i,
+ agi:/dehn|yoga|mobil|beweg|stretch|tanz|balance|turn|pilates|faszie/i,
+ int:/\bles|\blern|buch|studi|vokabel|sprache|schreib|\bcode|progr|rechn|\bkurs|podcast|üben|musik|instrument|klavier|gitarre|zeichn/i,
+ dis:/bett|aufsteh|dusche|wasser|trink|aufräum|meditier|tagebuch|zähne|ordnung|putz|verzicht|\bfrüh|journal/i};
+function guessStat(name){
+  const n=String(name||'');
+  for(const k of ['str','vit','agi','int','dis'])if(STAT_KW[k].test(n))return k;
+  return null;
+}
+/* Fähigkeiten: jede Quest stärkt genau ihre eigene */
+const statCap=()=>Math.round(dayCap()*0.45);
+function skillGain(st,gx){
+  if(!st||S.stats[st]==null)return;
+  if(!S.sx||typeof S.sx!=='object')S.sx={};
+  S.sx[st]=(S.sx[st]||0)+gx;
+  const pts=Math.max(1,Math.min(4,Math.round(gx/15)));
+  S.prog[st]=(S.prog[st]||0)+pts;
+  let up=0;
+  while(S.prog[st]>=statNeed(S.stats[st])){S.prog[st]-=statNeed(S.stats[st]);S.stats[st]++;up++}
+  if(up)toast(statName(st)+' steigt auf Stufe '+S.stats[st]);
+}
+const skillSum=()=>STATS.reduce((a,[k])=>a+((S.sx&&S.sx[k])||0),0);
+/* Profil eines Freundes */
+let profId=null;
+function miniShadow(s,i){
+  return {id:'p'+i,name:s.n,t:s.t,r:s.r,lv:s.l,xp:0};
+}
+function viewProfile(p){
+  const c=cleanCard(p),f=fighter(c,mult(c.cons)),pw=Math.round(f.max/10+f.atk*2+f.def*3);
+  const fr=S.friends.some(x=>x.id===p.id);
+  const mx=Math.max(30,...STATS.map(([k])=>Math.max(c.stats[k],S.stats[k])))*1.05;
+  const me=STATS.reduce((a,[k])=>a+S.stats[k],0),he=STATS.reduce((a,[k])=>a+c.stats[k],0);
+  const un=ACH.filter(a=>c.ac.includes(a[0]));
+  let h='<div class="acts" style="margin-bottom:10px"><button class="btn ghost" data-act="peer-close">Zurück zur Arena</button></div>';
+  h+='<section class="win hall" style="--sbg:url(img/ui-status.webp)"><div class="sub"><div><div class="lbl">Hunter-Profil</div><h2 class="'+auCls(c.au).trim()+'">'+esc(c.name)+' '+stars(c.pr)+'</h2></div></div>'+
+    '<div class="char">'+avatarHtml('big',c.thumb,c.rank,c.name,c.au)+'<div class="info">'+
+    (c.ti?'<div class="num" style="font-size:19px;color:var(--warn)">'+esc(c.ti)+'</div>':'')+
+    (c.cls?'<div class="lbl">'+esc(c.cls)+'</div>':'')+
+    '<div class="kv profk" style="margin-top:8px"><div><span class="lbl">Rang</span><span class="num">'+c.rank+'</span></div><div><span class="lbl">Level</span><span class="num">'+c.level+'</span></div><div><span class="lbl">Kampfkraft</span><span class="num">'+pw+'</span></div><div><span class="lbl">Konstanz</span><span class="num">'+c.cons+' %</span></div></div></div></div>'+
+    '<div class="acts" style="margin-top:12px"><button class="btn bad" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(fr?'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'">Freund entfernen</button>':'')+'</div></section>';
+  h+='<section class="win"><div class="sub"><div class="lbl">Fähigkeiten</div><span class="qp">'+(he>=me?'Er liegt vorn':'Du liegst vorn')+': '+Math.abs(he-me)+' Punkte</span></div>'+
+    STATS.map(([k,l])=>{const a=c.stats[k],b=S.stats[k];
+      return '<div class="cmp"><div class="cmpn">'+gico('stat-'+k,22)+'<span>'+l+'</span><b>'+a+'</b><small class="dim">du '+b+'</small></div><div class="bar"><i style="width:'+Math.min(100,a/mx*100)+'%"></i><u style="left:'+Math.min(99,b/mx*100)+'%"></u></div></div>'}).join('')+
+    '<p class="dim" style="font-size:12.5px;margin-top:6px">Der helle Strich zeigt deinen eigenen Wert.</p></section>';
+  h+='<section class="win"><div class="sub"><div class="lbl">Ausrüstung und Schatten</div></div><div class="kv"><div><span class="lbl">Waffe</span><span class="num">+'+c.gw+'</span></div><div><span class="lbl">Rüstung</span><span class="num">+'+c.ga+'</span></div><div><span class="lbl">Schatten-Kraft</span><span class="num">'+c.sh+'</span></div></div>'+
+    (c.tm.length?'<div class="steam" style="margin-top:10px">'+c.tm.map((s,i)=>cardHtml(miniShadow(s,i))).join('')+'</div>':'<p class="dim" style="font-size:13px;margin-top:8px">Kein Schatten-Team sichtbar.</p>')+'</section>';
+  h+='<section class="win"><div class="sub"><div class="lbl">Erfolge</div><span class="qp">'+un.length+' / '+ACH.length+'</span></div>'+
+    (un.length?'<div class="achg">'+un.map(a=>'<div class="ag" title="'+esc(a[3])+'">'+gico('seal-'+a[1],34)+'<span>'+esc(a[2])+'</span></div>').join('')+'</div>':'<div class="empty">Noch keine Erfolge sichtbar.</div>')+'</section>';
+  const rr=REC.filter(r=>c.rc[r.k]>0);
+  if(rr.length)h+='<section class="win"><div class="sub"><div class="lbl">Rekorde</div></div>'+rr.map(r=>{const mine=S.pr&&S.pr[r.k]&&S.pr[r.k].v;return '<div class="rtrow"><span>'+esc(r.n)+'</span><b>'+fmtRec(r,c.rc[r.k])+' '+esc(r.u)+(mine>0?' <small class="dim">du '+fmtRec(r,mine)+'</small>':'')+'</b></div>'}).join('')+'</section>';
+  return h;
+}
+
 /* ---------- state + persistence ---------- */
 let S=defaults();
 try{const raw=localStorage.getItem(KEY)||localStorage.getItem('hunter-system-v1');if(raw)S=Object.assign(defaults(),JSON.parse(raw));migrate()}catch(e){}
@@ -2654,7 +2773,7 @@ function myCard(){
   const c=consistency();
   return {name:S.name,level:S.level,rank:rankOf(S.level),stats:Object.assign({},S.stats),cons:c.pct,days:c.days,
     gw:S.gear.weapon?S.gear.weapon.val:0,ga:S.gear.armor?S.gear.armor.val:0,sh:Math.min(999,Math.round(shadowPow()/1.5)),thumb:S.thumb||null,
-    cls:String(getProfile().klasse||'').slice(0,40),ti:titleOf(),au:null,pr:prestigeOf(),fc:myFc(),fl:S.friends.map(f=>f.id).slice(0,100),rc:recVals()};
+    cls:String(getProfile().klasse||'').slice(0,40),ti:titleOf(),au:null,pr:prestigeOf(),fc:myFc(),fl:S.friends.map(f=>f.id).slice(0,100),rc:recVals(),ac:Object.keys(S.ach||{}).filter(id=>S.ach[id]&&ACHM[id]).slice(0,60),tm:teamList().map(x=>({n:x.name,t:x.t,r:x.r,l:x.lv}))};
 }
 function pStats(){
   const s=S.stats;
@@ -2666,58 +2785,60 @@ function pStats(){
 function grantXP(n){
   const r0=rankOf(S.level);let ups=0;
   S.xp+=n;
-  while(S.xp>=need(S.level)){S.xp-=need(S.level);S.level++;S.free+=3;ups++}
+  let bon=0;
+  while(S.xp>=need(S.level)){S.xp-=need(S.level);S.level++;if(S.level%2===0)bon++;ups++}
+  if(bon)STATS.forEach(([k])=>{S.stats[k]+=bon});
   if(ups){
     const r1=rankOf(S.level);
     const unlocked=SKILLS.filter(k=>k.lv<=S.level&&k.lv>S.level-ups);
-    modal({pic:'levelup',title:'Level Up!',body:'<div class="big">LV '+S.level+'</div><p>+'+(3*ups)+' freie Statuspunkte</p>'+
+    modal({pic:'levelup',title:'Level Up!',body:'<div class="big">LV '+S.level+'</div>'+(bon?'<p>Alle Werte +'+bon+'</p>':'')+
       (unlocked.length?'<p style="color:var(--ok);font-family:var(--f-d);font-size:19px;letter-spacing:.08em">Neue Fähigkeit: '+unlocked.map(k=>esc(k.name)).join(', ')+'</p>':'')+
-      '<p class="dim">Verteile deine Punkte im Status-Fenster.</p>'});
+      '<p class="dim">Einzelne Werte wachsen nur durch Quests, die dazu passen.</p>'});
     if(r1!==r0)modal({pic:'rankup',kind:'vio',title:'Rang-Aufstieg',body:'<div class="rankup r-'+r1+'">'+emblem(r1,200,'pulse')+'</div><p style="font-family:var(--f-d);font-size:20px;letter-spacing:.1em">'+r0+' → '+r1+'<br>Neuer Titel: '+esc(TITLES[r1])+'</p><p class="dim">'+esc(RANKUP_TXT[r1]||'')+' Neue Dungeon-Ränge sind jetzt für dich freigeschaltet.</p>',btn:'Aufsteigen'});
   }
 }
 function giveKey(why){S.keys++;toast('Schlüssel gefunden'+(why?' ('+why+')':''))}
 function recordDay(k){
-  const d=S.quests.filter(q=>q.type==='daily');
+  const d=dailyOn(k);
   if(d.length)S.hist[k]={d:d.filter(q=>q.done).length,t:d.length};
 }
 function completeQuest(q){
   if(q.done)return;
   q.done=true;q.cur=q.target;
-  const c=capState();let gx=q.xp,gg=q.gold;
+  const c=capState();let gx=q.xp,gg=q.gold,capWhy=null;
   if(q.type==='dungeon'){if(c.dg>=1){gx=0;gg=0}else c.dg++}
   else if(q.type==='weekly'||q.type==='boss'||q.type==='gym'){}
-  else{const room=Math.max(0,dayCap()-c.xp);if(gx>room){gg=Math.round(gg*room/Math.max(1,gx));gx=room}c.xp+=gx}
+  else{
+    let room=Math.max(0,dayCap()-c.xp);
+    if(q.type==='daily'&&q.stat){const us=(c.sx&&c.sx[q.stat])||0,sr=Math.max(0,statCap()-us);if(sr<room){room=sr;capWhy=q.stat}}
+    if(gx>room){gg=Math.round(gg*room/Math.max(1,gx));gx=room}
+    c.xp+=gx;
+    if(q.type==='daily'&&q.stat){if(!c.sx)c.sx={};c.sx[q.stat]=(c.sx[q.stat]||0)+gx}
+  }
   if(gx>0){
     S.gold+=gg;S.totalDone++;if(!S.cnt)S.cnt={};S.cnt[q.type]=(S.cnt[q.type]||0)+1;
-    if(q.stat&&S.stats[q.stat]!=null){
-      const pts=Math.max(1,Math.min(4,Math.round(gx/15)));
-      S.prog[q.stat]=(S.prog[q.stat]||0)+pts;
-      while(S.prog[q.stat]>=statNeed(S.stats[q.stat])){S.prog[q.stat]-=statNeed(S.stats[q.stat]);S.stats[q.stat]++;toast('+1 '+statName(q.stat))}
-    }
+    skillGain(q.stat,gx);
     toast('Quest abgeschlossen: +'+gx+' XP, +'+gg+' G'+(gx<q.xp?' (Tageslimit)':''));
     grantXP(gx);
     const kc=q.type==='dungeon'||q.type==='weekly'||q.type==='boss'?1:q.type==='gym'?0.35:q.type==='system'?0.4:0.15;
     if(Math.random()<kc)giveKey(q.type==='dungeon'?'Dungeon':'');
-    if(q.type==='boss'){const it=bossGear(),how=addToBag(it);S.keys++;modal({pic:'victory',kind:'vio',title:'Boss besiegt',body:'<p style="font-family:var(--f-d);font-size:22px">'+esc(q.name)+'</p><p>Beute: '+esc(it.name)+' (+'+it.val+' '+(it.kind==='weapon'?'Angriff':'Rüstung')+'), '+how+'</p><p>Dazu ein Schlüssel.</p>',btn:'Weiter'})}
     shadowXp(Math.max(1,Math.round(gx/10)),q.stat);
     if(S.totalDone%SHADOW_EVERY===0){
       const ty=STAT2T[q.stat]||STK[Math.floor(Math.random()*5)],sh=mkShadow(ty,rankIdx(S.level));
       addShadow(sh);
       extractModal(sh,'Extraktion','Aus deinen Quests ist ein neuer Schatten entstanden, '+STYPE[ty].n+'-Typ.');
     }
-  }else toast(q.type==='dungeon'?'Heute war schon ein Dungeon dran: keine Belohnung mehr.':'Tageslimit erreicht: Diese Quest bringt heute keine Belohnung mehr.');
+  }else toast(q.type==='dungeon'?'Heute war schon ein Dungeon dran: keine Belohnung mehr.':capWhy?'Tageslimit für '+statName(capWhy)+' erreicht. Trainiere auch andere Fähigkeiten.':'Tageslimit erreicht: Diese Quest bringt heute keine Belohnung mehr.');
   if(q.type==='daily'){
-    const d=S.quests.filter(x=>x.type==='daily');
+    const d=dailyOn();
     if(d.length&&d.every(x=>x.done)&&S.lastComplete!==dayKey()){
-      const y=dayKey(new Date(Date.now()-864e5));
+      const y=prevActive();
       S.streak=(S.lastComplete===y)?S.streak+1:1;
       const p0=prestigeOf();S.lastComplete=dayKey();S.bestStreak=Math.max(S.bestStreak,S.streak);if(prestigeOf()>p0){const pz=PRESTIGE[prestigeOf()-1];modal({kind:'vio',title:'Prestige',body:'<div class="big stars">'+'★'.repeat(prestigeOf())+'</div><p>'+pz.n+'-Siegel: '+pz.d+' Tage Serie am Stück</p><p class="dim">Es steht jetzt neben deinem Namen, auch für deine Freunde.</p>',btn:'Stolz tragen'})}
       const bx=Math.min(100,30+S.streak*5),bg=20;
       S.gold+=bg;S.keys++;
       modal({pic:'daily',title:'Tagesquest geschafft',body:'<div class="big">'+S.streak+' 🔥</div><p>Serie: '+S.streak+' Tag'+(S.streak>1?'e':'')+' in Folge</p><p>Bonus: +'+bx+' XP, +'+bg+' G und ein Schlüssel</p>',btn:'Weiter'});
       grantXP(bx);
-      const bq=S.quests.find(x=>x.type==='boss'&&!x.done);if(bq)addProgress(bq,1);
     }
   }
 }
@@ -2748,14 +2869,14 @@ function rollover(){
   if(S.lastDay===t)return;
   if(S.lastDay){
     const diff=dayNum(t)-dayNum(S.lastDay);
-    const dailies=S.quests.filter(q=>q.type==='daily');
+    const dAll=S.quests.filter(q=>q.type==='daily'),dailies=dailyOn(S.lastDay);
     recordDay(S.lastDay);
-    for(let i=1;i<Math.min(diff,8);i++){if(dailies.length)S.hist[addDays(S.lastDay,i)]={d:0,t:dailies.length}}
+    for(let i=1;i<Math.min(diff,8);i++){const kk=addDays(S.lastDay,i),nn=dailyOn(kk).length;if(nn)S.hist[kk]={d:0,t:nn}}
     let failed=0,shielded=0;
-    if(dailies.length){
+    if(dAll.length){
       const miss=[];
-      if(dailies.some(q=>!q.done))miss.push(S.lastDay);
-      for(let i=1;i<=Math.min(Math.max(diff-1,0),2);i++)miss.push(addDays(S.lastDay,i));
+      if(dailies.length&&dailies.some(q=>!q.done))miss.push(S.lastDay);
+      for(let i=1;i<=Math.min(Math.max(diff-1,0),2);i++){const kk=addDays(S.lastDay,i);if(dailyOn(kk).length)miss.push(kk)}
       miss.forEach(k=>{if(protectedMiss(k))shielded++;else failed++});
     }
     if(!S.cnt)S.cnt={};
@@ -2775,7 +2896,7 @@ function rollover(){
       }
     }
     if(failed>0){
-      const sx=dailies.reduce((a,q)=>a+q.xp,0),sg=dailies.reduce((a,q)=>a+q.gold,0);
+      const pd=dailies.length?dailies:dAll,sx=pd.reduce((a,q)=>a+q.xp,0),sg=pd.reduce((a,q)=>a+q.gold,0);
       const lx=Math.min(S.xp,Math.round(sx*0.75*failed)),lg=Math.min(S.gold,Math.round(sg*0.4*failed));
       S.xp-=lx;S.gold-=lg;S.streak=0;
       const ptx=[];for(let i=0;i<failed;i++){const tx=genPenalty();ptx.push(tx);S.penalties.push({id:uid(),text:tx})}
@@ -2900,6 +3021,8 @@ function cleanCard(c){
   const st={};STATS.forEach(([k])=>{st[k]=clampN(c.stats&&c.stats[k],1,999,10)});
   return {name:String(c.name||'Hunter').slice(0,30),level:clampN(c.level,1,999,1),rank:RANKS.includes(c.rank)?c.rank:'E',stats:st,cons:clampN(c.cons,0,100,50),days:clampN(c.days,0,14,0),
     gw:clampN(c.gw,0,99,0),ga:clampN(c.ga,0,99,0),sh:clampN(c.sh,0,999,0),thumb:typeof c.thumb==='string'&&c.thumb.startsWith('data:image/')&&c.thumb.length<20000?c.thumb:null,cls:String(c.cls||'').slice(0,40),ti:(ACH.some(a=>a[4]===c.ti)?String(c.ti):''),au:null,pr:clampN(c.pr,0,PRESTIGE.length,0),fc:String(c.fc||'').replace(/[^A-Za-z0-9]/g,'').slice(0,8),fl:Array.isArray(c.fl)?c.fl.slice(0,100).map(x=>String(x).slice(0,40)):[],
+    ac:Array.isArray(c.ac)?c.ac.filter(id=>ACH.some(a=>a[0]===id)).slice(0,60):[],
+    tm:Array.isArray(c.tm)?c.tm.slice(0,3).map(x=>({n:String(x&&x.n||'Schatten').slice(0,20),t:STK.includes(x&&x.t)?x.t:'kraft',r:clampN(x&&x.r,0,3,0),l:clampN(x&&x.l,1,SMAXLV,1)})):[],
     rc:(()=>{const o={};if(c.rc&&typeof c.rc==='object')REC.forEach(r=>{const v=Number(c.rc[r.k]);if(v>0&&v<=r.max)o[r.k]=r.dec?Math.round(v*10)/10:Math.round(v)});return o})()};
 }
 function cleanDuel(o){
@@ -3061,7 +3184,7 @@ function renderHdr(){
 }
 function renderWarn(){
   const el=document.getElementById('warn');
-  const d=S.quests.filter(q=>q.type==='daily'),open=d.filter(q=>!q.done).length;
+  const d=dailyOn(),open=d.filter(q=>!q.done).length;
   const n=new Date(),e=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1);
   const s=Math.max(0,Math.floor((e-n)/1000));
   if(!S.started||!open||s>4*3600||restShield()){if(!el.hidden){el.hidden=true}return}
@@ -3083,13 +3206,14 @@ function renderTabs(){
 function bestStep(t){const c=[1,5,10,25,50];let b=1;c.forEach(v=>{if(v<=t/4)b=v});return b}
 function qRow(q,big){
   const pct=Math.min(100,q.cur/q.target*100);
-  const progTxt=q.target>1?q.cur+' / '+q.target+(q.unit?' '+esc(q.unit):''):'';
+  const un=q.unit?' '+esc(q.unit):'';
+  const progTxt=q.target>1?fmtN(q.cur)+' / '+fmtN(q.target)+un:(q.unit?fmtN(q.target)+un:'');
   const prog=progTxt?'<span class="qp">'+progTxt+'</span>':'';
   let acts='',tools='';
   if(!q.done){
-    if(q.test)acts+='<input class="amt" type="number" min="0" step="'+(recOf(q.test)&&recOf(q.test).dec?'0.1':'1')+'" id="tv-'+q.id+'" aria-label="Ergebnis" placeholder="Wert" style="width:88px"><button class="btn ok" data-act="test-submit" data-id="'+q.id+'">Ergebnis eintragen</button>';
+    if(q.test)acts+='<input class="amt" type="number" min="0" step="'+(recOf(q.test)&&recOf(q.test).dec?'0.1':'1')+'" id="tv-'+q.id+'" aria-label="Ergebnis" placeholder="Wert" style="width:88px">'+(recOf(q.test)&&recOf(q.test).u?'<span class="amu">'+esc(recOf(q.test).u)+'</span>':'')+'<button class="btn ok" data-act="test-submit" data-id="'+q.id+'">Ergebnis eintragen</button>';
     else if(q.type!=='boss'){
-    if(q.target>1)acts+='<input class="amt" type="number" min="1" step="any" value="'+bestStep(q.target)+'" id="amt-'+q.id+'" aria-label="Menge"><button class="btn" data-act="add" data-id="'+q.id+'">+ Eintragen</button>';
+    if(q.target>1)acts+='<span class="amw"><input class="amt" type="number" min="0" step="any" value="'+bestStep(q.target)+'" id="amt-'+q.id+'" aria-label="Menge'+(q.unit?' in '+esc(q.unit):'')+'">'+(q.unit?'<span class="amu">'+esc(q.unit)+'</span>':'')+'</span><button class="btn" data-act="add" data-id="'+q.id+'">+ Eintragen</button>';
     acts+='<button class="btn ok" data-act="done" data-id="'+q.id+'">Fertig</button>';
     }
   }
@@ -3097,7 +3221,7 @@ function qRow(q,big){
     tools='<div class="tools">'+(q.type==='daily'?'<button class="btn ghost sm ic" data-act="edit" data-id="'+q.id+'" aria-label="Ändern" title="Ändern">✎</button>':'')+
       '<button class="btn '+(armed===q.id?'bad':'ghost')+' sm'+(armed===q.id?'':' ic')+'" data-act="del" data-id="'+q.id+'" aria-label="Löschen" title="Löschen">'+(armed===q.id?'Sicher?':'✕')+'</button></div>';
   }
-  const chips=((q.type==='dungeon'||q.type==='boss')?'<span class="chip rk">'+q.rank+'-Rang</span>':'')+(q.type==='weekly'?'<span class="chip sys">Woche</span>':'')+(q.type==='boss'?'<span class="chip sys">Boss</span>':'')+(q.type==='dungeon'&&q.exp?'<span class="chip">'+expTxt(q.exp)+'</span>':'')+(q.type==='system'?'<span class="chip sys">System</span>':'')+(q.type==='plan'?'<span class="chip sys">Plan</span>':'')+'<span class="chip xp">+'+q.xp+' XP</span><span class="chip g">+'+q.gold+' G</span>'+(q.stat?'<span class="chip">'+statName(q.stat)+'</span>':'');
+  const chips=((q.type==='dungeon'||q.type==='boss')?'<span class="chip rk">'+q.rank+'-Rang</span>':'')+(q.type==='weekly'?'<span class="chip sys">Woche</span>':'')+(q.type==='boss'?'<span class="chip sys">Boss</span>':'')+(q.type==='dungeon'&&q.exp?'<span class="chip">'+expTxt(q.exp)+'</span>':'')+(q.type==='system'?'<span class="chip sys">System</span>':'')+(q.type==='daily'&&Array.isArray(q.days)&&q.days.length&&q.days.length<7?'<span class="chip">'+dayTxt(q.days)+'</span>':'')+(q.type==='plan'?'<span class="chip sys">Plan</span>':'')+'<span class="chip xp">+'+q.xp+' XP</span><span class="chip g">+'+q.gold+' G</span>'+(q.stat?'<span class="chip">'+statName(q.stat)+'</span>':'');
   const mon=(q.type==='dungeon'||q.type==='boss')?' mon':'';
   const c=(q.type==='dungeon'||q.type==='boss')?RK_COL[Math.max(0,RANKS.indexOf(q.rank))]:(STAT_C[q.stat]||'#2a5bff');
   const img=(sm)=>'<img alt="" loading="lazy" src="'+qImgSrc(q,sm)+'" onerror="this.remove()">';
@@ -3115,20 +3239,24 @@ function formHtml(){
   return '<section class="win" id="qform"><div class="sub"><h2>'+(f.id?'Quest ändern':'Neue Quest')+'</h2></div><div class="grid">'+
    '<label class="f wide">Name<input type="text" id="fName" maxlength="80" value="'+esc(f.name)+'"></label>'+
    (f.type==='dungeon'?'<label class="f">Rang<select id="fRank">'+RANKS.slice(0,maxGate()+1).map(r=>'<option'+(f.rank===r?' selected':'')+'>'+r+'</option>').join('')+'</select></label>':'')+
-   '<label class="f wide">Wirkt auf<select id="fStat">'+STATS.map(([k])=>'<option value="'+k+'"'+(f.stat===k?' selected':'')+'>'+HINT[k]+'</option>').join('')+'</select></label>'+
+   '<label class="f wide">Stärkt Fähigkeit<select id="fStat">'+STATS.map(([k])=>'<option value="'+k+'"'+(f.stat===k?' selected':'')+'>'+HINT[k]+'</option>').join('')+'</select></label>'+
    '<label class="f">Ziel<input type="number" id="fTarget" min="1" step="any" value="'+f.target+'"></label>'+
-   '<label class="f">Einheit<input type="text" id="fUnit" maxlength="12" placeholder="km, Min., Wdh." value="'+esc(f.unit)+'"></label>'+
+   unitSel(f)+
+   (f.type==='daily'?daysHtml(f):'')+
    '<p id="fPrev" style="grid-column:1/-1;font-family:var(--f-d);letter-spacing:.06em;color:var(--glow)">'+prevText(f)+'</p>'+
-   '</div><p class="dim" style="font-size:13px;margin-top:8px">'+(f.type==='dungeon'?'Dungeons gibt es bis Rang '+RANKS[maxGate()]+', höchstens '+GATE_MAX+' offen. Pro Tag zählt ein Dungeon.':'Das System berechnet die Belohnung aus Ziel und Einheit (Min., Wdh., km, Sek.). Aus Quests zählen pro Tag höchstens '+dayCap()+' XP, höchstens '+QUEST_MAX+' tägliche Quests.')+'</p><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="fsave">Speichern</button><button class="btn ghost" data-act="fcancel">Abbrechen</button></div></section>';
+   '</div><p class="dim" style="font-size:13px;margin-top:8px">'+(f.type==='dungeon'?'Dungeons gibt es bis Rang '+RANKS[maxGate()]+', höchstens '+GATE_MAX+' offen. Pro Tag zählt ein Dungeon.':'Das System berechnet die Belohnung aus Ziel und Einheit. Die Quest stärkt die gewählte Fähigkeit. Aus Quests zählen pro Tag höchstens '+dayCap()+' XP, pro Fähigkeit höchstens '+statCap()+' XP, höchstens '+QUEST_MAX+' tägliche Quests.')+'</p><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="fsave">Speichern</button><button class="btn ghost" data-act="fcancel">Abbrechen</button></div></section>';
 }
 function readForm(){
   const v=id=>{const e=document.getElementById(id);return e?e.value:undefined};
+  const sel=v('fUnitSel');
+  let unit=form.unit||'',newUnit=!!form.newUnit;
+  if(sel!==undefined){if(sel==='__new'){newUnit=true;unit=v('fUnit')??''}else{newUnit=false;unit=sel}}
   return {id:form.id,name:v('fName')??form.name,type:v('fType')??form.type,rank:v('fRank')??form.rank,
-    target:Number(v('fTarget')??form.target),unit:v('fUnit')??form.unit,stat:v('fStat')??form.stat};
+    target:Number(v('fTarget')??form.target),unit,newUnit,stat:v('fStat')??form.stat,statManual:form.statManual,days:form.days};
 }
 function newForm(type){
   const d=type==='dungeon';
-  return {id:null,name:'',type,rank:'E',target:1,unit:'',stat:d?'str':'dis'};
+  return {id:null,name:'',type,rank:'E',target:1,unit:'',newUnit:false,stat:d?'str':'dis',days:DAYSALL.slice()};
 }
 function planHtml(){
   if(!samp)return '';
@@ -3146,7 +3274,7 @@ function planHtml(){
   return h+'</section>';
 }
 function viewQuests(){
-  const d=S.quests.filter(q=>q.type==='daily'),dn=d.filter(q=>q.done).length;
+  const d=dailyOn(),off=S.quests.filter(q=>q.type==='daily'&&!dOn(q)),dn=d.filter(q=>q.done).length;
   let h=onbCard()+tutCard()+reviewCard()+growCard();
   if(S.penalties.length){
     h+='<section class="win bad" id="pen-zone"><div class="banner"><img alt="" src="img/ui-penalty.webp" onerror="this.parentNode.remove()"></div><div class="sub"><h2>Strafzone</h2><span class="lbl">'+S.penalties.length+' offen</span></div>'+
@@ -3165,7 +3293,7 @@ function viewQuests(){
   h+=S.tp?gymCard():(S.tpHide?'':gymCard().replace('<div class="acts"><button class="btn" data-act="go-plan">Plan erstellen</button></div>','<div class="acts"><button class="btn" data-act="go-plan">Plan erstellen</button><button class="btn ghost" data-act="tp-hide">Ausblenden</button></div>'));
   h+='<section class="win"><div class="sub"><div><div class="lbl">Tägliche Quest</div><h2>Training des Hunters</h2></div><div style="text-align:right"><div class="lbl">Zeitlimit</div><div class="cd" id="cd">--:--:--</div></div></div>'+
     '<div class="row" style="margin-bottom:8px"><span class="qp">Abgeschlossen '+dn+' / '+d.length+'</span><span class="sp"></span><span class="dim" style="font-size:13px">Tageslimit: '+capState().xp+' / '+dayCap()+' XP</span></div>'+(hasIt('shield')||(hasIt('decree')&&d.some(x=>!x.done))?'<div class="acts" style="margin-bottom:8px">'+(hasIt('shield')?'<span class="chip sys">Straf-Schild ×'+hasIt('shield')+'</span>':'')+(hasIt('decree')&&d.some(x=>!x.done)?'<button class="btn vio sm" data-act="decree">Tages-Erlass einsetzen ('+hasIt('decree')+')</button>':'')+'</div>':'')+
-    (d.length?(()=>{const f=d.find(x=>!x.done);return d.map(x=>qRow(x,x===f)).join('')})():'<div class="empty">Keine täglichen Quests. Lege unten eine an.</div>')+'</section>';
+    (d.length?(()=>{const f=d.find(x=>!x.done);return d.map(x=>qRow(x,x===f)).join('')})():'<div class="empty">'+(off.length?'Heute ist ein freier Tag. Es steht nichts an.':'Keine täglichen Quests. Lege unten eine an.')+'</div>')+offHtml(off)+'</section>';
   h+=form&&form.type==='daily'?formHtml():'<div class="acts"><button class="btn" data-act="newq" data-id="daily">+ Eigene Quest</button><button class="btn vio" data-act="sug-toggle" aria-expanded="'+sugOpen+'">'+(sugOpen?'Vorschläge schließen':'Vorschläge')+'</button></div>'+sugHtml();
   h+=weekHtml();
   h+=planHtml();
@@ -3233,8 +3361,8 @@ function radar(){
 }
 function viewStatus(){
   const mx=Math.max(50,...Object.values(S.stats));
-  const st=STATS.map(([k,l])=>'<div class="stat"><span class="nm">'+gico('stat-'+k)+'<span>'+l+'</span></span><div class="bar"><i style="width:'+(S.stats[k]/mx*100)+'%"></i></div><span class="num v">'+S.stats[k]+'</span>'+(S.free>0?'<button class="btn sm" data-act="stat" data-id="'+k+'" aria-label="'+l+' erhöhen">+</button>':'<span></span>')+'</div>'+
-    '<div class="qp" style="margin:-4px 0 4px;font-size:12px">'+HINT[k]+' · nächster Punkt '+(S.prog[k]||0)+' / '+statNeed(S.stats[k])+'</div>').join('');
+  const st=STATS.map(([k,l])=>'<div class="stat"><span class="nm">'+gico('stat-'+k)+'<span>'+l+'</span></span><div class="bar"><i style="width:'+Math.min(100,(S.prog[k]||0)/statNeed(S.stats[k])*100)+'%"></i></div><span class="num v">'+S.stats[k]+'</span>'+(S.free>0?'<button class="btn sm" data-act="stat" data-id="'+k+'" aria-label="'+l+' erhöhen">+</button>':'<span></span>')+'</div>'+
+    '<div class="qp" style="margin:-4px 0 4px;font-size:12px">'+HINT[k]+' · Stufe '+S.stats[k]+' · nächste Stufe '+(S.prog[k]||0)+' / '+statNeed(S.stats[k])+' · erarbeitet '+Math.round((S.sx&&S.sx[k])||0)+' XP</div>').join('');
   const r=rankOf(S.level),p=pStats(),pf=getProfile();
   const gear='<div class="kv"><div><span class="lbl">Waffe</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.weapon?esc(S.gear.weapon.name)+' (+'+S.gear.weapon.val+')':'keine')+'</span></div><div><span class="lbl">Rüstung</span><span style="font-family:var(--f-d);font-size:16px;font-weight:700">'+(S.gear.armor?esc(S.gear.armor.name)+' (+'+S.gear.armor.val+')':'keine')+'</span></div><div><span class="lbl">Tränke</span><span class="num">'+S.potions+'</span></div></div>';
   const sk=SKILLS.map(k=>'<div class="skill '+(S.level>=k.lv?'':'lock')+'"><span class="nm">'+gico('skill-'+k.id)+'<span>'+esc(k.name)+'</span></span><span class="qp">'+(S.level>=k.lv?k.mp+' MP':'ab LV '+k.lv)+'</span><span class="dim" style="flex-basis:100%;font-size:13px">'+esc(k.desc)+'</span></div>').join('');
@@ -3244,7 +3372,7 @@ function viewStatus(){
      (aiMsg?'<div class="think">'+esc(aiMsg)+'</div>':'')+
      '<div class="acts"><button class="btn sm" data-act="photo">'+(S.avatar?'Foto ändern':'Foto wählen')+'</button>'+(S.avatar&&samp&&sampImg?'<button class="btn vio sm" data-act="profile">Profil neu erzeugen</button>':'')+'</div></div></div></section>'+
    rankSection()+'<section id="stat-pts" class="win"><div class="sub"><div class="lbl">Werte</div></div>'+radar()+'<div class="kv" style="margin:12px 0"><div><span class="lbl">Rang</span><span class="num">'+r+'</span></div><div><span class="lbl">Level</span><span class="num">'+S.level+'</span></div><div><span class="lbl">Lebenspunkte</span><span class="num">'+p.hp+'</span></div><div><span class="lbl">Mana</span><span class="num">'+p.mp+'</span></div><div><span class="lbl">Angriff</span><span class="num">'+Math.round(p.atk)+'</span></div><div><span class="lbl">Verteidigung</span><span class="num">'+Math.round(p.def)+'</span></div></div>'+
-   st+'<p class="dim" style="margin:8px 0 0;font-size:13px">Jede Level-Stufe gibt 3 Punkte. Außerdem wächst jeder Stat durch passende Quests, mit steigendem Aufwand pro Punkt.</p></section>'+
+   st+'<p class="dim" style="margin:8px 0 0;font-size:13px">Jede Fähigkeit hat ihren eigenen Balken und wächst nur durch Quests, die sie stärken. Insgesamt erarbeitet: <b>'+Math.round(skillSum())+' XP</b>. Alle zwei Level steigen zusätzlich alle Werte um 1.</p></section>'+
    '\u0001'+recSection()+achSection()+'\u0002'+profSection()+'\u0003'+
    invSection()+
    '\u0004'+'<section class="win vio"><div class="sub"><div class="lbl" style="color:var(--violet)">Fähigkeiten</div></div>'+sk+'</section>'+
@@ -3254,6 +3382,7 @@ function viewStatus(){
    '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class="f wide"><span>Klasse</span><div class="pick">'+CLASSES.map(c=>'<button type="button" class="cl '+(pf.klasse===c[0]?'on':'')+'"'+(c[1]>S.level?' disabled':'')+' data-act="setcls" data-id="'+c[0]+'">'+clsIco(c[0])+'<span>'+c[0]+'</span>'+(c[1]>1?'<small>'+(c[1]>S.level?'ab LV '+c[1]:'freigeschaltet')+'</small>':'')+'</button>').join('')+'</div></div><div class="f wide dim" style="font-size:13px">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>');
 }
 function viewArena(){
+  if(profId){const pp=peers.find(x=>x.id===profId);if(pp)return viewProfile(pp);profId=null}
   const me=myCard(),ch=champs();
   const shown=peers.filter(p=>showAll||isFriend(p));
   let h='<section class="win">'+scene('arena')+'<div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde</h2></div></div>'+
@@ -3274,7 +3403,7 @@ function viewArena(){
     h+=recRankSection();
     h+='<section class="win"><div class="sub"><div class="lbl">Hunter in der Arena</div></div>'+
       (shown.length?shown.map(p=>{const c=cleanCard(p);const f=fighter(c,mult(c.cons));const pw=Math.round(f.max/10+f.atk*2+f.def*3);
-        return '<div class="peer'+(ch[p.id]?' fr3':'')+'">'+(ch[p.id]?framed(avatarHtml('sm',c.thumb,c.rank,c.name,c.au),'gold',46):avatarHtml('sm',c.thumb,c.rank,c.name,c.au))+'<div class="mid"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="qp">'+(c.ti?'<span class="tt">'+esc(c.ti)+'</span> · ':'')+(c.cls?esc(c.cls)+' · ':'')+'LV '+c.level+' · Konstanz '+c.cons+' % · Kampfkraft '+pw+'</div>'+recLine(c)+champLine(ch[p.id])+'</div><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(S.friends.some(f=>f.id===p.id)?'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'" aria-label="Freund entfernen">✕</button>':'')+'</div>'}).join('')
+        return '<div class="peer'+(ch[p.id]?' fr3':'')+'">'+(ch[p.id]?framed(avatarHtml('sm',c.thumb,c.rank,c.name,c.au),'gold',46):avatarHtml('sm',c.thumb,c.rank,c.name,c.au))+'<div class="mid tap" data-act="peer-open" data-id="'+esc(p.id)+'"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="qp">'+(c.ti?'<span class="tt">'+esc(c.ti)+'</span> · ':'')+(c.cls?esc(c.cls)+' · ':'')+'LV '+c.level+' · Konstanz '+c.cons+' % · Kampfkraft '+pw+'</div>'+recLine(c)+champLine(ch[p.id])+'</div><button class="btn ghost sm" data-act="peer-open" data-id="'+esc(p.id)+'">Profil</button><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(S.friends.some(f=>f.id===p.id)?'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'" aria-label="Freund entfernen">✕</button>':'')+'</div>'}).join('')
       :'<div class="empty">'+(peersLoaded?'Noch keine Freunde in der Liste. Schick deinen Einladungs-Link oder füge oben einen Freundescode hinzu.':'Lade ...')+'</div>')+
       '<p class="dim" style="font-size:12px;margin-top:8px">Freunde sehen Name, Level, Rang, Werte, Konstanz und dein kleines Profilbild. Dein Freund sieht das Duell-Ergebnis in seinem Postfach, sobald er die App öffnet.</p></section>';
   }else{
@@ -3292,7 +3421,7 @@ function viewKalender(){
   const c=consistency(),today=dayKey();
   const dow=(new Date().getDay()+6)%7;
   const start=addDays(today,-(dow+77));
-  const live=(()=>{const d=S.quests.filter(q=>q.type==='daily');return d.length?{d:d.filter(q=>q.done).length,t:d.length}:null})();
+  const live=(()=>{const d=dailyOn();return d.length?{d:d.filter(q=>q.done).length,t:d.length}:null})();
   let cells='';
   for(let i=0;i<84;i++){
     const k=addDays(start,i);
@@ -3379,18 +3508,25 @@ document.addEventListener('click',e=>{
       break;
     }
     case 'setcls':if(clsOk(id,S.level)){S.cls=id;save()}break;
-    case 'tab':jump=tabDot(id)||null;tab=id;form=null;if(id==='status'&&S.free>0)stSub='ueber';if(id==='arena'){arenaSince=S.duelSeen||0;markSeen()}break;
+    case 'tab':jump=tabDot(id)||null;tab=id;form=null;profId=null;if(id==='status'&&S.free>0)stSub='ueber';if(id==='arena'){arenaSince=S.duelSeen||0;markSeen()}break;
     case 'add':{const i=document.getElementById('amt-'+id);if(q)addProgress(q,Number(i&&i.value));save();break}
     case 'done':if(q){completeQuest(q);save()}break;
     case 'del':
       if(armed===id){S.quests=S.quests.filter(x=>x.id!==id);armed=null;save()}else armed=id;break;
     case 'newq':form=newForm(id);break;
-    case 'edit':if(q)form={id:q.id,name:q.name,type:q.type,rank:q.rank||'E',target:q.target,unit:q.unit||'',stat:q.stat||'dis',xp:q.xp,gold:q.gold};break;
+    case 'edit':if(q)form={id:q.id,name:q.name,type:q.type,rank:q.rank||'E',target:q.target,unit:q.unit||'',newUnit:false,stat:q.stat||'dis',statManual:true,days:Array.isArray(q.days)&&q.days.length?q.days.slice():DAYSALL.slice(),xp:q.xp,gold:q.gold};break;
+    case 'fday':{const f=readForm();const ss=new Set(Array.isArray(f.days)?f.days:DAYSALL);const i=Number(id);if(ss.has(i))ss.delete(i);else ss.add(i);f.days=[...ss].sort((a,b)=>a-b);form=f;break}
+    case 'fpre':{const f=readForm();f.days=({all:DAYSALL,mwf:[0,2,4],tts:[1,3,5],wk:[0,1,2,3,4],we:[5,6]})[id]||DAYSALL;f.days=f.days.slice();form=f;break}
     case 'fcancel':form=null;break;
     case 'fsave':{
       const f=readForm();
       if(!f.name.trim()){toast('Gib der Quest einen Namen');return}
       const t=Math.min(1000,Math.max(1,f.target||1));
+      f.unit=String(f.unit||'').trim();
+      const dd=f.type==='daily'?(Array.isArray(f.days)?f.days:DAYSALL):null;
+      if(dd&&!dd.length){toast('Wähle mindestens einen Tag');return}
+      const dsave=dd&&dd.length<7?dd.slice().sort((a,b)=>a-b):undefined;
+      rememberUnit(f.unit);
       if(f.type==='dungeon'&&RANKS.indexOf(f.rank)>maxGate())f.rank=RANKS[maxGate()];
       if(!f.id){
         if(f.type==='daily'&&S.quests.filter(y=>y.type==='daily').length>=QUEST_MAX){toast('Höchstens '+QUEST_MAX+' tägliche Quests');return}
@@ -3399,8 +3535,8 @@ document.addEventListener('click',e=>{
       const xp=calcXP(t,f.unit,f.type,f.rank),gd=calcGold(xp,f.type,f.rank);
       if(f.id){
         const x=S.quests.find(y=>y.id===f.id);
-        if(x){const typeChanged=x.type!==f.type;Object.assign(x,{name:f.name.trim(),type:f.type,rank:f.rank,target:t,unit:f.unit.trim(),stat:f.stat,xp,gold:gd});if(typeChanged||x.cur>=t){x.cur=0;x.done=false}x.cur=Math.min(x.cur,t)}
-      }else S.quests.push({id:uid(),name:f.name.trim(),type:f.type,rank:f.rank,target:t,unit:f.unit.trim(),stat:f.stat,xp,gold:gd,cur:0,done:false});
+        if(x){const typeChanged=x.type!==f.type;Object.assign(x,{name:f.name.trim(),type:f.type,rank:f.rank,target:t,unit:f.unit,stat:f.stat,xp,gold:gd});if(dsave)x.days=dsave;else delete x.days;if(typeChanged||x.cur>=t){x.cur=0;x.done=false}x.cur=Math.min(x.cur,t)}
+      }else S.quests.push(Object.assign({id:uid(),name:f.name.trim(),type:f.type,rank:f.rank,target:t,unit:f.unit,stat:f.stat,xp,gold:gd,cur:0,done:false},dsave?{days:dsave}:{}));
       form=null;save();toast('Quest gespeichert');break;
     }
     case 'sys-accept':{
@@ -3444,7 +3580,9 @@ document.addEventListener('click',e=>{
     case 'acc-upgrade':upgradeAccount();return;
     case 'acc-out':signOutNow();return;
     case 'addfriend':{addFriendByCode((document.getElementById('friendIn')||{}).value||'',false);return}
-    case 'delfriend':S.friends=S.friends.filter(f=>f.id!==id);save();break;
+    case 'delfriend':S.friends=S.friends.filter(f=>f.id!==id);profId=null;save();break;
+    case 'peer-open':profId=id;try{window.scrollTo(0,0)}catch(x){}break;
+    case 'peer-close':profId=null;break;
     case 'toggleall':showAll=!showAll;break;
     case 'invite':{
       const link=location.origin+location.pathname+'?add='+myFc();
@@ -3663,13 +3801,16 @@ document.addEventListener('input',e=>{
   if(e.target.dataset&&e.target.dataset.si){sesInput(e.target);return}
   if(e.target.id==='vEx'){vEx=e.target.value;render();return}
   if(e.target.id==='pk-q'&&pk){pk.q=e.target.value;const l=document.getElementById('pk-list');if(l)l.innerHTML=pkRows();return}
-  if(!form||(e.target.id!=='fTarget'&&e.target.id!=='fUnit'))return;
+  if(form&&e.target.id==='fName'&&!form.statManual){const g=guessStat(e.target.value),sl=document.getElementById('fStat');if(g&&sl)sl.value=g}
+  if(!form||(e.target.id!=='fTarget'&&e.target.id!=='fUnit'&&e.target.id!=='fName'))return;
   const p=document.getElementById('fPrev');if(p)p.textContent=prevText(readForm());
 });
 document.addEventListener('change',e=>{
   if(e.target.id==='avatarIn'){const f=e.target.files&&e.target.files[0];e.target.value='';if(f)setAvatar(f);return}
   if(!form)return;
   const id=e.target.id;
+  if(id==='fStat'){form.statManual=true;return}
+  if(id==='fUnitSel'){form=readForm();render();return}
   if(id==='fType'||id==='fRank'){
     const old=form,f=readForm();
     if(id==='fType'){f.rank='E'}
