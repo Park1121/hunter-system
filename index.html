@@ -454,7 +454,7 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:60
 .lb.me{background:linear-gradient(90deg,#14307a55,transparent);margin:0 -8px;padding-inline:8px;border-radius:10px}
 @media (prefers-reduced-motion:reduce){.ob-bar i{transition:none}}
 /* Training (Schritt 3) */
-#tabs{grid-template-columns:repeat(6,1fr);gap:0;padding:5px}
+#tabs{gap:0;padding:5px}
 #tabs button{font-size:10.5px;letter-spacing:-.01em}
 #tabs button .dot{right:calc(50% - 16px)}
 .chip.warn{color:var(--warn);border-color:#ffc34a66}
@@ -652,8 +652,6 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .profk>div{padding:6px 8px!important;min-width:0}
 .profk .num{font-size:20px!important}
 /* v22 */
-.qm{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:0;margin-left:8px;padding:0;border-radius:50%;border:1px solid #3a4f86;background:#0b1226;color:var(--glow);font:700 14px/1 var(--f-b,inherit);vertical-align:middle;cursor:pointer;text-transform:none;letter-spacing:0;position:relative}
-.qm::after{content:"";position:absolute;inset:-9px}
 .pill[data-act=help]{cursor:pointer}
 .seg.c2{grid-template-columns:repeat(2,1fr)}
 .wk{padding:0}
@@ -674,6 +672,18 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .oc-list.two .oc{padding:10px 10px;gap:8px}
 .oc-list.two .oc b{font-size:18px;overflow-wrap:anywhere}
 .oc-list.two .oc.on::after{padding-left:2px}
+/* v22.1 */
+.hq{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-height:0;margin-left:8px;padding:0;border-radius:50%;border:1px solid #3a4f86;background:#0b1226;color:var(--glow);font:700 14px/1 var(--f-b,inherit);vertical-align:middle;cursor:pointer;text-transform:none;letter-spacing:0;position:relative;flex:none}
+.hq::after{content:"";position:absolute;inset:-9px}
+#tabs{grid-template-columns:repeat(5,1fr)}
+.phdr .ph-top{display:grid;grid-template-columns:auto 1fr auto;gap:8px 12px;align-items:center;margin-bottom:10px}
+.phdr .avatar{width:56px;height:56px;border-radius:14px}
+.phdr .avatar .rt{display:none}
+.pill.pw{color:var(--glow)}.pill.pc{color:var(--ok)}
+.pill .hq{margin-left:4px;width:22px;height:22px;font-size:12px}
+.radar .shape2{fill:#ff8a3d2e;stroke:#ff8a3d;stroke-width:2;stroke-linejoin:round}
+.rleg{display:flex;justify-content:center;gap:16px;font-size:13px;color:var(--dim);margin-bottom:6px}
+.rleg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
 </style>
 </head>
 <body>
@@ -2530,27 +2540,41 @@ let profId=null;
 function miniShadow(s,i){
   return {id:'p'+i,name:s.n,t:s.t,r:s.r,lv:s.l,xp:0};
 }
+/* ---------- v22.1: Profil-Seite, Radar-Vergleich ---------- */
+function radarCmp(a,b,nameB){
+  const mx=Math.max(30,...STATS.map(([k])=>Math.max(a[k],b[k])))*1.1,cx=150,cy=118,R=88;
+  const pt=(i,v)=>{const g=-Math.PI/2+i*2*Math.PI/5;return [cx+Math.cos(g)*R*v,cy+Math.sin(g)*R*v]};
+  const poly=f=>STATS.map((_,i)=>pt(i,f).map(x=>x.toFixed(1)).join(',')).join(' ');
+  let g=[.34,.67,1].map(f=>'<polygon class="ring" points="'+poly(f)+'"/>').join('');
+  g+=STATS.map((_,i)=>{const p=pt(i,1);return '<line class="ax" x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'"/>'}).join('');
+  const shp=o=>STATS.map(([k],i)=>pt(i,o[k]/mx).map(x=>x.toFixed(1)).join(',')).join(' ');
+  const lab=STATS.map(([k,l],i)=>{const p=pt(i,1.32);return '<text x="'+p[0].toFixed(1)+'" y="'+(p[1]+4).toFixed(1)+'">'+l+'</text>'}).join('');
+  return '<svg class="radar" viewBox="0 0 300 236" role="img" aria-label="Werte-Vergleich">'+g+'<polygon class="shape2" points="'+shp(b)+'"/><polygon class="shape" points="'+shp(a)+'"/>'+lab+'</svg>'+
+    '<div class="rleg"><span><i style="background:#5ad2ff"></i>Du</span><span><i style="background:#ff8a3d"></i>'+esc(nameB)+'</span></div>';
+}
+const TIER_ORD=['diamond','gold','silver','bronze'];
 function viewProfile(p){
   const c=cleanCard(p),f=fighter(c,mult(c.cons)),pw=Math.round(f.max/10+f.atk*2+f.def*3);
   const fr=S.friends.some(x=>x.id===p.id);
   const mx=Math.max(30,...STATS.map(([k])=>Math.max(c.stats[k],S.stats[k])))*1.05;
   const me=STATS.reduce((a,[k])=>a+S.stats[k],0),he=STATS.reduce((a,[k])=>a+c.stats[k],0);
   const un=ACH.filter(a=>c.ac.includes(a[0]));
+  const top=un.slice().sort((a,b)=>{const x=TIER_ORD.indexOf(a[1]),y=TIER_ORD.indexOf(b[1]);return (x<0?9:x)-(y<0?9:y)||ACH.indexOf(b)-ACH.indexOf(a)}).slice(0,3);
+  const row=a=>'<div class="ach on">'+gico('seal-'+a[1],44)+'<div class="am"><b>'+esc(a[2])+'</b><small>'+esc(a[3])+'</small></div></div>';
   let h='<div class="acts" style="margin-bottom:10px"><button class="btn ghost" data-act="peer-close">Zurück zur Arena</button></div>';
-  h+='<section class="win hall" style="--sbg:url(img/ui-status.webp)"><div class="sub"><div><div class="lbl">Hunter-Profil</div><h2 class="'+auCls(c.au).trim()+'">'+esc(c.name)+' '+stars(c.pr)+'</h2></div></div>'+
-    '<div class="char">'+avatarHtml('big',c.thumb,c.rank,c.name,c.au)+'<div class="info">'+
-    (c.ti?'<div class="num" style="font-size:19px;color:var(--warn)">'+esc(c.ti)+'</div>':'')+
-    (c.cls?'<div class="lbl">'+esc(c.cls)+'</div>':'')+
-    '<div class="kv profk" style="margin-top:8px"><div><span class="lbl">Rang</span><span class="num">'+c.rank+'</span></div><div><span class="lbl">Level</span><span class="num">'+c.level+'</span></div><div><span class="lbl">Kampfkraft</span><span class="num">'+pw+'</span></div><div><span class="lbl">Konstanz</span><span class="num">'+c.cons+' %</span></div></div></div></div>'+
+  h+='<section class="win phdr"><div class="ph-top">'+avatarHtml('',c.thumb,c.rank,c.name,c.au)+
+    '<div class="hm"><div class="pname'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="ptitle">'+(c.cls?esc(c.cls)+' · ':'')+esc(TITLES[c.rank])+(c.ti?' · <span class="tt">'+esc(c.ti)+'</span>':'')+'</div></div>'+
+    '<div class="lvw">'+emblem(c.rank,58)+'<div class="lvbox"><small>Level</small><b class="num">'+c.level+'</b></div></div></div>'+
+    '<div class="pills"><span class="pill pw" title="Kampfkraft">Kampfkraft '+pw+helpBtn('kampfkraft')+'</span><span class="pill pc" title="Konstanz">Konstanz '+c.cons+' %'+helpBtn('konstanz')+'</span></div>'+
     '<div class="acts" style="margin-top:12px"><button class="btn bad" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(fr?'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'">Freund entfernen</button>':'')+'</div></section>';
-  h+='<section class="win"><div class="sub"><div class="lbl">Fähigkeiten</div><span class="qp">'+(he>=me?'Er liegt vorn':'Du liegst vorn')+': '+Math.abs(he-me)+' Punkte</span></div>'+
+  h+='<section class="win"><div class="sub"><div class="lbl">Beste Erfolge</div><span class="qp">'+un.length+' von '+ACH.length+'</span></div>'+
+    (top.length?top.map(row).join(''):'<div class="empty">Noch keine Erfolge sichtbar.</div>')+
+    (un.length>3?'<details class="offd"><summary>Alle '+un.length+' Erfolge</summary><div class="achg">'+un.map(a=>'<div class="ag" title="'+esc(a[3])+'">'+gico('seal-'+a[1],30)+'<span>'+esc(a[2])+'</span></div>').join('')+'</div></details>':'')+'</section>';
+  h+='<section class="win"><div class="sub"><div class="lbl">Fähigkeiten im Vergleich</div><span class="qp">'+(he>=me?esc(c.name)+' liegt vorn':'Du liegst vorn')+': '+Math.abs(he-me)+' Punkte</span></div>'+radarCmp(S.stats,c.stats,c.name)+
     STATS.map(([k,l])=>{const a=c.stats[k],b=S.stats[k];
-      return '<div class="cmp"><div class="cmpn">'+gico('stat-'+k,22)+'<span>'+l+'</span><b>'+a+'</b><small class="dim">du '+b+'</small></div><div class="bar"><i style="width:'+Math.min(100,a/mx*100)+'%"></i><u style="left:'+Math.min(99,b/mx*100)+'%"></u></div></div>'}).join('')+
-    '<p class="dim" style="font-size:12.5px;margin-top:6px">Der helle Strich zeigt deinen eigenen Wert.</p></section>';
+      return '<div class="cmp"><div class="cmpn">'+gico('stat-'+k,22)+'<span>'+l+'</span><b>'+a+'</b><small class="dim">du '+b+'</small></div><div class="bar"><i style="width:'+Math.min(100,a/mx*100)+'%"></i><u style="left:'+Math.min(99,b/mx*100)+'%"></u></div></div>'}).join('')+'</section>';
   h+='<section class="win"><div class="sub"><div class="lbl">Ausrüstung und Schatten</div></div><div class="kv"><div><span class="lbl">Waffe</span><span class="num">+'+c.gw+'</span></div><div><span class="lbl">Rüstung</span><span class="num">+'+c.ga+'</span></div><div><span class="lbl">Schatten-Kraft</span><span class="num">'+c.sh+'</span></div></div>'+
     (c.tm.length?'<div class="steam" style="margin-top:10px">'+c.tm.map((s,i)=>cardHtml(miniShadow(s,i))).join('')+'</div>':'<p class="dim" style="font-size:13px;margin-top:8px">Kein Schatten-Team sichtbar.</p>')+'</section>';
-  h+='<section class="win"><div class="sub"><div class="lbl">Erfolge</div><span class="qp">'+un.length+' / '+ACH.length+'</span></div>'+
-    (un.length?'<div class="achg">'+un.map(a=>'<div class="ag" title="'+esc(a[3])+'">'+gico('seal-'+a[1],34)+'<span>'+esc(a[2])+'</span></div>').join('')+'</div>':'<div class="empty">Noch keine Erfolge sichtbar.</div>')+'</section>';
   const rr=REC.filter(r=>c.rc[r.k]>0);
   if(rr.length)h+='<section class="win"><div class="sub"><div class="lbl">Rekorde</div></div>'+rr.map(r=>{const mine=S.pr&&S.pr[r.k]&&S.pr[r.k].v;return '<div class="rtrow"><span>'+esc(r.n)+'</span><b>'+fmtRec(r,c.rc[r.k])+' '+esc(r.u)+(mine>0?' <small class="dim">du '+fmtRec(r,mine)+'</small>':'')+'</b></div>'}).join('')+'</section>';
   return h;
@@ -2581,7 +2605,7 @@ const HELP={
  schluessel:['Schlüssel','Schlüssel öffnen Türen im Kampf-Tab. Du findest sie bei Quests und wenn du alle Tagesquests schaffst.'],
  strafzone:['Strafzone','Verpasste Tage ergeben Strafquests. Leiste sie ab oder streiche sie mit einem Erlass aus dem Shop.'],
  serie:['Serie','Anzahl Tage in Folge, an denen du alle Tagesquests geschafft hast. Freie Tage und Ruhetage unterbrechen sie nicht.'],
- konstanz:['Konstanz','Wie viel du in den letzten 14 Tagen geschafft hast. In Duellen wirkt sie als Bonus oder Abzug von bis zu 25 %.'],
+ konstanz:['Konstanz','Wie viel du im letzten Monat (30 Tage) geschafft hast. In Duellen wirkt sie als Bonus oder Abzug von bis zu 25 %.'],
  kampfkraft:['Kampfkraft','Eine Zahl aus Lebenspunkten, Angriff und Verteidigung. Sie zeigt grob, wie stark ein Hunter im Duell ist.'],
  gold:['Gold','Gold gibt es für Quests. Im Shop kaufst du damit Schilde, Erlasse und mehr.'],
  xp:['Erfahrung','Erfahrung füllt deine Level-Leiste. Pro Tag zählen nur begrenzt viele XP aus Quests.'],
@@ -2590,7 +2614,7 @@ const HELP={
  schatten:['Schatten','Quests und besiegte Gegner bringen Schatten. Bis zu drei kämpfen in deinem Team mit und werden stärker.'],
  tageslimit:['Tageslimit','Aus Quests zählen pro Tag nur begrenzt viele XP, pro Fähigkeit noch weniger. So kann niemand mit einer einzigen Übung aufsteigen.']
 };
-const helpBtn=k=>HELP[k]?'<button type="button" class="qm" data-act="help" data-id="'+k+'" aria-label="Erklärung: '+esc(HELP[k][0])+'">?</button>':'';
+const helpBtn=k=>HELP[k]?'<button type="button" class="hq" data-act="help" data-id="'+k+'" aria-label="Erklärung: '+esc(HELP[k][0])+'">?</button>':'';
 /* Erste Schritte */
 function stepList(){
   const L=[
@@ -2850,7 +2874,7 @@ function nextModal(){
 
 /* ---------- derived values ---------- */
 function consistency(){
-  const ks=Object.keys(S.hist).sort().slice(-14);
+  const ks=Object.keys(S.hist).sort().slice(-30);
   const vals=ks.map(k=>S.hist[k]).filter(h=>h.t>0).map(h=>h.d/h.t);
   if(!vals.length)return {pct:50,days:0};
   return {pct:Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*100),days:vals.length};
@@ -3108,7 +3132,7 @@ function fighter(c,m){
 }
 function cleanCard(c){
   const st={};STATS.forEach(([k])=>{st[k]=clampN(c.stats&&c.stats[k],1,999,10)});
-  return {name:String(c.name||'Hunter').slice(0,30),level:clampN(c.level,1,999,1),rank:RANKS.includes(c.rank)?c.rank:'E',stats:st,cons:clampN(c.cons,0,100,50),days:clampN(c.days,0,14,0),
+  return {name:String(c.name||'Hunter').slice(0,30),level:clampN(c.level,1,999,1),rank:RANKS.includes(c.rank)?c.rank:'E',stats:st,cons:clampN(c.cons,0,100,50),days:clampN(c.days,0,30,0),
     gw:clampN(c.gw,0,99,0),ga:clampN(c.ga,0,99,0),sh:clampN(c.sh,0,999,0),thumb:typeof c.thumb==='string'&&c.thumb.startsWith('data:image/')&&c.thumb.length<20000?c.thumb:null,cls:String(c.cls||'').slice(0,40),ti:(ACH.some(a=>a[4]===c.ti)?String(c.ti):''),au:null,pr:clampN(c.pr,0,PRESTIGE.length,0),fc:String(c.fc||'').replace(/[^A-Za-z0-9]/g,'').slice(0,8),fl:Array.isArray(c.fl)?c.fl.slice(0,100).map(x=>String(x).slice(0,40)):[],
     ac:Array.isArray(c.ac)?c.ac.filter(id=>ACH.some(a=>a[0]===id)).slice(0,60):[],
     tm:Array.isArray(c.tm)?c.tm.slice(0,3).map(x=>({n:String(x&&x.n||'Schatten').slice(0,20),t:STK.includes(x&&x.t)?x.t:'kraft',r:clampN(x&&x.r,0,3,0),l:clampN(x&&x.l,1,SMAXLV,1)})):[],
@@ -3181,7 +3205,7 @@ async function doDuel(other,peerId){
   }else if(!peerId)note='Dein Freund sieht dasselbe Ergebnis, wenn er deinen Hunter-Code bei sich einfügt.';
   modal({kind:r.win?'':'bad',title:r.win?'Sieg':'Niederlage',body:'<p style="font-family:var(--f-d);font-size:20px">'+esc(me.name)+' gegen '+esc(other.name)+'</p>'+
     '<p class="dim">'+r.rounds+' Runden. Übrige Lebenspunkte: du '+r.hp1+' %, Gegner '+r.hp2+' %.</p>'+
-    '<p class="dim">Konstanz-Bonus: du x'+r.m1.toFixed(2)+' ('+me.cons+' %), Gegner x'+r.m2.toFixed(2)+' ('+other.cons+' %). Wer in den letzten 14 Tagen dranbleibt, kämpft stärker, egal wie lange er schon dabei ist.</p>'+
+    '<p class="dim">Konstanz-Bonus: du x'+r.m1.toFixed(2)+' ('+me.cons+' %), Gegner x'+r.m2.toFixed(2)+' ('+other.cons+' %). Wer im letzten Monat dranbleibt, kämpft stärker, egal wie lange er schon dabei ist.</p>'+
     (rw?'<p style="color:var(--ok)">'+esc(rw)+'</p>':'')+(note?'<p class="dim">'+esc(note)+'</p>':'')});
   if(r.win&&rw.startsWith('+15'))grantXP(20);
   render();
@@ -3477,7 +3501,7 @@ function viewArena(){
   const shown=peers.filter(p=>showAll||isFriend(p));
   let h='<section class="win">'+scene('arena')+'<div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde</h2></div></div>'+
     '<div class="peer'+(ch.me?' fr3':'')+'">'+(ch.me?framed(avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura),'gold',46):avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura))+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+' <span class="dim" style="font-size:14px">(du)</span></div><div class="qp">LV '+me.level+' · Konstanz '+me.cons+' %'+helpBtn('konstanz')+(me.days?' ('+me.days+' Tage)':' (noch keine Daten)')+' · Bonus x'+mult(me.cons).toFixed(2)+'</div></div><div class="qp">Siege '+S.arena.w+' · Niederlagen '+S.arena.l+'</div>'+champLine(ch.me)+'</div>'+
-    '<p class="dim" style="font-size:13px;margin-top:6px">Fairness: Gewonnen wird nicht nach dem Level, sondern nach Werten plus Konstanz. Wer die letzten 14 Tage dranbleibt, bekommt bis zu +25 %, wer schludert bis zu −25 %. Neueinsteiger zählen nur ab ihrem ersten Tag. Das Ergebnis ist festgelegt: dieselben Werte ergeben immer dasselbe Duell.</p></section>';
+    '<p class="dim" style="font-size:13px;margin-top:6px">Fairness: Gewonnen wird nicht nach dem Level, sondern nach Werten plus Konstanz. Wer den letzten Monat dranbleibt, bekommt bis zu +25 %, wer schludert bis zu −25 %. Neueinsteiger zählen nur ab ihrem ersten Tag. Das Ergebnis ist festgelegt: dieselben Werte ergeben immer dasselbe Duell.</p></section>';
   if(online){
     const inc=duelsIn;
     const dw=inc.filter(d=>!d.fw).length,dl=inc.length-dw;
@@ -3525,7 +3549,7 @@ function viewKalender(){
   return '<section class="win"><div class="sub"><div><div class="lbl">Verlauf</div><h2>Die letzten 12 Wochen</h2></div></div>'+
    '<div class="heat" role="img" aria-label="Kalender der letzten 12 Wochen">'+cells+'</div>'+
    '<div class="legend"><span><i style="background:#2a1220;border:1px solid #ff546855"></i>nichts</span><span><i style="background:#16337a"></i>teilweise</span><span><i style="background:#2a6cd6"></i>fast alles</span><span><i style="background:var(--ok)"></i>alles</span><span>Spalten sind Wochen, Zeilen Mo bis So. Heute ist umrandet.</span></div></section>'+
-   '<section class="win"><div class="sub"><div class="lbl">Bilanz</div></div><div class="kv"><div><span class="lbl">Konstanz (14 Tage)</span><span class="num">'+(c.days?c.pct+' %':'–')+'</span></div><div><span class="lbl">Serie</span><span class="num">'+S.streak+'</span></div><div><span class="lbl">Beste Serie</span><span class="num">'+S.bestStreak+'</span></div><div><span class="lbl">Volle Tage</span><span class="num">'+full+'</span></div><div><span class="lbl">Quests gesamt</span><span class="num">'+S.totalDone+'</span></div><div><span class="lbl">Kämpfe gewonnen</span><span class="num">'+S.wins+'</span></div></div></section>';
+   '<section class="win"><div class="sub"><div class="lbl">Bilanz</div></div><div class="kv"><div><span class="lbl">Konstanz (30 Tage)</span><span class="num">'+(c.days?c.pct+' %':'–')+'</span></div><div><span class="lbl">Serie</span><span class="num">'+S.streak+'</span></div><div><span class="lbl">Beste Serie</span><span class="num">'+S.bestStreak+'</span></div><div><span class="lbl">Volle Tage</span><span class="num">'+full+'</span></div><div><span class="lbl">Quests gesamt</span><span class="num">'+S.totalDone+'</span></div><div><span class="lbl">Kämpfe gewonnen</span><span class="num">'+S.wins+'</span></div></div></section>';
 }
 function render(){
   if(S.started&&checkAch())save();
