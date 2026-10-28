@@ -806,6 +806,15 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .fightp .bacts .bi{height:20px;width:auto;vertical-align:middle;margin-right:3px}
 .fightp .lootrow{margin-bottom:6px}
 .stage .intent{font-size:12px;padding:2px 8px}
+/* v23f Herausforderungen */
+.chc{display:grid;gap:8px;padding:12px 0;border-top:1px solid var(--line)}
+.chc:first-of-type{border-top:0;padding-top:4px}
+.chc b{font-family:var(--f-d);font-size:19px;letter-spacing:.03em;overflow-wrap:anywhere}
+.chc .chs{font-size:13px;margin-top:2px}
+.chc .acts{gap:8px;align-items:center}
+.chc.cwin b{color:var(--ok)}
+.chc.closs b{color:var(--bad)}
+
 /* v23d Kampf */
 .stage .intent{display:block;align-self:flex-start;font-size:12px;font-weight:600;color:#fff;background:#d81f3ce6;border-radius:8px;padding:3px 9px;margin-top:3px;line-height:1.25;max-width:100%}
 .stage .intent b{font-weight:800}
@@ -2016,7 +2025,7 @@ function recRankSection(){
       return '<div class="lb'+(x.me?' me':'')+(rows.length>1&&i<3?' fr3':'')+'"><span class="pl'+(i<3?' t'+(i+1):'')+'">'+(i+1)+'</span>'+(rows.length>1&&i<3?framed(avatarHtml('sm',x.th,x.rk,x.n,x.au),['gold','silver','bronze'][i],46):avatarHtml('sm',x.th,x.rk,x.n,x.au))+'<div class="mid"><div class="pn">'+esc(x.n)+(x.me?' <span class="dim" style="font-size:14px">(du)</span>':'')+'</div>'+(sub?'<div class="qp">'+sub+'</div>':'')+'</div><span class="num v">'+fmtRec(r,x.v)+'<small>'+esc(r.u)+'</small></span></div>';
     }).join('');
   }else body='<div class="empty">Noch keine Werte. Teste dich selbst und lade Freunde ein, dann erscheint hier die Rangliste.</div>';
-  body+='<div class="acts" style="margin-top:10px"><button class="btn sm" data-act="rec-test" data-id="'+r.k+'">'+esc(r.n)+(mine?' neu testen':' jetzt testen')+'</button></div>';
+  body+='<div class="acts" style="margin-top:10px"><button class="btn sm" data-act="rec-test" data-id="'+r.k+'">'+esc(r.n)+(mine?' neu testen':' jetzt testen')+'</button><button class="btn ghost sm" data-act="ch-new" data-id="">Freund herausfordern</button></div>';
   return '<section class="win"><div class="sub"><div><div class="lbl">Rangliste unter Freunden</div><h2>Rekorde</h2></div></div>'+pick+body+'</section>';
 }
 /* Rahmen für die Besten: Gold, Silber, Bronze. Das Profilbild sitzt im Ausschnitt, x/y/Größe in Prozent des Rahmenbilds */
@@ -2192,6 +2201,9 @@ const ACH=[
  ['st30','silver','Monatsmeister','30 Tage Serie','Monatsmeister',()=>S.bestStreak,30,'Quests'],
  ['st100','gold','Unbeugsam','100 Tage Serie','Der Unbeugsame',()=>S.bestStreak,100,'Quests'],
  ['rec6','silver','Messmeister','Alle 6 Rekorde einmal testen','Messmeister',()=>Object.keys(S.pr||{}).length,6,'Quests'],
+ ['chw1','bronze','Herausforderer','Eine Herausforderung gewinnen','Herausforderer',()=>S.chw||0,1,'Kampf'],
+ ['chw5','silver','Rivale','5 Herausforderungen gewinnen','Rivale',()=>S.chw||0,5,'Kampf'],
+ ['chw15','gold','Erzrivale','15 Herausforderungen gewinnen','Erzrivale',()=>S.chw||0,15,'Kampf'],
  ['lv10','bronze','Aufsteiger','Level 10 erreichen','Aufsteiger',()=>S.level,10,'Fortschritt'],
  ['lv25','silver','Veteran','Level 25 erreichen','Veteran',()=>S.level,25,'Fortschritt'],
  ['lv50','gold','Champion','Level 50 erreichen','Champion',()=>S.level,50,'Fortschritt'],
@@ -2341,6 +2353,7 @@ function viewShop(){
 /* rote Punkte mit Sprung */
 function tabDot(k){
   if(k==='quests'&&S.penalties.length)return 'pen-zone';
+  if(k==='quests'&&chAttention())return 'chal-zone';
   if(k==='plan'&&S.tp){const q=S.quests.find(x=>x.type==='gym');if(q&&!q.done)return 'gymc'}
   if(k==='status'&&S.free>0)return 'stat-pts';
   if(k==='dungeon'&&((S.keys>0&&!S.run&&!B)||(S.run&&!B)))return 'doors';
@@ -2758,7 +2771,7 @@ function viewProfile(p){
     '<div class="hm"><div class="pname'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="ptitle">'+(c.cls?esc(c.cls)+' · ':'')+esc(TITLES[c.rank])+(c.ti?' · <span class="tt">'+esc(c.ti)+'</span>':'')+'</div></div>'+
     '<div class="lvw">'+emblem(c.rank,58)+'<div class="lvbox"><small>Level</small><b class="num">'+c.level+'</b></div></div></div>'+
     '<div class="pills"><span class="pill pw" title="Kampfkraft">Kampfkraft '+pw+helpBtn('kampfkraft')+'</span><span class="pill pc" title="Konstanz">Konstanz '+c.cons+' %'+helpBtn('konstanz')+'</span></div>'+
-    '<div class="acts" style="margin-top:12px"><button class="btn bad" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(fr?(frArm===p.id?'<button class="btn bad sm" data-act="delfriend" data-id="'+esc(p.id)+'">Ja, entfernen</button><button class="btn ghost sm" data-act="delfriend-no">Nicht entfernen</button>':'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'">Freund entfernen</button>'):'')+'</div></section>';
+    '<div class="acts" style="margin-top:12px"><button class="btn bad" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(fr&&online?'<button class="btn vio" data-act="ch-new" data-id="'+esc(p.id)+'">Herausfordern</button>':'')+(fr?(frArm===p.id?'<button class="btn bad sm" data-act="delfriend" data-id="'+esc(p.id)+'">Ja, entfernen</button><button class="btn ghost sm" data-act="delfriend-no">Nicht entfernen</button>':'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'">Freund entfernen</button>'):'')+'</div></section>';
   h+='<section class="win"><div class="sub"><div class="lbl">Beste Erfolge</div><span class="qp">'+un.length+' von '+ACH.length+'</span></div>'+
     (top.length?top.map(row).join(''):'<div class="empty">Noch keine Erfolge sichtbar.</div>')+
     (un.length>3?'<details class="offd"><summary>Alle '+un.length+' Erfolge</summary><div class="achg">'+un.map(a=>'<div class="ag" title="'+esc(a[3])+'">'+gico('seal-'+a[1],30)+'<span>'+esc(a[2])+'</span></div>').join('')+'</div></details>':'')+'</section>';
@@ -3561,6 +3574,181 @@ function gearNoteCheck(){
   modal({title:'Ausrüstung entfällt',body:'<p>Waffen und Rüstung gibt es nicht mehr. Das macht das Spiel übersichtlicher.</p><p style="color:var(--ok)">Dein bisheriges Material wurde in Gold umgewandelt: +'+gn+' G.</p>',btn:'Verstanden'});
 }
 
+/* ---------- Herausforderungen an Freunde ---------- */
+let chal=[],chalLoaded=false,chalErr='',chalSeen=null,chBusy=false;
+const CH_DAY=864e5,CH_WIN=3*CH_DAY,CH_REW=25,CH_DRAW=10,CH_STAKES=[0,10,25,50];
+const chDone=()=>{if(!S.chDone||typeof S.chDone!=='object')S.chDone={};return S.chDone};
+function chParse(k,v){
+  const r=recOf(k);if(!r)return null;
+  v=Number(String(v).replace(',','.'));if(!(v>0))return null;
+  v=r.dec?Math.round(Math.min(r.max,v)*10)/10:Math.min(r.max,Math.round(v));
+  return v>0?v:null;
+}
+/* Zustand einer Herausforderung, aus Sicht des Betrachters */
+function chInfo(c){
+  const now=Date.now(),cr=Date.parse(c.created_at)||now,ac=c.accepted_at?Date.parse(c.accepted_at):0;
+  const me=c.from_id===myId?'from':'to';
+  const myV=me==='from'?c.fv:c.tv,oV=me==='from'?c.tv:c.fv;
+  let st=c.status,win=null,left=0;
+  if(st==='open'){left=cr+CH_WIN-now;if(left<=0)st='expired'}
+  if(st==='active'){
+    left=ac+CH_WIN-now;
+    if(c.fv!=null&&c.tv!=null)st='done';
+    else if(left<=0)st=(c.fv!=null||c.tv!=null)?'done':'void';
+  }
+  if(st==='done'){
+    if(c.fv!=null&&c.tv!=null)win=c.fv>c.tv?'from':c.tv>c.fv?'to':'draw';
+    else win=c.fv!=null?'from':'to';
+  }
+  return {st,win,me,myV:myV==null?null:Number(myV),oV:oV==null?null:Number(oV),left,other:me==='from'?c.to_name:c.from_name,forfeit:st==='done'&&(c.fv==null||c.tv==null)};
+}
+const chClaimed=(c,i)=>!!(chDone()[c.id]||(i.me==='from'?c.fclaim:c.tclaim));
+function chNeedsAck(c,i){
+  if(chClaimed(c,i))return false;
+  if(i.st==='done'||i.st==='void')return true;
+  if((i.st==='declined'||i.st==='expired')&&i.me==='from')return true;
+  return false;
+}
+function chAttention(){
+  if(!online||!chalLoaded)return false;
+  return chal.some(c=>{
+    const i=chInfo(c);
+    if(i.st==='open')return i.me==='to';
+    if(i.st==='active')return i.myV==null;
+    return chNeedsAck(c,i);
+  });
+}
+async function loadChal(){
+  if(!online||!myId||!sb)return false;
+  try{
+    const r=await sb.from('friend_challenges').select('*').or('from_id.eq.'+myId+',to_id.eq.'+myId).order('created_at',{ascending:false}).limit(40);
+    if(r.error)throw r.error;
+    chal=r.data||[];chalLoaded=true;chalErr='';
+    return true;
+  }catch(e){chalErr=String((e&&(e.message||e.code))||e).slice(0,120);return false}
+}
+const chLeft=ms=>{const h=Math.max(1,Math.ceil(ms/36e5)),d=Math.floor(h/24);return d?d+' Tg. '+(h%24)+' Std.':h+' Std.'};
+function chalHtml(){
+  if(!online||!chalLoaded)return '';
+  const rows=[];
+  chal.forEach(c=>{
+    const i=chInfo(c),r=recOf(c.k);if(!r)return;
+    const nm=esc(i.other||'Hunter'),what=esc(r.n)+(c.stake?' · Einsatz '+c.stake+' G':'');
+    const row=(t,sub,btns,cls)=>rows.push('<div class="chc'+(cls||'')+'"><div><b>'+t+'</b><div class="dim chs">'+sub+'</div></div><div class="acts">'+btns+'</div></div>');
+    if(i.st==='open'&&i.me==='to'){
+      const poor=c.stake>S.gold;
+      row(nm+' fordert dich heraus',what+' · noch '+chLeft(i.left),'<button class="btn ok sm" data-act="ch-acc" data-id="'+esc(c.id)+'"'+(poor?' disabled':'')+'>Annehmen</button><button class="btn ghost sm" data-act="ch-no" data-id="'+esc(c.id)+'">Ablehnen</button>'+(poor?'<span class="dim chs">Zu wenig Gold für den Einsatz.</span>':''));
+    }else if(i.st==='open'){
+      row('Wartet auf '+nm,what+' · noch '+chLeft(i.left),'<button class="btn ghost sm" data-act="ch-back" data-id="'+esc(c.id)+'">Zurückziehen</button>');
+    }else if(i.st==='active'){
+      if(i.myV==null)row('Duell mit '+nm,what+' · noch '+chLeft(i.left)+' für dein Ergebnis','<button class="btn sm" data-act="ch-res" data-id="'+esc(c.id)+'">Ergebnis eintragen</button>');
+      else row('Duell mit '+nm,what+' · dein Ergebnis: '+fmtRec(r,i.myV)+' '+esc(r.u)+(i.oV==null?'. Warte auf '+nm+' (noch '+chLeft(i.left)+').':''),'');
+    }else if(chNeedsAck(c,i)){
+      let t='',sub='',btn='OK',cls='';
+      if(i.st==='done'){
+        const v=fmtRec(r,i.myV==null?0:i.myV)+' : '+fmtRec(r,i.oV==null?0:i.oV);
+        if(i.win==='draw'){t='Unentschieden gegen '+nm;sub=what+' · '+v;btn='+'+CH_DRAW+' G holen'}
+        else if(i.win===i.me){t='Du hast gegen '+nm+' gewonnen';sub=what+(i.forfeit?' · kampflos, '+nm+' hat nichts eingetragen':' · '+v);btn='+'+(CH_REW+c.stake)+' G holen';cls=' cwin'}
+        else{t='Du hast gegen '+nm+' verloren';sub=what+(i.forfeit?' · du hast nichts eingetragen':' · '+v)+(c.stake?' · −'+c.stake+' G':'');cls=' closs'}
+      }else if(i.st==='void'){t='Duell mit '+nm+' verfallen';sub=what+' · niemand hat ein Ergebnis eingetragen'}
+      else if(i.st==='declined'){t=nm+' hat abgelehnt';sub=what}
+      else{t=nm+' hat nicht reagiert';sub=what}
+      row(t,sub,'<button class="btn ok sm" data-act="ch-claim" data-id="'+esc(c.id)+'">'+btn+'</button>',cls);
+    }
+  });
+  if(!rows.length)return '';
+  return '<section id="chal-zone" class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Freunde</div><h2>Herausforderungen</h2></div></div>'+rows.join('')+'</section>';
+}
+function chNewModal(pre){
+  const fr=peers.filter(isFriend);
+  if(!fr.length){toast('Füge zuerst Freunde hinzu');return}
+  const k0=recOf(recSel)?recSel:REC[0].k;
+  modal({title:'Freund herausfordern',act:'ch-send',btn:'Senden',body:
+    '<label class="f">Freund<select id="chF">'+fr.map(p=>'<option value="'+esc(p.id)+'"'+(p.id===pre?' selected':'')+'>'+esc(p.name)+'</option>').join('')+'</select></label>'+
+    '<label class="f">Disziplin<select id="chK">'+REC.map(r=>'<option value="'+r.k+'"'+(r.k===k0?' selected':'')+'>'+esc(r.n)+' ('+esc(r.u)+')</option>').join('')+'</select></label>'+
+    '<label class="f">Einsatz<select id="chS">'+CH_STAKES.map(s=>'<option value="'+s+'"'+(s>S.gold?' disabled':'')+'>'+(s?s+' Gold':'Kein Einsatz')+'</option>').join('')+'</select></label>'+
+    '<p class="dim" style="font-size:13px">Dein Freund hat 3 Tage zum Annehmen. Danach hat jeder 3 Tage Zeit, sein Ergebnis einzutragen. Wer mehr schafft, gewinnt '+CH_REW+' G plus den Einsatz.</p><div class="btnrow"><button class="btn ghost" data-act="modal-ok">Abbrechen</button></div>'});
+}
+async function chSend(){
+  const fid=(document.getElementById('chF')||{}).value,k=(document.getElementById('chK')||{}).value,stake=Number((document.getElementById('chS')||{}).value)||0;
+  const p=peers.find(x=>x.id===fid);
+  if(!p||!recOf(k)){toast('Bitte Freund und Disziplin wählen');return}
+  if(stake>S.gold){toast('Zu wenig Gold für den Einsatz');return}
+  const live=chal.filter(c=>{const i=chInfo(c);return i.me==='from'&&(i.st==='open'||i.st==='active')});
+  if(live.length>=4){toast('Du hast schon 4 offene Herausforderungen');return}
+  if(live.some(c=>c.to_id===fid&&c.k===k)){toast('Diese Herausforderung läuft schon');return}
+  nextModal();
+  try{
+    const r=await sb.from('friend_challenges').insert({id:'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),from_id:myId,to_id:fid,k,stake,from_name:S.name,to_name:p.name});
+    if(r.error)throw r.error;
+    toast('Herausforderung an '+p.name+' gesendet');
+    await loadChal();
+  }catch(e){toast('Senden hat nicht geklappt'+(/relation|does not exist|42P01/i.test(String(e&&(e.message||e.code)))?' (Tabelle fehlt)':''))}
+  render();
+}
+async function chPatch(id,patch,guard){
+  try{
+    let q=sb.from('friend_challenges').update(Object.assign({updated_at:new Date().toISOString()},patch)).eq('id',id);
+    if(guard)q=q.eq('status',guard);
+    const r=await q;if(r.error)throw r.error;
+    return true;
+  }catch(e){toast('Das hat nicht geklappt. Prüfe die Verbindung.');return false}
+}
+async function chAccept(id){
+  const c=chal.find(x=>x.id===id);if(!c||chBusy)return;
+  const i=chInfo(c);if(i.st!=='open'||i.me!=='to')return;
+  if(c.stake>S.gold){toast('Zu wenig Gold für den Einsatz');return}
+  chBusy=true;
+  if(await chPatch(id,{status:'active',accepted_at:new Date().toISOString()},'open'))toast('Angenommen: Trag dein Ergebnis in 3 Tagen ein');
+  await loadChal();chBusy=false;render();
+}
+async function chDecline(id){
+  if(chBusy)return;chBusy=true;
+  if(await chPatch(id,{status:'declined'},'open'))toast('Abgelehnt');
+  await loadChal();chBusy=false;render();
+}
+async function chWithdraw(id){
+  if(chBusy)return;chBusy=true;
+  try{const r=await sb.from('friend_challenges').delete().eq('id',id).eq('from_id',myId);if(r.error)throw r.error;toast('Zurückgezogen')}catch(e){toast('Das hat nicht geklappt')}
+  await loadChal();chBusy=false;render();
+}
+let chSel=null;
+function chResModal(id){
+  const c=chal.find(x=>x.id===id);if(!c)return;
+  const r=recOf(c.k);if(!r)return;
+  chSel=id;
+  modal({title:'Ergebnis: '+r.n,act:'ch-save',btn:'Speichern',body:'<p class="dim" style="font-size:14px">'+esc(r.how)+'</p><label class="f">Dein Ergebnis ('+esc(r.u)+')<input type="number" inputmode="decimal" min="0" step="'+(r.dec?'0.1':'1')+'" data-cv></label><p class="dim" style="font-size:13px">Trag ehrlich ein. Dein Freund sieht das Ergebnis erst, wenn ihr beide eingetragen habt.</p><div class="btnrow"><button class="btn ghost" data-act="modal-ok">Abbrechen</button></div>'});
+}
+async function chSave(){
+  const c=chal.find(x=>x.id===chSel);if(!c||chBusy)return;
+  const inp=document.querySelector('#modal [data-cv]'),v=chParse(c.k,inp&&inp.value);
+  if(!v){toast('Trage zuerst dein Ergebnis ein');return}
+  const i=chInfo(c);if(i.st!=='active'||i.myV!=null){nextModal();render();return}
+  nextModal();chBusy=true;
+  if(await chPatch(c.id,i.me==='from'?{fv:v}:{tv:v},'active')){
+    toast('Ergebnis gespeichert');
+    const cur=(S.pr&&S.pr[c.k]&&S.pr[c.k].v)||0;
+    if(v>cur){const rr=setRecord(c.k,v);save();if(rr)placeNote([rr])}
+  }
+  await loadChal();chBusy=false;render();
+}
+async function chClaim(id){
+  const c=chal.find(x=>x.id===id);if(!c)return;
+  const i=chInfo(c),cd=chDone();
+  if(cd[id]||!chNeedsAck(c,i))return;
+  let msg='';
+  if(i.st==='done'){
+    if(i.win==='draw'){S.gold+=CH_DRAW;msg='Unentschieden: +'+CH_DRAW+' G'}
+    else if(i.win===i.me){S.gold+=CH_REW+c.stake;S.chw=(S.chw||0)+1;msg='Sieg: +'+(CH_REW+c.stake)+' G';save();grantXP(25+S.level)}
+    else{const loss=Math.min(c.stake,S.gold);S.gold-=loss;S.chl=(S.chl||0)+1;msg=loss?'Niederlage: −'+loss+' G':'Niederlage'}
+  }
+  cd[id]=1;
+  const ks=Object.keys(cd);if(ks.length>80)ks.slice(0,ks.length-80).forEach(k=>delete cd[k]);
+  save();if(msg)toast(msg);
+  render();
+  chPatch(id,i.me==='from'?{fclaim:true}:{tclaim:true}).then(()=>loadChal());
+}
+
 /* ---------- state + persistence ---------- */
 let S=defaults();
 try{const raw=localStorage.getItem(KEY)||localStorage.getItem('hunter-system-v1');if(raw)S=Object.assign(defaults(),JSON.parse(raw));migrate()}catch(e){}
@@ -3723,7 +3911,12 @@ async function refreshOnline(first){
       }
     }
     if(tab==='arena')markSeen();
-    const sig=JSON.stringify([peers.map(p=>[p.id,p.upd]),duelsIn]);
+    if(await loadChal()){
+      const ids=new Set(chal.map(c=>c.id));
+      if(chalSeen===null){chalSeen=ids;if(chAttention()&&tab!=='quests')toast('Neues bei den Herausforderungen auf Heute')}
+      else{chal.forEach(c=>{if(!chalSeen.has(c.id)){const i=chInfo(c);if(i.st==='open'&&i.me==='to'&&tab!=='quests')toast((c.from_name||'Ein Freund')+' fordert dich heraus')}});chalSeen=ids}
+    }
+    const sig=JSON.stringify([peers.map(p=>[p.id,p.upd]),duelsIn,chal.map(c=>[c.id,c.status,c.fv,c.tv,c.fclaim,c.tclaim])]);
     renderTabs();
     if(sig!==lastSig){
       lastSig=sig;
@@ -4168,6 +4361,7 @@ function viewQuests(){
       S.penalties.map(p=>'<div class="item"><div class="pic pth red" style="--c:#ff5468"><img alt="" loading="lazy" src="img/quest-'+qKey({name:p.text})+'-s.webp" onerror="this.remove()"></div><span class="nm">'+esc(p.text)+'</span>'+(hasIt('pardon')?'<button class="btn ghost sm" data-act="pen-erlass" data-id="'+p.id+'" title="Strafen-Erlass einsetzen">Erlass ('+hasIt('pardon')+')</button>':'')+'<button class="btn bad sm" data-act="pen" data-id="'+p.id+'">Abgeleistet</button></div>').join('')+'</section>';
   }
   h+=stepsCard();
+  h+=chalHtml();
   h+='<section class="win"><div class="sub"><div><div class="lbl">Tägliche Quest</div><h2>Training des Hunters</h2></div><div style="text-align:right"><div class="lbl">Zeitlimit</div><div class="cd" id="cd">--:--:--</div></div></div>'+
     '<div class="row" style="margin-bottom:8px"><span class="qp">Abgeschlossen '+dn+' / '+d.length+'</span><span class="sp"></span><span class="dim" style="font-size:13px">Tageslimit: '+capState().xp+' / '+dayCap()+' XP'+helpBtn('tageslimit')+'</span></div>'+(hasIt('shield')||(hasIt('decree')&&d.some(x=>!x.done))?'<div class="acts" style="margin-bottom:8px">'+(hasIt('shield')?'<span class="chip sys">Straf-Schild ×'+hasIt('shield')+'</span>'+helpBtn('schild'):'')+(hasIt('decree')&&d.some(x=>!x.done)?'<button class="btn vio sm" data-act="decree">Tages-Erlass einsetzen ('+hasIt('decree')+')</button>':'')+'</div>':'')+
     (d.length?(()=>{const f=d.find(x=>!x.done);return d.map(x=>qRow(x,x===f)).join('')})():'<div class="empty">'+(off.length?'Heute ist ein freier Tag. Es steht nichts an.':'Keine täglichen Quests. Lege unten eine an.')+'</div>')+offHtml(off)+'</section>';
@@ -4436,6 +4630,14 @@ document.addEventListener('click',e=>{
     case 'acc-out':signOutNow();return;
     case 'addfriend':{addFriendByCode((document.getElementById('friendIn')||{}).value||'',false);return}
     case 'delfriend-no':break;
+    case 'ch-new':chNewModal(id);break;
+    case 'ch-send':chSend();return;
+    case 'ch-acc':chAccept(id);return;
+    case 'ch-no':chDecline(id);return;
+    case 'ch-back':chWithdraw(id);return;
+    case 'ch-res':chResModal(id);break;
+    case 'ch-save':chSave();return;
+    case 'ch-claim':chClaim(id);return;
     case 'delfriend':if(frArm===id){S.friends=S.friends.filter(f=>f.id!==id);profId=null;frArm=null;save();toast('Freund entfernt')}else frArm=id;break;
     case 'peer-open':profId=id;try{window.scrollTo(0,0)}catch(x){}break;
     case 'peer-close':profId=null;break;
