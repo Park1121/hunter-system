@@ -25,17 +25,17 @@
 html,body{margin:0}
 body{
   background:var(--bg); color:var(--fg); font-family:var(--f-b); font-size:15px; line-height:1.45;
-  background-image:radial-gradient(700px 420px at 50% -8%,#1a2c7a55,transparent 70%),radial-gradient(520px 380px at 105% 105%,#3a1a7a33,transparent 70%);
-  background-attachment:fixed; min-height:100vh;
+  min-height:100vh;min-height:100dvh;
   padding-block:calc(14px + env(safe-area-inset-top,0px)) calc(104px + env(safe-area-inset-bottom,0px));
   padding-left:max(14px,env(safe-area-inset-left,0px)); padding-right:max(14px,env(safe-area-inset-right,0px));
 }
+body::before{content:'';position:fixed;left:0;right:0;top:0;bottom:0;z-index:-1;pointer-events:none;background-image:radial-gradient(700px 420px at 50% -8%,#1a2c7a55,transparent 70%),radial-gradient(520px 380px at 105% 105%,#3a1a7a33,transparent 70%)}
 #app{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:2px solid var(--glow);outline-offset:2px}
 
-.win{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 14px;box-shadow:0 8px 30px #0006;min-width:0;backdrop-filter:blur(8px)}
+.win{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 14px;box-shadow:0 8px 30px #0006;min-width:0}
 .win.bad{border-color:#ff546866;background:linear-gradient(#2a0c1670,var(--panel))}
 .win.vio{border-color:#9b6bff55;background:linear-gradient(#1c1250aa,var(--panel))}
 .win.gold{border-color:#ffc34a55;background:linear-gradient(#2c200a77,var(--panel))}
@@ -126,7 +126,7 @@ p{margin:0}
 #warn.hot{border-color:var(--bad);background:#3a0f1888;color:var(--bad)}
 
 /* bottom tab bar */
-#tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;width:min(540px,calc(100% - 20px));display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:6px;background:rgba(10,14,34,.9);border:1px solid var(--line2);border-radius:20px;backdrop-filter:blur(14px);box-shadow:0 10px 40px #000b}
+#tabs{position:fixed;left:10px;right:10px;margin:0 auto;max-width:540px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:30;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:6px;background:rgba(10,14,34,.97);border:1px solid var(--line2);border-radius:20px;box-shadow:0 10px 40px #000b}
 #tabs button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;background:transparent;border:0;border-radius:14px;padding:8px 0 6px;color:var(--dim);font-weight:600;font-size:11.5px;min-height:52px}
 #tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 #tabs button[aria-selected=true]{color:#fff;background:linear-gradient(#1a3d96aa,#12286a88);box-shadow:inset 0 0 0 1px #5ad2ff66,0 0 18px #5ad2ff33}
@@ -777,6 +777,14 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .crown b{font-size:13px;font-family:var(--f-d)}
 .chip.gold{color:#ffd36b;border-color:#ffd36b77}
 .peer.me .wl{flex-basis:100%;margin-left:58px}
+.lvr{gap:6px;margin-top:2px}
+.lvr .lvbox{text-align:left;display:flex;align-items:baseline;gap:5px}
+.lvr .lvbox small{display:inline;font-size:12px}
+.lvr .lvbox b{font-size:24px}
+.peer.pr{flex-wrap:nowrap}
+.peer.pr .mid{flex:1 1 0}
+.peer .pact{display:flex;flex-direction:column;gap:6px;flex:none;width:84px}
+.peer .pact .btn{width:100%}
 .peer .cons{color:var(--dim);margin-left:4px}
 .runmini{display:flex;align-items:center;gap:10px;margin:0 2px 8px}
 .runmini .rpath{flex:1;margin:0}
@@ -1930,6 +1938,22 @@ function onbCard(){
   return '<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Neu im System</div><h2>Fragebogen und Rekorde</h2></div></div><p style="margin-bottom:10px">Beantworte ein paar Fragen zu Ziel, Ort und Zeit. Das System stellt Quests zusammen, die zu dir passen, und du kannst deine Bestwerte mit Freunden vergleichen.</p><div class="acts"><button class="btn ok" data-act="onb-start">Fragebogen starten</button><button class="btn ghost" data-act="onb-later">Später</button></div></section>';
 }
 /* Arena: Rangliste unter Freunden */
+function recPlace(k,prev){
+  const r=recOf(k),mine=S.pr&&S.pr[k]&&S.pr[k].v;if(!r||!(mine>0))return null;
+  const fr=[];
+  peers.filter(isFriend).forEach(p=>{const c=cleanCard(p),v=c.rc&&c.rc[k];if(v>0)fr.push({n:c.name,v})});
+  if(!fr.length)return null;
+  const pl=1+fr.filter(x=>x.v>mine).length,pp=prev>0?1+fr.filter(x=>x.v>prev).length:fr.length+1;
+  if(pl>3||pl>=pp)return null;
+  return {k,pl,over:fr.filter(x=>x.v<=mine&&x.v>=(prev||0)&&x.v>0&&x.v<mine).map(x=>x.n).slice(0,3)};
+}
+function placeNote(list){
+  const res=list.map(d=>recPlace(d.k,d.prev)).filter(Boolean);
+  res.forEach(o=>{
+    const r=recOf(o.k),medal=['Gold','Silber','Bronze'][o.pl-1];
+    modal({title:'Platz '+o.pl+' unter Freunden',body:'<div style="display:grid;gap:8px;justify-items:center;text-align:center">'+framed(avatarHtml('sm',S.thumb||S.avatar,rankOf(S.level),S.name,S.aura),['gold','silver','bronze'][o.pl-1],64)+'<p style="font-size:18px;font-weight:600">'+esc(r.n)+': '+fmtRec(r,S.pr[o.k].v)+' '+esc(r.u)+'</p><p class="dim">Du bist jetzt Platz '+o.pl+' ('+medal+')'+(o.over.length?' und hast '+o.over.map(esc).join(', ')+' überholt':'')+'.</p></div>'});
+  });
+}
 function recRankSection(){
   const r=recOf(recSel)||REC[0];
   const rows=[],mine=S.pr&&S.pr[r.k]?S.pr[r.k].v:0;
@@ -3363,7 +3387,7 @@ async function doDuel(other,peerId,stn){
 }
 
 /* Arena-Helfer: Level mit Rang, Champion-Krone */
-const lvChip=(l,r)=>'<span class="lvc r-'+r+'">LV '+l+'<b>'+r+'</b></span>';
+const lvChip=(l,r)=>'<span class="lvw lvr">'+emblem(r,42)+'<span class="lvbox"><small>Level</small><b class="num">'+l+'</b></span></span>';
 const CROWN='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8l4.500 4L12 5l4.500 7L21 8l-2 11H5z"/></svg>';
 const champBadge=n=>n&&n.length?'<span class="crown" title="Champion: '+esc(n.join(', '))+'" aria-label="Champion in '+n.length+(n.length>1?' Disziplinen':' Disziplin')+'">'+CROWN+(n.length>1?'<b>'+n.length+'</b>':'')+'</span>':'';
 
@@ -4050,9 +4074,9 @@ function viewArena(){
       '<div class="acts"><input type="text" id="friendIn" maxlength="8" placeholder="Freundescode eingeben" style="flex:1 1 160px;text-transform:uppercase"><button class="btn ok" data-act="addfriend">Hinzufügen</button></div>'+
       '<label class="item" style="cursor:pointer;margin-top:10px"><input type="checkbox" data-act="toggleall" style="width:20px;height:20px"'+(showAll?' checked':'')+'><span class="nm dim" style="font-weight:400">Alle Hunter anzeigen, nicht nur Freunde</span></label></section>';
     h+=recRankSection();
-    h+='<section class="win"><div class="sub"><div class="lbl">Hunter in der Arena'+helpBtn('sichtbar')+'</div></div>'+
+    h+='<section class="win"><div class="sub"><h2>'+(showAll?'Hunter in der Arena':'Freunde in der Arena')+'</h2></div>'+
       (shown.length?shown.map(p=>{const c=cleanCard(p);
-        return '<div class="peer">'+avatarHtml('sm',c.thumb,c.rank,c.name,c.au)+'<div class="mid tap" data-act="peer-open" data-id="'+esc(p.id)+'"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+champBadge(ch[p.id])+'</div><div class="qp">'+lvChip(c.level,c.rank)+'</div></div><button class="btn ghost sm" data-act="peer-open" data-id="'+esc(p.id)+'">Profil</button><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button></div>'}).join('')
+        return '<div class="peer pr">'+avatarHtml('sm',c.thumb,c.rank,c.name,c.au)+'<div class="mid tap" data-act="peer-open" data-id="'+esc(p.id)+'"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+champBadge(ch[p.id])+'</div><div class="qp">'+lvChip(c.level,c.rank)+'</div></div><div class="pact"><button class="btn ghost sm" data-act="peer-open" data-id="'+esc(p.id)+'">Profil</button><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button></div></div>'}).join('')
       :'<div class="empty">'+(peersLoaded?'Noch keine Freunde in der Liste. Schick deinen Einladungs-Link oder füge oben einen Freundescode hinzu.':'Lade ...')+'</div>')+
       '</section>';
   }else{
@@ -4140,7 +4164,7 @@ document.addEventListener('click',e=>{
       const done=[];
       document.querySelectorAll('#modal [data-tk]').forEach(i=>{const v=String(i.value).trim();if(!v)return;const r=setRecord(i.dataset.tk,v);if(r)done.push(r)});
       nextModal();
-      if(done.length){save();toast(done.some(d=>d.best)?'Neuer Bestwert!':'Werte gespeichert');offerRetarget(done.map(d=>d.k))}
+      if(done.length){save();toast(done.some(d=>d.best)?'Neuer Bestwert!':'Werte gespeichert');placeNote(done);offerRetarget(done.map(d=>d.k))}
       break;
     }
     case 'grow-yes':applyGrow();save();break;
@@ -4155,7 +4179,7 @@ document.addEventListener('click',e=>{
       if(!r){toast('Trage zuerst dein Ergebnis ein');return}
       completeQuest(q);save();
       if(r.best)toast('Neuer Bestwert: '+fmtRec(recOf(r.k),r.v)+' '+recOf(r.k).u);
-      offerRetarget([r.k]);
+      placeNote([r]);offerRetarget([r.k]);
       break;
     }
     case 'setcls':if(clsOk(id,S.level)){S.cls=id;save()}break;

@@ -1,5 +1,5 @@
 /* Hunter System: Offline-Start. Immer zuerst das Netz, damit Updates sofort ankommen. */
-const CACHE='hunter-v23c';
+const CACHE='hunter-v23d';
 self.addEventListener('install',e=>{self.skipWaiting()});
 self.addEventListener('activate',e=>{
   e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
