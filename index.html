@@ -806,6 +806,50 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .fightp .bacts .bi{height:20px;width:auto;vertical-align:middle;margin-right:3px}
 .fightp .lootrow{margin-bottom:6px}
 .stage .intent{font-size:12px;padding:2px 8px}
+/* v23d Kampf */
+.stage .intent{display:block;align-self:flex-start;font-size:12px;font-weight:600;color:#fff;background:#d81f3ce6;border-radius:8px;padding:3px 9px;margin-top:3px;line-height:1.25;max-width:100%}
+.stage .intent b{font-weight:800}
+.stage .intent.b{background:#2c5fc9e6}
+.stage .intent.w{background:#c9801fe6}
+.stage .intent.x{background:#b3122eee;box-shadow:0 0 14px #ff1a3a;animation:ipulse 1s ease-in-out infinite}
+@keyframes ipulse{50%{box-shadow:0 0 22px #ff5468}}
+@media (prefers-reduced-motion:reduce){.stage .intent.x{animation:none}}
+.shr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:6px;width:100%}
+.shu{display:flex;align-items:center;gap:6px;min-width:0;padding:5px 6px;border:1px solid var(--c);border-radius:12px;background:#0a1030;color:var(--fg);text-align:left;box-shadow:0 0 12px color-mix(in srgb,var(--c) 35%,transparent);min-height:48px}
+.shu .sp{position:relative;flex:none;width:34px;height:34px;display:grid;place-items:center}
+.shu .sp img{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 6px var(--c))}
+.shu .sp i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-family:var(--f-d);font-weight:800;font-size:20px;background:#04060fb8;border-radius:50%}
+.shu .st{min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.shu .st b{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shu .st small{font-size:11.5px;color:var(--c);font-weight:700}
+.shu.cool{opacity:.55;box-shadow:none;border-color:var(--line2)}
+.shu.cool .st small{color:var(--dim)}
+.shu:not(.cool):active{transform:scale(.97)}
+.fightp .shr{margin-bottom:6px}
+.stage{height:222px}
+@media (max-height:700px){.stage{height:196px}.stage .mimg{height:70%}}
+.fightp .log{min-height:44px;max-height:60px;margin-bottom:8px}
+.fightp .bacts .btn{min-width:0;min-height:42px;padding:3px 3px;font-size:12.5px;letter-spacing:0;overflow:hidden}
+.fightp .bacts .btn small{font-size:10px}
+.fightp .bacts .atk{min-height:42px;font-size:19px}
+.fightp .shr .shu{min-height:44px}
+.fightp .bacts .gi{--gs:18px}
+.stage .top .who span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stage .top .who small{flex:none;white-space:nowrap}
+.fightp .bacts .gi{display:none}
+.fightp .bacts .btn.vio{font-size:12px}
+.shu{gap:5px;padding:5px}
+.shu .sp,.shu .sp img{width:28px;height:28px}
+.shu .sp i{font-size:17px}
+.shu .st b{font-size:12px}
+.stage .top .who{flex-direction:column;align-items:flex-start;gap:0;line-height:1.05}
+.stage .top .who small{font-size:12.5px}
+.shu .sp,.shu .sp img{width:24px;height:24px}
+.shu .sp i{font-size:15px}
+.shu .st b{font-size:11.5px}
+.shu .st small{font-size:11px}
+.fightp .log{min-height:62px;max-height:none;font-size:13px;line-height:1.35}
+
 .stnb{padding:10px 4px;overflow:hidden}
 .stnb b{font-size:11.5px;letter-spacing:0;max-width:100%;overflow-wrap:normal;white-space:nowrap}
 .stnb{padding:10px 3px}
@@ -1686,7 +1730,10 @@ function hasBar(){return !S.prof||S.prof.place==='gym'||(S.prof.equip||[]).inclu
 function pickTest(){
   if(!S.started||(S.totalDone||0)<5)return null;
   const t=dayKey(),ref=lastTestDay(),gap=ref?dayNum(t)-dayNum(ref):99;
-  if(gap<14||Math.random()>(gap>=28?0.7:0.3))return null;
+  /* Etwa einmal im Monat: Rekorde, die älter als 30 Tage sind (oder noch nie getestet), nicht öfter als alle 10 Tage */
+  const bar0=hasBar();
+  const stale=REC.filter(r=>(!r.bar||bar0)&&(()=>{const a=S.pr&&S.pr[r.k]&&S.pr[r.k].at;return !a||dayNum(t)-dayNum(a)>=30})());
+  if(!stale.length||gap<10)return null;
   const bar=hasBar(),pool=REC.filter(r=>!r.bar||bar);
   const at=r=>(S.pr&&S.pr[r.k]&&S.pr[r.k].at)||'';
   const old=pool.reduce((m,r)=>at(r)<m?at(r):m,'9');
@@ -2711,7 +2758,7 @@ function viewProfile(p){
     '<div class="hm"><div class="pname'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="ptitle">'+(c.cls?esc(c.cls)+' · ':'')+esc(TITLES[c.rank])+(c.ti?' · <span class="tt">'+esc(c.ti)+'</span>':'')+'</div></div>'+
     '<div class="lvw">'+emblem(c.rank,58)+'<div class="lvbox"><small>Level</small><b class="num">'+c.level+'</b></div></div></div>'+
     '<div class="pills"><span class="pill pw" title="Kampfkraft">Kampfkraft '+pw+helpBtn('kampfkraft')+'</span><span class="pill pc" title="Konstanz">Konstanz '+c.cons+' %'+helpBtn('konstanz')+'</span></div>'+
-    '<div class="acts" style="margin-top:12px"><button class="btn bad" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(fr?'<button class="btn '+(frArm===p.id?'bad':'ghost')+' sm" data-act="delfriend" data-id="'+esc(p.id)+'">'+(frArm===p.id?'Wirklich entfernen?':'Freund entfernen')+'</button>':'')+'</div></section>';
+    '<div class="acts" style="margin-top:12px"><button class="btn bad" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(fr?(frArm===p.id?'<button class="btn bad sm" data-act="delfriend" data-id="'+esc(p.id)+'">Ja, entfernen</button><button class="btn ghost sm" data-act="delfriend-no">Nicht entfernen</button>':'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'">Freund entfernen</button>'):'')+'</div></section>';
   h+='<section class="win"><div class="sub"><div class="lbl">Beste Erfolge</div><span class="qp">'+un.length+' von '+ACH.length+'</span></div>'+
     (top.length?top.map(row).join(''):'<div class="empty">Noch keine Erfolge sichtbar.</div>')+
     (un.length>3?'<details class="offd"><summary>Alle '+un.length+' Erfolge</summary><div class="achg">'+un.map(a=>'<div class="ag" title="'+esc(a[3])+'">'+gico('seal-'+a[1],30)+'<span>'+esc(a[2])+'</span></div>').join('')+'</div></details>':'')+'</section>';
@@ -2744,8 +2791,8 @@ function subSeg(){
 }
 /* Erklärungen */
 const HELP={
- dungeon:['Dungeon-Lauf','Ein Lauf hat 5 Räume. Vor jedem Raum wählst du zwischen zwei Türen. Deine Lebenspunkte bleiben erhalten, bis du rastest, einen Trank nimmst oder der Lauf endet. Am Ende wartet ein Wächter. Rückzug sichert deine Beute, bei Niederlage bleibt die Hälfte.'],
- energie:['Energie','Jede erledigte Quest lädt Energie auf, bis 100. Im Kampf kosten Fähigkeiten und der Schatten-Stoß Energie. Angriff und Deckung laden etwas nach.'],
+ dungeon:['Dungeon-Lauf','Ein Lauf hat 5 Räume. Vor jedem Raum wählst du zwischen zwei Türen. Deine Lebenspunkte bleiben erhalten, bis du rastest, einen Trank nimmst oder der Lauf endet. Am Ende wartet ein Wächter. Rückzug sichert deine Beute, bei Niederlage bleibt die Hälfte. Im Kampf zeigt der Gegner seinen nächsten Zug an (rot: Schaden, blau: Abwehr oder Heilung, orange: lädt einen Vernichtungsschlag auf). Mit Deckung nimmst du viel weniger Schaden. Jeder Gegner hat eine Eigenschaft, zum Beispiel Panzer oder Gift. Deine Schatten greifen nicht von allein ein: Tippe sie an, wenn sie bereit sind. Kraft schlägt zu, Beweglichkeit durchdringt Panzer, Geist heilt, Ausdauer schützt, Disziplin bannt den Gegner eine Runde. Danach brauchen sie 3 Runden Abkühlzeit.'],
+ energie:['Energie','Jede erledigte Quest lädt Energie auf, bis 100. Im Kampf kosten Fähigkeiten Energie. Angriff und Deckung laden etwas nach. Schatten brauchen keine Energie, sie haben Abkühlzeit.'],
  system:['System-Quest','Eine freiwillige Zusatzaufgabe für heute. Ablehnen kostet nichts.'],
  wochenziel:['Wochenziel','Ein großes Ziel für die ganze Woche. Du trägst deinen Fortschritt nach und nach ein.'],
  schluessel:['Schlüssel','Mit einem Schlüssel startest du einen Dungeon-Lauf im Kampf-Tab. Du findest Schlüssel bei Quests, bei System-Quests, bei Wächtern, auf Expeditionen und wenn du alle Tagesquests schaffst.'],
@@ -2874,26 +2921,91 @@ function lootRow(r){
   return h+'</div>';
 }
 const BOSSN=['Goblinkönig','Orkhäuptling','Knochenfürst','Schwarzer Ritter','Dämonenfürst','Drachenfürst'];
+/* ----- Kampf v2: Absichten, Eigenschaften, Schatten als Einheiten ----- */
+const INT={
+ atk:{n:'Angriff',m:1,h:'',c:'r'},
+ heavy:{n:'Schwerer Schlag',m:1.8,h:'Deckung hilft',c:'r'},
+ flurry:{n:'Doppelbiss',m:.62,k:2,h:'zwei Treffer',c:'r'},
+ bite:{n:'Giftbiss',m:.8,h:'vergiftet',c:'r'},
+ steal:{n:'Beutezug',m:.9,h:'raubt Energie',c:'r'},
+ spell:{n:'Zauber',m:1.1,h:'Deckung wirkt halb',c:'r'},
+ charge:{n:'Sammelt Kraft',m:0,h:'danach Vernichtungsschlag',c:'w'},
+ smash:{n:'Vernichtungsschlag',m:2.6,h:'Deckung oder Bann nötig',c:'x'},
+ brace:{n:'Abwehr',m:0,h:'dein nächster Angriff −60 %',c:'b'},
+ heal:{n:'Erholung',m:0,h:'heilt sich um 12 %',c:'b'}
+};
+const TRAIT={
+ thief:{n:'Dieb',x:'Raubt bei Treffern Energie.'},
+ regen:{n:'Regeneration',x:'Erholt sich zwischendurch.'},
+ swift:{n:'Flink',x:'Greift zweimal an, dafür schwächer.'},
+ brute:{n:'Brutal',x:'Schwere Schläge kommen häufiger.'},
+ poison:{n:'Giftig',x:'Seine Bisse vergiften dich.'},
+ shield:{n:'Schildträger',x:'Geht oft in Abwehr.'},
+ armor:{n:'Panzer',x:'Angriff, Heftiger Schlag und Blitzschritt verlieren 35 % Schaden. Schatten-Stich, Schattenklinge und Aura nicht.'},
+ caster:{n:'Zauberer',x:'Seine Zauber durchdringen die Deckung zur Hälfte.'}
+};
+const MTRAIT={goblin:'thief',slime:'regen',wolf:'swift',orc:'brute',spider:'poison',skeleton:'shield',golem:'armor',knight:'armor',mage:'caster',demon:'brute',dragon:'caster',titan:'armor'};
+const STRAIT={kraft:'brute',ausdauer:'regen',beweglichkeit:'swift',geist:'caster',disziplin:'shield'};
+const SHA={
+ kraft:{n:'Hieb',x:'Starker Treffer'},
+ beweglichkeit:{n:'Stich',x:'Trifft sicher, durchdringt Panzer und Abwehr'},
+ geist:{n:'Heilfeuer',x:'Heilt dich, heilt Gift und verbrennt den Gegner'},
+ ausdauer:{n:'Schutz',x:'Der nächste Treffer auf dich wird stark gemindert'},
+ disziplin:{n:'Bann',x:'Der Gegner setzt eine Runde aus'}
+};
+const SH_CD=3,SH_CD_B=4,CAP0=.93;
+const dAtk=()=>4+S.stats.str*0.9;
+function rollInt(m){
+  if(m.nextF){const f=m.nextF;m.nextF=null;return f}
+  const w={atk:56,heavy:16,charge:10,brace:8},t=m.tier;
+  if(t==='elite'){w.atk=42;w.heavy=20;w.charge=16;w.brace=10}
+  if(t==='boss'||t==='mimic'){w.atk=38;w.heavy=22;w.charge=18;w.brace=10}
+  if(m.rage){w.atk=30;w.heavy=28;w.charge=24;w.brace=0}
+  const tr=m.trait;
+  if(tr==='brute')w.heavy*=2;
+  if(tr==='shield')w.brace*=3;
+  if(tr==='regen'&&m.hp<m.max*.8)w.heal=24;
+  if(tr==='swift'){w.flurry=w.atk*.8;w.atk*=.25}
+  if(tr==='poison'){w.bite=w.atk*.75;w.atk*=.25}
+  if(tr==='thief'){w.steal=w.atk*.7;w.atk*=.3}
+  if(tr==='caster'){w.spell=w.atk*.7;w.atk*=.3}
+  if(m.last==='brace')w.brace=0;
+  if(m.last==='heal')w.heal=0;
+  if(m.last==='smash')w.charge=0;
+  let tot=0;Object.values(w).forEach(v=>tot+=v);
+  let x=Math.random()*tot;
+  for(const k in w){x-=w[k];if(x<0)return k}
+  return 'atk';
+}
 function mkMon(k){
-  const r=S.run,L=S.level;
+  const r=S.run;
   const ri=Math.min(5,r.ri+((k==='elite')?1:0));
   const row=MON[ri];
   let mo=row[Math.floor(Math.random()*3)],name=mo[0],img=mo[1],fx=mo[2],shadow=null,src=null;
-  let hpf=0.8+0.1*r.n,atkf=1,pc=.12;
-  if(k==='elite'){hpf=1.45;atkf=1.15;pc=.22}
-  if(k==='boss'){name=BOSSN[ri];img=RK_MON[ri];fx='';hpf=2.2;atkf=1.2;pc=.3}
-  if(k==='mimic'){name='Truhen-Mimik';img='golem';fx='hue-rotate(35deg) saturate(1.5)';hpf=1.1;atkf=1.05;pc=.2}
-  if((k==='fight'&&Math.random()<.3)||(k==='elite'&&Math.random()<.5)){shadow=STK[Math.floor(Math.random()*5)];name=STYPE[shadow].e;src='img/sh-'+shadow+'.webp';fx=''}
-  const mhp=Math.round((40+L*8+ri*25)*hpf);
-  return {name,img,fx,src,shadow,hp:mhp,max:mhp,atk:(6+L*1.5+ri*4)*atkf,pc,charged:false,ri};
+  let hits=4.6,df=0.052;
+  if(k==='elite'){hits=7.2;df=0.07}
+  if(k==='boss'){name=BOSSN[ri];img=RK_MON[ri];fx='';hits=10.5;df=0.078}
+  if(k==='mimic'){name='Truhen-Mimik';img='golem';fx='hue-rotate(35deg) saturate(1.5)';hits=5.6;df=.06}
+  let trait=MTRAIT[img]||null;
+  if(k==='mimic')trait='brute';
+  if((k==='fight'&&Math.random()<.3)||(k==='elite'&&Math.random()<.5)){shadow=STK[Math.floor(Math.random()*5)];name=STYPE[shadow].e;src='img/sh-'+shadow+'.webp';fx='';trait=STRAIT[shadow]}
+  const roomF=1+0.06*r.n,easy=(S.runs||0)<2?0.85:1;
+  const tp=teamList().reduce((a,x)=>a+sPow(x),0),cap=CAP0+Math.min(.55,.03*tp)+.07*SKILLS.filter(x=>S.level>=x.lv).length;
+  const hpf=(1+.07*ri)*roomF*cap,dmf=(1+.05*ri)*(1+.04*r.n)*(1+(cap-1)*0.6)*easy;
+  const mhp=Math.max(20,Math.round(dAtk()*hits*hpf));
+  const atk=pStats().hp*df*dmf;
+  return {name,img,fx,src,shadow,hp:mhp,max:mhp,atk,trait,tier:k,ri,int:'atk',last:'',nextF:null,shield:false,rage:false};
 }
 function startFight(k){
   const r=S.run,p=pStats(),m=mkMon(k);
   if(!r.cur)r.cur={k:k};
   r.cur.fight=k;
+  m.int=rollInt(m);
   const intro={fight:'Ein Gegner versperrt den Weg: ',elite:'Ein Elite-Gegner wartet: ',boss:'Der Wächter erhebt sich: ',mimic:'Die Truhe beißt zu: '}[k]||'';
   B={k,ri:m.ri,door:(k==='elite'||k==='boss')?'red':'',mon:m,p:{hp:Math.max(1,Math.min(r.hp,p.hp)),max:p.hp},
-     log:[{t:intro+m.name+' (Rang '+RANKS[m.ri]+')'+(m.shadow?', Typ '+STYPE[m.shadow].n:'')+'.',c:''}],stun:0,dodge:false,over:null,res:null,fl:[],hit:false,pain:false};
+     log:[{t:intro+m.name+' (Rang '+RANKS[m.ri]+')'+(m.shadow?', Typ '+STYPE[m.shadow].n:'')+'.',c:''}],stun:0,dodge:false,over:null,res:null,fl:[],hit:false,pain:false,
+     sh:teamList().map(s=>({id:s.id,cd:0})),ward:1,pois:null};
+  if(m.trait)B.log.push({t:TRAIT[m.trait].n+': '+TRAIT[m.trait].x,c:''});
 }
 function roomTreasure(){
   const r=S.run,ri=r.ri;
@@ -2977,36 +3089,81 @@ function endFight(win){
 function fl(w,t,c){if(B&&B.fl)B.fl.push({w,t,c:c||''})}
 function monsterTurn(blk){
   const m=B.mon,p=pStats();
-  if(B.stun>0){B.stun--;B.log.push({t:m.name+' ist betäubt und setzt aus.',c:'good'});return}
-  if(B.dodge){B.dodge=false;B.log.push({t:'Du weichst dem Angriff von '+m.name+' aus.',c:'good'});fl('p','Ausweichen','blk');return}
-  if(!m.charged&&Math.random()<m.pc){m.charged=true;B.log.push({t:m.name+' holt zum schweren Schlag aus!',c:'took'});fl('m','!','warn');return}
-  let mul=1;
-  if(m.charged){mul=1.9;m.charged=false}
-  if(!blk&&Math.random()<p.dodge){B.log.push({t:'Du weichst '+m.name+' aus.',c:'good'});fl('p','Ausweichen','blk');return}
-  let dmg=Math.max(1,Math.round((m.atk*mul-p.def)*rnd(.85,1.15)));
-  if(blk)dmg=Math.max(1,Math.round(dmg*.35));
-  B.p.hp=Math.max(0,B.p.hp-dmg);B.pain=true;
-  B.log.push({t:m.name+(mul>1?' schlägt hart zu: ':' trifft dich für ')+dmg+(blk?' (gedeckt).':'.'),c:'took'});
-  fl('p','−'+dmg,mul>1?'crit':'');
-  vib(mul>1?[70,30,70]:45);sfx('hurt');
+  m.shield=false;
+  if(B.stun>0){B.stun--;B.log.push({t:m.name+' ist betäubt und setzt aus.',c:'good'});fl('m','Betäubt','blk');return}
+  const key=m.int,it=INT[key];m.last=key;
+  if(key==='charge'){m.nextF='smash';B.log.push({t:m.name+' sammelt Kraft für einen Vernichtungsschlag!',c:'took'});fl('m','!','warn');return}
+  if(key==='brace'){m.shield=true;B.log.push({t:m.name+' geht in Abwehr. Dein nächster Angriff verliert 60 %.',c:''});fl('m','Abwehr','blk');return}
+  if(key==='heal'){const h=Math.round(m.max*.12);m.hp=Math.min(m.max,m.hp+h);B.log.push({t:m.name+' erholt sich: +'+h+' LP.',c:''});fl('m','+'+h,'heal');return}
+  const n=it.k||1;let landed=false;
+  for(let i=0;i<n&&B.p.hp>0;i++){
+    if(B.dodge){B.dodge=false;B.log.push({t:'Du weichst '+m.name+' aus.',c:'good'});fl('p','Ausweichen','blk');continue}
+    if(!blk&&Math.random()<p.dodge){B.log.push({t:'Du weichst '+m.name+' aus.',c:'good'});fl('p','Ausweichen','blk');continue}
+    let dmg=Math.max(1,Math.round(m.atk*it.m*(m.rage?1.2:1)*rnd(.85,1.15)-p.def));
+    if(blk)dmg=Math.max(1,Math.round(dmg*(key==='spell'?.6:.35)));
+    let note='';
+    if(B.ward<1){dmg=Math.max(1,Math.round(dmg*B.ward));B.ward=1;note=' (Schutz)'}
+    B.p.hp=Math.max(0,B.p.hp-dmg);B.pain=true;landed=true;
+    const heavy=it.m>=1.8;
+    B.log.push({t:m.name+(heavy?' schlägt hart zu: ':' trifft dich für ')+dmg+(blk?' (gedeckt)':'')+note+'.',c:'took'});
+    fl('p','−'+dmg,heavy?'crit':'');
+    vib(heavy?[70,30,70]:45);sfx('hurt');
+  }
+  if(landed&&B.p.hp>0){
+    if(key==='bite'&&!B.pois){B.pois={t:3,d:Math.max(1,Math.round(m.atk*.22))};B.log.push({t:'Du bist vergiftet.',c:'took'})}
+    if(key==='steal'){const e=Math.min(S.en||0,10);if(e>0){addEn(-e);B.log.push({t:m.name+' raubt dir '+e+' Energie.',c:'took'})}}
+  }
 }
-function playerHit(mulT,txt){
-  const p=pStats();
-  let dmg=p.atk*mulT*rnd(.85,1.15),crit=Math.random()<p.crit;
-  if(crit)dmg*=1.8;
-  dmg=Math.max(1,Math.round(dmg));
+function roundEnd(){
+  const m=B.mon;
+  if(B.pois&&B.p.hp>0){
+    B.p.hp=Math.max(0,B.p.hp-B.pois.d);B.log.push({t:'Gift: −'+B.pois.d+' LP.',c:'took'});fl('p','−'+B.pois.d,'sh');
+    if(--B.pois.t<=0)B.pois=null;
+  }
+  B.sh.forEach(u=>{if(u.cd>0)u.cd--});
+  if(B.p.hp>0&&m.hp>0)m.int=rollInt(m);
+}
+function hitMon(dmg,txt,o){
+  o=o||{};
+  let f=1,tag='';
+  if(!o.pierce){
+    if(B.mon.trait==='armor'&&o.armor!==false){f*=.65;tag=' (Panzer)'}
+    if(B.mon.shield){f*=.4;tag=' (Abwehr)'}
+  }
+  dmg=Math.max(1,Math.round(dmg*f));
   B.mon.hp=Math.max(0,B.mon.hp-dmg);B.hit=true;
-  B.log.push({t:txt+' '+dmg+' Schaden'+(crit?' (kritisch!)':'')+'.',c:'hit'});
-  fl('m',dmg,crit?'crit':'');vib(crit?[25,20,25]:16);sfx(crit?'crit':'hit');
-  teamHit();
+  B.log.push({t:txt+' '+dmg+' Schaden'+(o.crit?' (kritisch!)':'')+tag+'.',c:'hit'});
+  fl('m',dmg,o.crit?'crit':(o.sh?'sh':''));
+  vib(o.crit?[25,20,25]:16);sfx(o.crit?'crit':'hit');
+  return dmg;
 }
-function shadowBurst(){
-  const tm=teamList(),mt=B.mon.shadow;let tot=0,adv=0;
-  tm.forEach(s=>{let p=sPow(s)*rnd(.9,1.1)*2.6;if(mt){if(beats(s.t,mt)){p*=1.5;adv++}else if(beats(mt,s.t))p*=.7}tot+=p});
-  tot=Math.max(1,Math.round(tot));
-  B.mon.hp=Math.max(0,B.mon.hp-tot);B.hit=true;
-  B.log.push({t:'Schatten-Stoß: Dein Team entfesselt '+tot+' Schaden'+(adv?' (Typ-Vorteil!)':'')+'.',c:'hit'});
-  fl('m',tot,'sh');vib([30,20,60]);sfx('crit');
+function playerHit(mulT,txt,pierce){
+  const p=pStats();
+  let dmg=dAtk()*mulT*rnd(.85,1.15),crit=Math.random()<p.crit;
+  if(crit)dmg*=1.8;
+  hitMon(dmg,txt,{crit,pierce,armor:!pierce});
+}
+function shadowAct(id){
+  const u=B.sh.find(x=>x.id===id),s=S.shadows.find(x=>x.id===id);
+  if(!u||!s||u.cd>0)return false;
+  const P=sPow(s),m=B.mon,mt=m.shadow;
+  let tm=1;if(mt){if(beats(s.t,mt))tm=1.5;else if(beats(mt,s.t))tm=.7}
+  const ra=rnd(.9,1.1),adv=tm>1?' (Typ-Vorteil!)':'';
+  u.cd=s.t==='disziplin'?SH_CD_B:SH_CD;
+  if(s.t==='kraft')hitMon(dAtk()*(0.7+0.12*P)*ra*tm,s.name+' schlägt zu:'+adv,{sh:1,armor:true});
+  else if(s.t==='beweglichkeit')hitMon(dAtk()*(0.4+0.08*P)*1.8*ra*tm,s.name+' sticht zu:'+adv,{sh:1,pierce:1,crit:1});
+  else if(s.t==='geist'){
+    const h=Math.round(B.p.max*Math.min(.3,.05+.015*P));B.p.hp=Math.min(B.p.max,B.p.hp+h);B.pois=null;
+    B.log.push({t:s.name+' heilt dich: +'+h+' LP.',c:'good'});fl('p','+'+h,'heal');vib(14);sfx('heal');
+    hitMon(dAtk()*(0.25+0.05*P)*ra*tm,s.name+' verbrennt:'+adv,{sh:1,pierce:1});
+  }else if(s.t==='ausdauer'){
+    const red=Math.min(.8,.3+.04*P);B.ward=Math.min(B.ward,1-red);
+    B.log.push({t:s.name+' schützt dich: Der nächste Treffer wird um '+Math.round(red*100)+' % gemindert.',c:'good'});fl('p','Schutz','blk');vib(14);sfx('heal');
+  }else if(s.t==='disziplin'){
+    B.stun=Math.max(B.stun,1);
+    B.log.push({t:s.name+' bannt '+m.name+': Der Gegner setzt eine Runde aus.',c:'good'});fl('m','Gebannt','blk');vib(20);sfx('crit');
+  }
+  return true;
 }
 function battleAct(a){
   if(!B||B.over||!S.run)return;
@@ -3016,23 +3173,25 @@ function battleAct(a){
   else if(a==='guard'){blk=true;addEn(6);B.log.push({t:'Du gehst in Deckung.',c:'good'});fl('p','Deckung','blk')}
   else if(a==='potion'){
     if(S.potions<1)return;
-    S.potions--;const h=Math.round(B.p.max*0.4);B.p.hp=Math.min(B.p.max,B.p.hp+h);
+    S.potions--;const h=Math.round(B.p.max*0.4);B.p.hp=Math.min(B.p.max,B.p.hp+h);B.pois=null;
     B.log.push({t:'Trank getrunken: +'+h+' Lebenspunkte.',c:'good'});fl('p','+'+h,'heal');vib(14);sfx('heal');
-  }else if(a==='burst'){
-    if(!teamList().length||(S.en||0)<BURST_EN)return;
-    addEn(-BURST_EN);shadowBurst();
+  }else if(a.startsWith('sh:')){
+    if(!shadowAct(a.slice(3)))return;
   }else if(a.startsWith('skill:')){
     const k=SKILLS.find(x=>x.id===a.slice(6));
     if(!k||S.level<k.lv||(S.en||0)<k.mp)return;
     addEn(-k.mp);
     if(k.id==='heavy')playerHit(1.8,k.name+':');
     else if(k.id==='step'){playerHit(1.2,k.name+':');B.dodge=true}
-    else if(k.id==='heal'){const h=Math.round(B.p.max*0.3);B.p.hp=Math.min(B.p.max,B.p.hp+h);B.log.push({t:k.name+': +'+h+' Lebenspunkte.',c:'good'});fl('p','+'+h,'heal');vib(14);sfx('heal')}
-    else if(k.id==='blade')playerHit(3,k.name+':');
-    else if(k.id==='aura'){playerHit(2,k.name+':');B.stun=1}
+    else if(k.id==='heal'){const h=Math.round(B.p.max*0.3);B.p.hp=Math.min(B.p.max,B.p.hp+h);B.pois=null;B.log.push({t:k.name+': +'+h+' Lebenspunkte.',c:'good'});fl('p','+'+h,'heal');vib(14);sfx('heal')}
+    else if(k.id==='blade')playerHit(3,k.name+':',true);
+    else if(k.id==='aura'){playerHit(2,k.name+':',true);B.stun=1}
   }else return;
   if(B.mon.hp<=0){endFight(true);return}
+  const m=B.mon;
+  if(B.k==='boss'&&!m.rage&&m.hp<m.max*.5){m.rage=true;B.log.push({t:m.name+' gerät in Rage! Er schlägt härter zu.',c:'took'});fl('m','Rage','warn');if(m.int!=='smash'&&m.int!=='charge'&&!m.nextF)m.int=rollInt(m)}
   monsterTurn(blk);
+  if(B.p.hp>0)roundEnd();
   S.run.hp=Math.max(0,B.p.hp);
   if(B.p.hp<=0)endFight(false);
   if(B.log.length>40)B.log=B.log.slice(-40);
@@ -3089,8 +3248,8 @@ function sumCard(){
 function startCard(){
   const n=S.keys;
   return '<section id="doors" class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Dungeon</div><h2>Kurzer Lauf'+helpBtn('dungeon')+'</h2></div><span class="lbl ic" style="color:var(--warn)"><img class="mi" alt="" src="img/item-key.webp" onerror="this.remove()">Schlüssel: '+n+helpBtn('schluessel')+'</span></div>'+
-   '<p class="dim" style="font-size:13.5px;margin-bottom:10px">'+ROOMS+' Räume. Vor jedem Raum wählst du zwischen zwei Türen: Kampf, Elite, Schatzraum, Rast oder Ereignis. Am Ende wartet ein Wächter. Deine Leben bleiben zwischen den Räumen erhalten.</p>'+enBar()+
-   '<p class="dim" style="font-size:13px;margin:8px 0 12px">Energie lädst du mit echten Quests: Jede erledigte Quest bringt Energie. Im Kampf zünden Fähigkeiten und der Schatten-Stoß damit.</p>'+
+   '<p class="dim" style="font-size:13.5px;margin-bottom:10px">'+ROOMS+' Räume. Vor jedem Raum wählst du zwischen zwei Türen: Kampf, Elite, Schatzraum, Rast oder Ereignis. Am Ende wartet ein Wächter. Gegner zeigen ihren nächsten Zug an. Deine Schatten kämpfen mit: Tippe sie an, sobald sie bereit sind.</p>'+enBar()+
+   '<p class="dim" style="font-size:13px;margin:8px 0 12px">Energie lädst du mit echten Quests: Jede erledigte Quest bringt Energie. Im Kampf zünden Fähigkeiten damit.</p>'+
    (n>0?'<button class="btn lg" data-act="run-start">Lauf starten (1 Schlüssel)</button>'
     :'<div class="empty">Kein Schlüssel. Du findest sie bei Quests (15 %), bei System-Quests und garantiert an jedem Tag mit allen Tagesquests. Auch Wächter und Expeditionen bringen manchmal einen mit.</div>')+
    '<p class="dim" style="font-size:12.5px;margin-top:10px">Tränke: '+S.potions+'</p>'+
@@ -3099,28 +3258,33 @@ function startCard(){
 function monBlock(){
   const m=B.mon,p=B.p,r=S.run;
   const hurt=B.hit,pain=B.pain,fls=B.fl||[];B.hit=false;B.pain=false;B.fl=[];
-  const log=B.log.slice(-3).map(l=>'<div class="'+l.c+'">'+esc(l.t)+'</div>').join('');
-  const tm=teamList();
+  const log=B.log.slice(-2).map(l=>'<div class="'+l.c+'">'+esc(l.t)+'</div>').join('');
   let acts='';
   if(!B.over){
     const en=S.en||0;
-    acts='<div class="bacts"><button class="btn atk" data-act="battle" data-id="atk">Angriff<small>+4 Energie</small></button>'+
-      '<button class="btn grd" data-act="battle" data-id="guard">Deckung<small>weniger Schaden, +6 Energie</small></button>'+
-      (tm.length?'<button class="btn vio" data-act="battle" data-id="burst"'+(en<BURST_EN?' disabled':'')+'>'+gico('shadow-knight')+'Schatten-Stoß<small>'+BURST_EN+' Energie</small></button>':'')+
-      SKILLS.filter(k=>S.level>=k.lv).map(k=>'<button class="btn vio" data-act="battle" data-id="skill:'+k.id+'"'+(en<k.mp?' disabled':'')+' title="'+esc(k.desc)+'">'+gico('skill-'+k.id)+esc(k.name)+'<small>'+k.mp+' Energie</small></button>').join('')+
-      '<button class="btn ok" data-act="battle" data-id="potion"'+(S.potions<1?' disabled':'')+'><img class="bi" alt="" src="img/item-potion.webp" onerror="this.remove()">Trank ('+S.potions+')</button></div>';
+    const shu=B.sh.map(u=>{
+      const s=S.shadows.find(x=>x.id===u.id);if(!s)return '';
+      const T=STYPE[s.t],A=SHA[s.t];
+      return '<button class="shu'+(u.cd>0?' cool':'')+'" data-act="battle" data-id="sh:'+esc(u.id)+'"'+(u.cd>0?' disabled':'')+' title="'+esc(A.n+': '+A.x)+'" style="--c:'+T.c+'"><span class="sp"><img alt="" src="img/sh-'+s.t+'.webp" onerror="this.remove()">'+(u.cd>0?'<i>'+u.cd+'</i>':'')+'</span><span class="st"><b>'+esc(s.name)+'</b><small>'+A.n+'</small></span></button>';
+    }).join('');
+    acts=(shu?'<div class="shr">'+shu+'</div>':'')+'<div class="bacts"><button class="btn atk" data-act="battle" data-id="atk">Angriff<small>+4 Energie</small></button>'+
+      '<button class="btn grd" data-act="battle" data-id="guard">Deckung<small>+6 Energie</small></button>'+
+      '<button class="btn ok" data-act="battle" data-id="potion"'+(S.potions<1?' disabled':'')+'><img class="bi" alt="" src="img/item-potion.webp" onerror="this.remove()">Trank ('+S.potions+')</button>'+
+      SKILLS.filter(k=>S.level>=k.lv).map(k=>'<button class="btn vio" data-act="battle" data-id="skill:'+k.id+'"'+(en<k.mp?' disabled':'')+' title="'+esc(k.desc)+'">'+gico('skill-'+k.id)+esc(k.name).replace('Schattenklinge','Schatten&shy;klinge')+'<small>'+k.mp+' Energie</small></button>').join('')+'</div>';
   }else{
     const rs=B.res;
     acts=(rs.win?lootRow(rs)+'<p style="color:var(--ok);font-family:var(--f-d);font-size:22px">'+(rs.boss?'Wächter besiegt! ':'Sieg! ')+'+'+rs.xp+' XP, +'+rs.g+' G'+(rs.pot?', '+rs.pot+' Trank':'')+(rs.key?', Schlüssel':'')+'</p>':'<p style="color:var(--bad);font-family:var(--f-d);font-size:22px">Niederlage. Der Lauf endet.</p>')+
       '<button class="btn" data-act="battle-end">'+(rs.win&&!rs.boss?'Weiter':'Zum Ergebnis')+'</button>';
   }
+  const it=INT[m.int];
+  const intent=!B.over?'<div class="intent '+it.c+'" role="status"><b>Plant: '+it.n+'</b>'+(it.h?' · '+it.h:'')+'</div>'+(m.shield?'<div class="intent b">Abwehr aktiv: Angriffe −60 %</div>':''):'';
   const fx=fls.map((f,i)=>'<span class="flt '+f.w+' '+f.c+'" style="--o:'+(i*26)+'px">'+esc(String(f.t))+'</span>').join('');
+  const st=(B.pois?' · Gift '+B.pois.t:'')+(B.ward<1?' · Schutz':'');
   return '<div id="stg" class="stage'+(B.door==='red'?' red':'')+(pain?' pain':'')+(B.over==='win'?' won':'')+'" style="--bc:'+(B.door==='red'?'#d81f3c':RK_COL[B.ri])+'">'+
     '<img class="bg" alt="" src="img/dungeon-'+(B.door==='red'?'lava':RK_BG[B.ri])+'.webp" onerror="this.remove()">'+
-    '<div class="top"><div class="who"><span>'+esc(m.name)+'</span><small>'+(B.k==='boss'?'Wächter · ':B.k==='elite'?'Elite · ':'')+'Rang '+RANKS[B.ri]+(m.shadow?' · '+STYPE[m.shadow].n:'')+'</small></div><div class="bar red"><i style="width:'+(m.hp/m.max*100)+'%"></i></div><div class="qp">'+m.hp+' / '+m.max+' LP</div>'+
-    (!B.over&&m.charged?'<div class="intent" role="status">Holt zum schweren Schlag aus. Deckung hilft jetzt.</div>':'')+'</div>'+
+    '<div class="top"><div class="who"><span>'+esc(m.name)+'</span><small>'+(B.k==='boss'?'Wächter · ':B.k==='elite'?'Elite · ':'')+'Rang '+RANKS[B.ri]+(m.trait?' · '+TRAIT[m.trait].n:'')+(m.rage?' · Rage':'')+'</small></div><div class="bar red"><i style="width:'+(m.hp/m.max*100)+'%"></i></div><div class="qp">'+m.hp+' / '+m.max+' LP</div>'+intent+'</div>'+
     '<img class="mimg'+(hurt?' hurt':'')+(B.over==='win'?' dead':'')+'" alt="'+esc(m.name)+'" src="'+(m.src||'img/mon-'+m.img+'.webp')+'" style="'+(m.fx?'filter:'+m.fx+' ':'')+'" onerror="this.remove()">'+fx+
-    '<div class="bot"><div><div class="who">'+esc(S.name)+'</div><div class="bar ok"><i style="width:'+(p.hp/p.max*100)+'%"></i></div><div class="qp">'+p.hp+' / '+p.max+' LP</div></div>'+
+    '<div class="bot"><div><div class="who">'+esc(S.name)+'</div><div class="bar ok"><i style="width:'+(p.hp/p.max*100)+'%"></i></div><div class="qp">'+p.hp+' / '+p.max+' LP'+st+'</div></div>'+
     '<div><div class="who dim">Energie</div><div class="bar en"><i style="width:'+Math.min(100,(S.en||0)/EN_MAX*100)+'%"></i></div><div class="qp">'+Math.round(S.en||0)+' / '+EN_MAX+'</div></div></div></div>'+
     '<section class="win fightp">'+(B.over?'':'<div class="log" aria-live="polite">'+log+'</div>')+'<div class="acts">'+acts+'</div></section>';
 }
@@ -4060,7 +4224,6 @@ function viewArena(){
   const shown=peers.filter(p=>showAll||isFriend(p));
   let h='<section class="win">'+scene('arena')+'<div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde'+helpBtn('fairness')+'</h2></div></div>'+
     '<div class="peer me">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura)+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+champBadge(ch.me)+'</div><div class="qp">'+lvChip(me.level,me.rank)+' <span class="cons">Konstanz '+me.cons+' %'+helpBtn('konstanz')+'</span></div></div><div class="qp wl">Siege '+S.arena.w+' · Niederlagen '+S.arena.l+'</div></div></section>';
-  h+=stanceSection();
   if(online){
     const inc=duelsIn;
     const dw=inc.filter(d=>!d.fw).length,dl=inc.length-dw;
@@ -4272,6 +4435,7 @@ document.addEventListener('click',e=>{
     case 'acc-upgrade':upgradeAccount();return;
     case 'acc-out':signOutNow();return;
     case 'addfriend':{addFriendByCode((document.getElementById('friendIn')||{}).value||'',false);return}
+    case 'delfriend-no':break;
     case 'delfriend':if(frArm===id){S.friends=S.friends.filter(f=>f.id!==id);profId=null;frArm=null;save();toast('Freund entfernt')}else frArm=id;break;
     case 'peer-open':profId=id;try{window.scrollTo(0,0)}catch(x){}break;
     case 'peer-close':profId=null;break;
