@@ -590,6 +590,36 @@ input[type=time]{color-scheme:dark;font-size:16px}
 @media (prefers-reduced-motion:reduce){.flash{animation:none;outline:2px solid var(--glow)}}
 [id=pen-zone],[id=gymc],[id=stat-pts],[id=doors],[id=duel-in]{scroll-margin-top:10px}
 .chart{width:100%;height:auto;display:block;margin-top:8px}
+@keyframes spx{to{transform:rotate(360deg)}}
+@keyframes spp{0%,100%{opacity:.55;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
+.emb.sp::before,.emb.sp::after{content:'';position:absolute;inset:-12%;border-radius:50%;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 10%,var(--spc,#ffd36b) 14%,transparent 22% 45%,var(--spc,#ffd36b) 50%,transparent 58% 80%,var(--spc,#ffd36b) 85%,transparent 92%);-webkit-mask:radial-gradient(circle,transparent 52%,#000 56%,#000 62%,transparent 70%);mask:radial-gradient(circle,transparent 52%,#000 56%,#000 62%,transparent 70%);animation:spx 7s linear infinite;opacity:.9}
+.emb.sp::after{inset:-22%;animation-duration:11s;animation-direction:reverse;opacity:.55}
+.emb.sp1{--spc:#ffd36b}.emb.sp2{--spc:#ff7ad9}
+.emb.sp img{position:absolute;z-index:1;filter:drop-shadow(0 0 calc(var(--sz)*.06) var(--spc))}
+.emb.sp b{z-index:2}
+.sealfx{position:relative;width:210px;height:210px;margin:0 auto 4px;display:grid;place-items:center}
+.sealfx::before{content:'';position:absolute;inset:-14%;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 6%,var(--sc) 9%,transparent 13% 31%,var(--sc) 34%,transparent 38% 56%,var(--sc) 59%,transparent 63% 81%,var(--sc) 84%,transparent 88%);-webkit-mask:radial-gradient(circle,transparent 30%,#000 34%,transparent 70%);mask:radial-gradient(circle,transparent 30%,#000 34%,transparent 70%);opacity:.6;animation:spx 16s linear infinite}
+.sealfx::after{content:'';position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--sc) 40%,transparent),transparent 66%);animation:spp 2.6s ease-in-out infinite}
+#modal .sealfx .gi{--gs:150px;position:relative;z-index:1;filter:drop-shadow(0 0 14px var(--sc))}
+#modal .sphand{display:grid;place-items:center;margin:10px 0 14px;min-height:200px;position:relative}
+#modal .sphand.lost .emb{filter:grayscale(.85) brightness(.75)}
+#modal .sph{font-family:var(--f-d);font-size:30px;letter-spacing:.1em;margin:0}
+#modal .spn{font-family:var(--f-d);font-size:22px;letter-spacing:.14em;margin:2px 0 8px}
+.spw{font-size:12.5px;line-height:1.45;margin-top:8px}
+.spbox{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.sprow{display:flex;gap:10px;align-items:center;padding:6px 0;opacity:.8}
+.sprow.on{opacity:1}
+.sprow .emb{margin:-4px 4px -4px 2px}
+.sprow:not(.on) .emb{filter:grayscale(1) brightness(.6)}
+.spi{flex:1;min-width:0}
+.spi b{display:block;font-family:var(--f-d);font-size:17px;letter-spacing:.06em}
+.sprow.on .spi b{color:var(--spc)}
+.spi small{display:block;font-size:12.5px;color:var(--dim)}
+.spi .bar{margin-top:5px}
+.spbox.lock .sprow{opacity:.6}
+.spq{width:46px;height:46px;border:1px dashed var(--line2);border-radius:10px;display:grid;place-items:center;font-family:var(--f-d);font-size:24px;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){.emb.sp::before,.emb.sp::after,.sealfx::before,.sealfx::after{animation:none}}
+
 .pgl{display:grid;gap:8px}
 .pgc{display:grid;grid-template-columns:1fr auto;gap:3px 10px;align-items:center;text-align:left;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.02);color:inherit;font:inherit;cursor:pointer}
 .pgc.on{border-color:var(--violet);background:rgba(155,107,255,.08)}
@@ -983,8 +1013,12 @@ function pickMark(act,val){document.querySelectorAll('[data-act="'+act+'"]').for
 const EMB_C={E:[50,57.5,.4],D:[49.8,46.6,.36],C:[49.8,57.9,.3],B:[49.9,48.1,.32],A:[49.9,46.2,.3],S:[50.2,46.1,.32]};
 const EMB_L={E:'#9ec5ff',D:'#6ff3d6',C:'#b4e8ff',B:'#ffd36b',A:'#ff7a7a',S:'#e2bcff'};
 function emblem(r,sz,cls){
+  const sp=r==='S+'?1:r==='S∞'?2:0,lab=r;
+  if(sp)r='S';
   r=EMB_C[r]?r:'E';const c=EMB_C[r];
-  return '<span class="emb '+(cls||'')+'" style="--sz:'+sz+'px;--cx:'+c[0]+'%;--cy:'+c[1]+'%;--lf:'+c[2]+';--el:'+EMB_L[r]+'"><img alt="" src="img/emblem-'+r+'.webp" onerror="this.parentNode.classList.add(\'nf\');this.remove()"><b>'+r+'</b></span>';
+  const lf=sp?c[2]*.78:c[2],el=sp?['#ffe9a8','#ffc2f0'][sp-1]:EMB_L[r];
+  const img=sp?'<img alt="" src="img/emblem-'+['Splus','Sinf'][sp-1]+'.webp" onerror="if(this.dataset.f){this.parentNode.classList.add(\'nf\');this.remove()}else{this.dataset.f=1;this.src=\'img/emblem-S.webp\'}">':'<img alt="" src="img/emblem-'+r+'.webp" onerror="this.parentNode.classList.add(\'nf\');this.remove()">';
+  return '<span class="emb '+(cls||'')+(sp?' sp sp'+sp:'')+'" style="--sz:'+sz+'px;--cx:'+c[0]+'%;--cy:'+c[1]+'%;--lf:'+lf+';--el:'+el+'">'+img+'<b>'+lab+'</b></span>';
 }
 function itemKey(it){
   if(!it)return 'sword';
@@ -1012,12 +1046,51 @@ function tierIco(i){const k=shopKey(i);return '<span class="ico tier"><img alt="
 const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer':'schattenlaeufer','Magier':'magier','Eiserner Wächter':'waechter','Assassine':'assassine','Paladin':'paladin','Berserker':'berserker','Schattenmonarch':'monarch'};
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
+/* ---------- v23j: Verborgene Ränge S+ und S∞ ---------- */
+const APP_V='v23j';
+const SPR=[{r:'S+',n:'Schattenkönig',d:100,c:'#ffd36b'},{r:'S∞',n:'Ewiger Monarch',d:365,c:'#ff7ad9'}];
+const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Schattenkönig an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist der Ewige Monarch.'];
+const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
+const rkOf=()=>S.sp>0&&SPR[S.sp-1]?SPR[S.sp-1].r:rankOf(S.level);
+const ttlOf=()=>S.sp>0&&SPR[S.sp-1]?SPR[S.sp-1].n:TITLES[rankOf(S.level)];
+const rkLab=(r,sp)=>sp>0&&SPR[sp-1]?SPR[sp-1].r:r;
+const sealFx=n=>'<div class="sealfx" style="--sc:'+SEAL_C[Math.max(0,Math.min(3,n-1))]+'">'+gico('seal-'+['bronze','silver','gold','diamond'][Math.max(0,Math.min(3,n-1))])+'</div>';
+function spWarn(){return '<p class="dim spw">Dieser Rang gehört dir nur, solange deine Serie hält. Reißt sie, fällst du zurück auf S und beginnst von vorn. Straf-Schilde und geplante Ruhetage schützen deine Serie.</p>'}
+function spCheck(){
+  if(!S.started)return;
+  const isS=rankOf(S.level)==='S',st=S.streak||0;
+  const t=!isS?0:st>=SPR[1].d?2:st>=SPR[0].d?1:0,cur=S.sp||0;
+  if(t===cur)return;
+  S.sp=t;
+  if(t>cur){
+    const first=t>(S.spSeen||0);
+    S.spSeen=Math.max(S.spSeen||0,t);S.spBest=Math.max(S.spBest||0,t);
+    const p=SPR[t-1];
+    modal({pic:'hand'+t,kind:'vio',title:first?'Verborgener Rang':'Rang zurückerobert',body:
+      '<div class="rankup sphand sp'+t+'" style="--spc:'+p.c+'">'+emblem(p.r,200,'pulse')+'</div>'+
+      '<p class="sph" style="color:'+p.c+'">S → '+p.r+'</p><p class="spn">'+p.n+'</p>'+(first?'<p>'+SP_TXT[t-1]+'</p>':'<p>Du hast dir den Rang zurückgeholt.</p>')+spWarn(),btn:first?'Annehmen':'Weiter'});
+  }else{
+    const p=SPR[cur-1];
+    modal({pic:'verlust',kind:'bad',title:'Rang verloren',body:
+      '<div class="rankup sphand lost">'+emblem(t>0?SPR[t-1].r:'S',160)+'</div><p class="sph">'+p.r+' → '+(t>0?SPR[t-1].r:'S')+'</p><p>Deine Serie ist gerissen. Du fällst zurück auf '+(t>0?SPR[t-1].r:'Rang S')+'.</p><p class="dim">Starte eine neue Serie: Nach '+p.d+' Tagen am Stück gehört dir '+p.r+' wieder.</p>',btn:'Verstanden'});
+  }
+  save();
+}
+function spSection(){
+  if(rankOf(S.level)!=='S')return '<div class="spbox lock"><div class="lbl">Verborgener Rang</div><div class="sprow"><span class="spq">?</span><div class="spi"><b>Ab Rang S</b><small>Dort wartet noch eine Stufe darüber.</small></div></div></div>';
+  const st=S.streak||0;
+  return '<div class="spbox"><div class="lbl">Verborgene Ränge</div>'+SPR.map((p,k)=>{
+    const on=(S.sp||0)>k,pct=Math.min(100,st/p.d*100);
+    return '<div class="sprow'+(on?' on':'')+'" style="--spc:'+p.c+'">'+emblem(p.r,54)+'<div class="spi"><b>'+p.r+' · '+p.n+'</b><small>'+(on?'Aktiv. Bleibt, solange deine Serie nicht reißt.':p.d+' Tage Serie am Stück ('+Math.min(st,p.d)+' / '+p.d+')')+'</small>'+(on?'':'<div class="bar"><i style="width:'+pct+'%"></i></div>')+'</div></div>';
+  }).join('')+'<p class="dim spw">Reißt deine Serie, fällst du zurück auf S und beginnst von vorn. Straf-Schilde und geplante Ruhetage schützen sie.</p></div>';
+}
+
 function rankSection(){
   const r=rankOf(S.level),i=rankIdx(S.level),lo=RANK_AT[i],hi=RANK_AT[i+1],pct=hi?Math.min(100,(S.level-lo)/(hi-lo)*100):100;
-  return '<section class="win rankbox"><div class="rkrow">'+emblem(r,132,'big')+'<div class="rkinfo"><div class="lbl">Rang</div><div class="num" style="font-size:22px">'+esc(TITLES[r])+' '+stars(prestigeOf())+'</div>'+
+  return '<section class="win rankbox"><div class="rkrow">'+emblem(rkOf(),132,'big')+'<div class="rkinfo"><div class="lbl">Rang</div><div class="num" style="font-size:22px">'+esc(ttlOf())+' '+stars(prestigeOf())+'</div>'+
     (hi?'<div class="qp">Nächster Rang '+RANKS[i+1]+' bei LV '+hi+' (noch '+(hi-S.level)+' Level)</div><div class="bar" style="margin-top:6px"><i style="width:'+pct+'%"></i></div>':'<div class="qp">Höchster Rang erreicht.</div>')+'</div></div>'+
     '<div class="lbl" style="margin-top:12px">Prestige-Siegel für deine Serie</div><div class="pres">'+PRESTIGE.map((p,k)=>'<div class="pz'+((S.bestStreak||0)>=p.d?' on':'')+'">'+gico('seal-'+['bronze','silver','gold','diamond'][k])+'<div>'+'★'.repeat(k+1)+' '+p.n+'<small>'+p.d+' Tage am Stück</small></div></div>').join('')+'</div>'+
-    '<div class="qp" style="margin-top:6px">Beste Serie: '+(S.bestStreak||0)+' Tage. Das Siegel steht neben deinem Namen, auch für deine Freunde.</div></section>';
+    '<div class="qp" style="margin-top:6px">Beste Serie: '+(S.bestStreak||0)+' Tage. Das Siegel steht neben deinem Namen, auch für deine Freunde.</div>'+spSection()+'</section>';
 }
 function prevText(f){
   const x=calcXP(f.target,f.unit,f.type,f.rank);
@@ -2263,6 +2336,8 @@ const ACH=[
  ['q10','bronze','Einsteiger','10 Quests abschließen','Frischling',()=>S.totalDone,10,'Quests'],
  ['q100','silver','Quest-Läufer','100 Quests abschließen','Quest-Läufer',()=>S.totalDone,100,'Quests'],
  ['q500','gold','Quest-Meister','500 Quests abschließen','Quest-Meister',()=>S.totalDone,500,'Quests'],
+ ['sp1','diamond','Schattenkönig','Rang S+: 100 Tage Serie als Rang S','Schattenkönig',()=>(S.spSeen||0)>=1?1:0,1,'Quests'],
+ ['sp2','diamond','Ewiger Monarch','Rang S∞: 365 Tage Serie als Rang S','Ewiger Monarch',()=>(S.spSeen||0)>=2?1:0,1,'Quests'],
  ['st7','bronze','Wochenwächter','7 Tage Serie','Wochenwächter',()=>S.bestStreak,7,'Quests'],
  ['st30','silver','Monatsmeister','30 Tage Serie','Monatsmeister',()=>S.bestStreak,30,'Quests'],
  ['st100','gold','Unbeugsam','100 Tage Serie','Der Unbeugsame',()=>S.bestStreak,100,'Quests'],
@@ -2886,8 +2961,8 @@ function viewProfile(p){
   const row=a=>'<div class="ach on">'+gico('seal-'+a[1],44)+'<div class="am"><b>'+esc(a[2])+'</b><small>'+esc(a[3])+'</small></div></div>';
   let h='<div class="acts" style="margin-bottom:10px"><button class="btn ghost" data-act="peer-close">Zurück zur Arena</button></div>';
   h+='<section class="win phdr"><div class="ph-top">'+avatarHtml('',c.thumb,c.rank,c.name,c.au)+
-    '<div class="hm"><div class="pname'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="ptitle">'+(c.cls?esc(c.cls)+' · ':'')+esc(TITLES[c.rank])+(c.ti?' · <span class="tt">'+esc(c.ti)+'</span>':'')+'</div></div>'+
-    '<div class="lvw">'+emblem(c.rank,58)+'<div class="lvbox"><small>Level</small><b class="num">'+c.level+'</b></div></div></div>'+
+    '<div class="hm"><div class="pname'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="ptitle">'+(c.cls?esc(c.cls)+' · ':'')+esc(c.sp?SPR[c.sp-1].n:TITLES[c.rank])+(c.ti?' · <span class="tt">'+esc(c.ti)+'</span>':'')+'</div></div>'+
+    '<div class="lvw">'+emblem(rkLab(c.rank,c.sp),58)+'<div class="lvbox"><small>Level</small><b class="num">'+c.level+'</b></div></div></div>'+
     '<div class="pills"><span class="pill pw" title="Kampfkraft">Kampfkraft '+pw+helpBtn('kampfkraft')+'</span><span class="pill pc" title="Konstanz">Konstanz '+c.cons+' %'+helpBtn('konstanz')+'</span></div>'+
     '<div class="acts" style="margin-top:12px"><button class="btn bad" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(isFriend(p)&&online?'<button class="btn vio" data-act="ch-new" data-id="'+esc(p.id)+'">Herausfordern</button>':'')+(fr?(frArm===p.id?'<button class="btn bad sm" data-act="delfriend" data-id="'+esc(p.id)+'">Ja, entfernen</button><button class="btn ghost sm" data-act="delfriend-no">Nicht entfernen</button>':'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'">Freund entfernen</button>'):'')+'</div></section>';
   h+='<section class="win"><div class="sub"><div class="lbl">Beste Erfolge</div><span class="qp">'+un.length+' von '+ACH.length+'</span></div>'+
@@ -4141,7 +4216,7 @@ function myCard(){
   const c=consistency();
   return {name:S.name,level:S.level,rank:rankOf(S.level),stats:Object.assign({},S.stats),cons:c.pct,days:c.days,
     gw:0,ga:0,sh:Math.min(999,Math.round(shadowPow()/1.5)),thumb:S.thumb||null,
-    cls:String(getProfile().klasse||'').slice(0,40),ti:titleOf(),au:null,pr:prestigeOf(),fc:myFc(),fl:S.friends.map(f=>f.id).slice(0,100),rc:recVals(),ac:Object.keys(S.ach||{}).filter(id=>S.ach[id]&&ACHM[id]).slice(0,60),tm:teamList().map(x=>({n:x.name,t:x.t,r:x.r,l:x.lv})),stn:stnOf({stn:S.stance})};
+    cls:String(getProfile().klasse||'').slice(0,40),ti:titleOf(),au:null,sp:S.sp||0,pr:prestigeOf(),fc:myFc(),fl:S.friends.map(f=>f.id).slice(0,100),rc:recVals(),ac:Object.keys(S.ach||{}).filter(id=>S.ach[id]&&ACHM[id]).slice(0,60),tm:teamList().map(x=>({n:x.name,t:x.t,r:x.r,l:x.lv})),stn:stnOf({stn:S.stance})};
 }
 function pStats(){
   const s=S.stats,f=cfx();
@@ -4162,6 +4237,7 @@ function grantXP(n){
     modal({pic:'levelup',title:'Level Up!',body:'<div class="big">LV '+S.level+'</div>'+(bon?'<p>Alle Werte +'+bon+'</p>':'')+
       (unlocked.length?'<p style="color:var(--ok);font-family:var(--f-d);font-size:19px;letter-spacing:.08em">Neue Fähigkeit: '+unlocked.map(k=>esc(k.name)).join(', ')+'</p>':'')+
       '<p class="dim">Einzelne Werte wachsen nur durch Quests, die dazu passen.</p>'});
+    if(r1==='S'&&r0!=='S')setTimeout(spCheck,0);
     if(r1!==r0)modal({pic:'rankup',kind:'vio',title:'Rang-Aufstieg',body:'<div class="rankup r-'+r1+'">'+emblem(r1,200,'pulse')+'</div><p style="font-family:var(--f-d);font-size:20px;letter-spacing:.1em">'+r0+' → '+r1+'<br>Neuer Titel: '+esc(TITLES[r1])+'</p><p class="dim">'+esc(RANKUP_TXT[r1]||'')+' Neue Dungeon-Ränge sind jetzt für dich freigeschaltet.</p>',btn:'Aufsteigen'});
   }
 }
@@ -4204,7 +4280,7 @@ function completeQuest(q){
     if(d.length&&d.every(x=>x.done)&&S.lastComplete!==dayKey()){
       const y=prevActive();
       S.streak=(S.lastComplete===y)?S.streak+1:1;
-      const p0=prestigeOf();S.lastComplete=dayKey();S.bestStreak=Math.max(S.bestStreak,S.streak);if(prestigeOf()>p0){const pz=PRESTIGE[prestigeOf()-1];modal({kind:'vio',title:'Prestige',body:'<div class="big stars">'+'★'.repeat(prestigeOf())+'</div><p>'+pz.n+'-Siegel: '+pz.d+' Tage Serie am Stück</p><p class="dim">Es steht jetzt neben deinem Namen, auch für deine Freunde.</p>',btn:'Stolz tragen'})}
+      const p0=prestigeOf();S.lastComplete=dayKey();S.bestStreak=Math.max(S.bestStreak,S.streak);if(prestigeOf()>p0){const pz=PRESTIGE[prestigeOf()-1];modal({kind:'vio',title:'Prestige',body:sealFx(prestigeOf())+'<div class="big stars">'+'★'.repeat(prestigeOf())+'</div><p>'+pz.n+'-Siegel: '+pz.d+' Tage Serie am Stück</p><p class="dim">Es steht jetzt neben deinem Namen, auch für deine Freunde.</p>',btn:'Stolz tragen'})}spCheck();
       const bx=Math.min(100,30+S.streak*5),bg=20;
       S.gold+=bg;S.keys++;addEn(20);
       modal({pic:'daily',title:'Tagesquest geschafft',body:'<div class="big">'+S.streak+' 🔥</div><p>Serie: '+S.streak+' Tag'+(S.streak>1?'e':'')+' in Folge</p><p>Bonus: +'+bx+' XP, +'+bg+' G und ein Schlüssel</p>',btn:'Weiter'});
@@ -4331,7 +4407,7 @@ function rollover(){
   syncTraining();
   S.sys={day:t,q:genSys(),st:'open'};
   ensureLive();
-  S.lastDay=t;save();
+  S.lastDay=t;spCheck();save();
 }
 
 /* ---------- battle ---------- */
@@ -4342,7 +4418,7 @@ function fighter(c,m,opp){
 function cleanCard(c){
   const st={};STATS.forEach(([k])=>{st[k]=clampN(c.stats&&c.stats[k],1,999,10)});
   return {name:String(c.name||'Hunter').slice(0,30),level:clampN(c.level,1,999,1),rank:RANKS.includes(c.rank)?c.rank:'E',stats:st,cons:clampN(c.cons,0,100,50),days:clampN(c.days,0,30,0),
-    gw:0,ga:0,sh:clampN(c.sh,0,999,0),thumb:typeof c.thumb==='string'&&c.thumb.startsWith('data:image/')&&c.thumb.length<20000?c.thumb:null,cls:String(c.cls||'').slice(0,40),ti:(ACH.some(a=>a[4]===c.ti)?String(c.ti):''),au:null,pr:clampN(c.pr,0,PRESTIGE.length,0),fc:String(c.fc||'').replace(/[^A-Za-z0-9]/g,'').slice(0,8),fl:Array.isArray(c.fl)?c.fl.slice(0,100).map(x=>String(x).slice(0,40)):[],
+    gw:0,ga:0,sh:clampN(c.sh,0,999,0),thumb:typeof c.thumb==='string'&&c.thumb.startsWith('data:image/')&&c.thumb.length<20000?c.thumb:null,cls:String(c.cls||'').slice(0,40),ti:(ACH.some(a=>a[4]===c.ti)?String(c.ti):''),au:null,sp:clampN(c.sp,0,2,0),pr:clampN(c.pr,0,PRESTIGE.length,0),fc:String(c.fc||'').replace(/[^A-Za-z0-9]/g,'').slice(0,8),fl:Array.isArray(c.fl)?c.fl.slice(0,100).map(x=>String(x).slice(0,40)):[],
     stn:STN[c.stn]?c.stn:'b',
     ac:Array.isArray(c.ac)?c.ac.filter(id=>ACH.some(a=>a[0]===id)).slice(0,60):[],
     tm:Array.isArray(c.tm)?c.tm.slice(0,3).map(x=>({n:String(x&&x.n||'Schatten').slice(0,20),t:STK.includes(x&&x.t)?x.t:'kraft',r:clampN(x&&x.r,0,3,0),l:clampN(x&&x.l,1,SMAXLV,1)})):[],
@@ -4483,9 +4559,9 @@ const SVG_KEY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 function renderHdr(){
   const r=rankOf(S.level),n=need(S.level),pct=Math.min(100,S.xp/n*100),pf=getProfile();
   document.getElementById('hdr').innerHTML=
-   (S.avatar?avatarHtml('',S.avatar,r,S.name,S.aura):'<div class="hemb'+auCls(S.aura)+'"'+auAttr(S.aura)+'>'+emblem(r,72)+'</div>')+
-   '<div class="hm"><div class="pname'+auCls(S.aura)+'"'+auAttr(S.aura)+'>'+esc(S.name)+' '+stars(prestigeOf())+'</div><div class="ptitle">'+(pf.klasse?esc(pf.klasse)+' · ':'')+esc(TITLES[r])+(titleOf()?' · <span class="tt">'+esc(titleOf())+'</span>':'')+'</div></div>'+
-   '<div class="lvw">'+(S.avatar?emblem(r,58):'')+'<div class="lvbox"><small>Level</small><b class="num">'+S.level+'</b></div></div>'+
+   (S.avatar?avatarHtml('',S.avatar,r,S.name,S.aura):'<div class="hemb'+auCls(S.aura)+'"'+auAttr(S.aura)+'>'+emblem(rkOf(),72)+'</div>')+
+   '<div class="hm"><div class="pname'+auCls(S.aura)+'"'+auAttr(S.aura)+'>'+esc(S.name)+' '+stars(prestigeOf())+'</div><div class="ptitle">'+(pf.klasse?esc(pf.klasse)+' · ':'')+esc(ttlOf())+(titleOf()?' · <span class="tt">'+esc(titleOf())+'</span>':'')+'</div></div>'+
+   '<div class="lvw">'+(S.avatar?emblem(rkOf(),58):'')+'<div class="lvbox"><small>Level</small><b class="num">'+S.level+'</b></div></div>'+
    '<div class="xpwrap"><div class="xl"><span>Erfahrung '+helpBtn('xp')+'</span><span class="num">'+S.xp+' / '+n+'</span></div><div class="bar" role="progressbar" aria-valuenow="'+S.xp+'" aria-valuemax="'+n+'"><i style="width:'+pct+'%"></i></div></div>'+
    '<div class="pills"><span class="pill g" title="Gold" data-act="help" data-id="gold">'+SVG_COIN+S.gold+'</span><span class="pill s" title="Serie in Tagen" data-act="help" data-id="serie">'+SVG_FLAME+S.streak+'</span><span class="pill k" title="Schlüssel" data-act="help" data-id="schluessel">'+SVG_KEY+S.keys+'</span></div>';
 }
@@ -4523,7 +4599,7 @@ function qRow(q,big){
     acts+='<button class="btn ok" data-act="done" data-id="'+q.id+'">Fertig</button>';
     }
   }
-  if(q.type==='daily'||q.type==='dungeon'){
+  if((q.type==='daily'&&!S.auto)||q.type==='dungeon'){
     tools='<div class="tools">'+(q.type==='daily'?'<button class="btn ghost sm ic" data-act="edit" data-id="'+q.id+'" aria-label="Ändern" title="Ändern">✎</button>':'')+
       '<button class="btn '+(armed===q.id?'bad':'ghost')+' sm'+(armed===q.id?'':' ic')+'" data-act="del" data-id="'+q.id+'" aria-label="Löschen" title="Löschen">'+(armed===q.id?'Sicher?':'✕')+'</button></div>';
   }
@@ -4637,18 +4713,18 @@ function viewStatus(){
    '\u0005'+(online?(acct.guest
      ?'<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Konto</div><h2>Charakter sichern</h2></div></div><p class="dim" style="margin-bottom:10px">Du spielst als Gast. Ohne Konto ist dein Charakter weg, wenn du den Browser wechselst oder die Browserdaten löschst. Mit E-Mail und Passwort findest du ihn überall wieder.</p><div class="grid"><label class="f">E-Mail<input type="text" id="accMail" autocomplete="email" inputmode="email" autocapitalize="off"></label><label class="f">Passwort<input type="password" id="accPw" autocomplete="new-password"></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="acc-upgrade">Konto anlegen</button></div></section>'
      :'<section class="win"><div class="sub"><div><div class="lbl">Konto</div><h2>Angemeldet</h2></div></div><p class="dim" style="margin-bottom:10px;overflow-wrap:anywhere">'+esc(acct.email)+'</p><div class="acts"><button class="btn ghost" data-act="pw-change">Passwort ändern</button><button class="btn ghost" data-act="acc-out">Abmelden</button></div></section>'):'')+
-   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class="f wide"><span>Klasse</span><div class="pick">'+CLASSES.map(c=>'<button type="button" class="cl '+(pf.klasse===c[0]?'on':'')+'"'+(c[1]>S.level?' disabled':'')+' data-act="setcls" data-id="'+c[0]+'">'+clsIco(c[0])+'<span>'+c[0]+'</span>'+(c[1]>1?'<small>'+(c[1]>S.level?'ab LV '+c[1]:'freigeschaltet')+'</small>':'')+'</button>').join('')+'</div>'+clsInfo(pf.klasse)+'</div><div class="f wide"><span>Tagesquests</span><label class="item" style="cursor:pointer;border-top:0"><input type="checkbox" data-act="auto-ask" style="width:20px;height:20px"'+(S.auto?' checked':'')+'><span class="nm dim" style="font-weight:400">Quests vom System: abwechslungsreich nach Fragebogen, ohne eigene Quests</span></label></div><div class="f wide"><span>Kampf-Effekte</span><label class="item" style="cursor:pointer;border-top:0"><input type="checkbox" data-act="fx" data-id="vib" style="width:20px;height:20px"'+(S.fx&&S.fx.vib===false?'':' checked')+'><span class="nm dim" style="font-weight:400">Vibration bei Treffern (nur Android)</span></label><label class="item" style="cursor:pointer"><input type="checkbox" data-act="fx" data-id="snd" style="width:20px;height:20px"'+(S.fx&&S.fx.snd===true?' checked':'')+'><span class="nm dim" style="font-weight:400">Kampf-Töne</span></label></div><div class="f wide dim" style="font-size:13px">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div></section>');
+   '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class="f wide"><span>Klasse</span><div class="pick">'+CLASSES.map(c=>'<button type="button" class="cl '+(pf.klasse===c[0]?'on':'')+'"'+(c[1]>S.level?' disabled':'')+' data-act="setcls" data-id="'+c[0]+'">'+clsIco(c[0])+'<span>'+c[0]+'</span>'+(c[1]>1?'<small>'+(c[1]>S.level?'ab LV '+c[1]:'freigeschaltet')+'</small>':'')+'</button>').join('')+'</div>'+clsInfo(pf.klasse)+'</div><div class="f wide"><span>Tagesquests</span><label class="item" style="cursor:pointer;border-top:0"><input type="checkbox" data-act="auto-ask" style="width:20px;height:20px"'+(S.auto?' checked':'')+'><span class="nm dim" style="font-weight:400">Quests vom System: abwechslungsreich nach Fragebogen, ohne eigene Quests</span></label></div><div class="f wide"><span>Kampf-Effekte</span><label class="item" style="cursor:pointer;border-top:0"><input type="checkbox" data-act="fx" data-id="vib" style="width:20px;height:20px"'+(S.fx&&S.fx.vib===false?'':' checked')+'><span class="nm dim" style="font-weight:400">Vibration bei Treffern (nur Android)</span></label><label class="item" style="cursor:pointer"><input type="checkbox" data-act="fx" data-id="snd" style="width:20px;height:20px"'+(S.fx&&S.fx.snd===true?' checked':'')+'><span class="nm dim" style="font-weight:400">Kampf-Töne</span></label></div><div class="f wide dim" style="font-size:13px">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div><p class="dim" style="font-size:12px;margin-top:10px">Hunter System '+APP_V+'</p></section>');
 }
 function viewArena(){
   if(profId){const pp=peers.find(x=>x.id===profId);if(pp)return viewProfile(pp);profId=null}
   const me=myCard(),pl=places();
   const shown=peers.filter(p=>showAll||isFriend(p));
   let h='<section class="win">'+scene('arena')+'<div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde'+helpBtn('fairness')+'</h2></div></div>'+
-    '<div class="peer me">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura)+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+plBadge(pl.me,'me')+'</div><div class="qp">'+lvChip(me.level,me.rank)+'</div><div class="qp cons2">Konstanz '+me.cons+' %'+helpBtn('konstanz')+'</div></div><div class="wlr"><div><b>'+S.arena.w+'</b>Siege</div><div><b>'+S.arena.l+'</b>Niederlagen</div></div></div></section>';
+    '<div class="peer me">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura)+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+plBadge(pl.me,'me')+'</div><div class="qp">'+lvChip(me.level,rkOf())+'</div><div class="qp cons2">Konstanz '+me.cons+' %'+helpBtn('konstanz')+'</div></div><div class="wlr"><div><b>'+S.arena.w+'</b>Siege</div><div><b>'+S.arena.l+'</b>Niederlagen</div></div></div></section>';
   if(online){
     h+='<section class="win"><div class="sub"><h2>'+(showAll?'Hunter in der Arena':'Freunde in der Arena')+'</h2></div>'+
       (shown.length?shown.map(p=>{const c=cleanCard(p);
-        return '<div class="peer pr">'+avatarHtml('sm',c.thumb,c.rank,c.name,c.au)+'<div class="mid tap" data-act="peer-open" data-id="'+esc(p.id)+'"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+plBadge(pl[p.id],p.id)+'</div><div class="qp">'+lvChip(c.level,c.rank)+'</div></div><div class="pact"><button class="btn ghost sm" data-act="peer-open" data-id="'+esc(p.id)+'">Profil</button><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button><button class="btn vio sm" data-act="ch-new" data-id="'+esc(p.id)+'">Herausfordern</button></div></div>'}).join('')
+        return '<div class="peer pr">'+avatarHtml('sm',c.thumb,c.rank,c.name,c.au)+'<div class="mid tap" data-act="peer-open" data-id="'+esc(p.id)+'"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+plBadge(pl[p.id],p.id)+'</div><div class="qp">'+lvChip(c.level,rkLab(c.rank,c.sp))+'</div></div><div class="pact"><button class="btn ghost sm" data-act="peer-open" data-id="'+esc(p.id)+'">Profil</button><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button><button class="btn vio sm" data-act="ch-new" data-id="'+esc(p.id)+'">Herausfordern</button></div></div>'}).join('')
       :'<div class="empty">'+(peersLoaded?'Noch keine Freunde in der Liste. Schick deinen Einladungs-Link oder füge oben einen Freundescode hinzu.':'Lade ...')+'</div>')+
       '</section>';
     const inc=duelsIn;
@@ -5121,6 +5197,10 @@ document.addEventListener('change',e=>{
 
 if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){rollover();syncTraining();ensureLive();save()}
+if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
+  S.seenV=APP_V;save();
+  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S∞</b> für lange Serien, nur ab Rang S</li></ul>'});
+}
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
 initRemote();
