@@ -590,6 +590,27 @@ input[type=time]{color-scheme:dark;font-size:16px}
 @media (prefers-reduced-motion:reduce){.flash{animation:none;outline:2px solid var(--glow)}}
 [id=pen-zone],[id=gymc],[id=stat-pts],[id=doors],[id=duel-in]{scroll-margin-top:10px}
 .chart{width:100%;height:auto;display:block;margin-top:8px}
+.pgl{display:grid;gap:8px}
+.pgc{display:grid;grid-template-columns:1fr auto;gap:3px 10px;align-items:center;text-align:left;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.02);color:inherit;font:inherit;cursor:pointer}
+.pgc.on{border-color:var(--violet);background:rgba(155,107,255,.08)}
+.pgn{font-weight:700;font-size:15px;min-width:0;overflow-wrap:anywhere}
+.pgv{font-size:22px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.pgs{grid-column:1/-1;font-size:12.5px}
+.pgd{font-size:12.5px;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid var(--line);white-space:nowrap}
+.pgd.up{color:var(--ok);border-color:rgba(79,214,168,.5);background:rgba(79,214,168,.1)}
+.pgd.dn{color:var(--bad);border-color:rgba(255,84,104,.4)}
+.pgd.n{color:var(--dim)}
+.pgb{font-family:var(--f-b);font-size:11px;color:var(--warn);border:1px solid rgba(255,195,74,.5);border-radius:10px;padding:1px 7px}
+.spk{width:70px;height:26px;justify-self:end}
+.spk path{fill:none;stroke:var(--glow);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.spk circle{fill:var(--glow)}
+.wks{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-top:10px}
+.wkn{aspect-ratio:1;border-radius:5px;display:flex;align-items:center;justify-content:center;background:rgba(130,160,255,.08);font-size:12px;color:var(--fg)}
+.wkn.l1{background:rgba(90,210,255,.25)}.wkn.l2{background:rgba(90,210,255,.45)}.wkn.l3{background:rgba(90,210,255,.65)}
+.wkn.full{background:rgba(255,195,74,.55)}
+.wkn.now{outline:1.5px solid var(--glow);outline-offset:1px}
+.wkl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim);margin-top:4px}
+
 .chart text{fill:var(--dim);font-size:10px;font-family:var(--f-b)}
 .chart .gl{stroke:var(--line);stroke-width:1}
 .chart .cb{fill:#2a6cd6}
@@ -2345,7 +2366,7 @@ async function pwSave(){
 }
 
 /* ---------- v19: Shop im Spiel, Vorschläge, Sprünge, Grafiken, Wunschziele ---------- */
-let sugOpen=false,stSub='ueber',vSub='kal',vEx='',gForm=false,gArm=null,tpOffArm=false,jump=null;
+let sugOpen=false,vAll=false,stSub='ueber',vSub='kal',vEx='',gForm=false,gArm=null,tpOffArm=false,jump=null;
 const SHOPI=[
  {id:'shield',n:'Straf-Schild',d:'Fängt die nächste Strafe von selbst ab und rettet deine Serie.',b:300,max:3,ic:'item-shield'},
  {id:'pardon',n:'Strafen-Erlass',d:'Streicht eine offene Strafquest.',b:150,max:5,ic:'item-pardon'},
@@ -2468,23 +2489,73 @@ function exSeries(id){
   })});
   return out;
 }
+/* v23i: Verlauf > Training: Fortschritt pro Übung */
+function exProg(){
+  const by={};
+  (S.tlog||[]).forEach(t=>(t.ex||[]).forEach(x=>{
+    const e=exOf(x[0]);if(!e)return;
+    let best=0,bw=0,br=0;
+    x[1].forEach(s=>{const w=s[0],r=s[1],sc=e.m==='kg'?(w>0?w*(1+r/30):0):r;if(sc>best){best=sc;bw=w;br=r}});
+    if(best>0)(by[x[0]]=by[x[0]]||[]).push({d:t.d,sc:Math.round(best*10)/10,w:bw,r:br});
+  }));
+  return Object.keys(by).map(id=>{
+    const L=by[id],n=L.length,cur=L[n-1],prev=n>1?L[n-2]:null;
+    const mb=n>1?Math.max(...L.slice(0,-1).map(x=>x.sc)):0;
+    return {id,e:exOf(id),L,cur,prev,n,pr:n>1&&cur.sc>mb,diff:prev?Math.round((cur.sc-prev.sc)*10)/10:null,last:cur.d};
+  }).sort((a,b)=>a.last<b.last?1:a.last>b.last?-1:b.n-a.n);
+}
+function exVal(e,x){return e.m==='kg'?fmtW(x.w)+' kg × '+x.r:fmtN(x.sc)+' '+unitOf(e).replace(/\.$/,'')}
+function spark(L){
+  const v=L.slice(-8).map(x=>x.sc);if(v.length<2)return '';
+  const lo=Math.min(...v),hi=Math.max(...v),W=70,H=26,r=hi-lo||1;
+  const P=v.map((y,i)=>[3+i*(W-6)/(v.length-1),H-3-(y-lo)/r*(H-6)]);
+  return '<svg class="spk" viewBox="0 0 '+W+' '+H+'" aria-hidden="true"><path d="'+P.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ')+'"/><circle cx="'+P[P.length-1][0].toFixed(1)+'" cy="'+P[P.length-1][1].toFixed(1)+'" r="2.6"/></svg>';
+}
+function exCard(p){
+  const e=p.e,kg=e.m==='kg',u=kg?'kg':unitOf(e).replace(/\.$/,'');
+  let tag;
+  if(p.diff==null)tag='<span class="pgd n">Erste Einheit</span>';
+  else if(p.diff>0)tag='<span class="pgd up">+'+fmtW(p.diff)+' '+u+'</span>';
+  else if(p.diff<0)tag='<span class="pgd dn">'+fmtW(p.diff).replace('-','−')+' '+u+'</span>';
+  else tag='<span class="pgd n">gleich</span>';
+  const ago=dayNum(dayKey())-dayNum(p.last),agoT=ago<=0?'heute':ago===1?'gestern':'vor '+ago+' Tagen';
+  return '<button type="button" class="pgc'+(vEx===p.id?' on':'')+'" data-act="v-ex" data-id="'+esc(p.id)+'" aria-label="'+esc(e.n)+': Verlauf anzeigen">'+
+    '<span class="pgn">'+esc(e.n)+'</span>'+tag+
+    '<span class="pgv num">'+exVal(e,p.cur)+(p.pr?'<b class="pgb">Neuer Bestwert</b>':'')+'</span>'+spark(p.L)+
+    '<span class="pgs dim">'+(p.prev?'zuletzt '+exVal(e,p.prev)+' · ':'')+agoT+' · '+p.n+'×</span></button>';
+}
 function viewTrain(){
   const tl=S.tlog||[];
   if(!tl.length)return '<section class="win"><div class="empty">Noch keine Einheit protokolliert. Sobald du im Training-Tab ein Training abschließt, siehst du hier deine Entwicklung.</div></section>';
   const wk=weekKeys(12),cnt=wk.map(w=>tl.filter(e=>e.d>=w&&e.d<=addDays(w,6)).length),vol=wk.map(w=>Math.round(tl.filter(e=>e.d>=w&&e.d<=addDays(w,6)).reduce((a,e)=>a+(e.vol||0),0)/10)/100);
-  const labs=wk.map((w,i)=>((11-i)%3===0)?shortD(w):'');
-  const sets=cntOf('sets'),vt=cntOf('vol');
+  const sets=cntOf('sets'),vt=cntOf('vol'),pl=trainDays();
   let h='<section class="win"><div class="sub"><div class="lbl">Bilanz</div></div><div class="kv"><div><span class="lbl">Einheiten</span><span class="num">'+tl.length+'</span></div><div><span class="lbl">Sätze</span><span class="num">'+fmtN(sets)+'</span></div><div><span class="lbl">Bewegt</span><span class="num">'+(vt?fmtN(Math.round(vt/100)/10)+' t':'–')+'</span></div></div></section>';
-  h+='<section class="win"><div class="sub"><div><div class="lbl">Pro Woche</div><h2>Einheiten</h2></div><span class="qp">letzte 12 Wochen</span></div>'+svgBars(cnt,labs,'Einheiten pro Woche, letzte 12 Wochen. Diese Woche: '+cnt[11])+'</section>';
-  if(vol.some(v=>v>0))h+='<section class="win"><div class="sub"><div><div class="lbl">Pro Woche</div><h2>Bewegtes Gewicht</h2></div><span class="qp">in Tonnen</span></div>'+svgBars(vol,labs,'Bewegtes Gewicht pro Woche in Tonnen. Diese Woche: '+vol[11])+'</section>';
-  const cn={};tl.forEach(t=>(t.ex||[]).forEach(x=>{cn[x[0]]=(cn[x[0]]||0)+1}));
-  const ids=Object.keys(cn).filter(i=>exOf(i)).sort((a,b)=>cn[b]-cn[a]);
-  if(ids.length){
-    if(!ids.includes(vEx))vEx=ids[0];
-    const e=exOf(vEx),ser=exSeries(vEx);
-    h+='<section class="win"><div class="sub"><div><div class="lbl">Übung</div><h2>Entwicklung</h2></div></div><label class="f"><select id="vEx" aria-label="Übung wählen">'+ids.map(i=>'<option value="'+esc(i)+'"'+(i===vEx?' selected':'')+'>'+esc(exOf(i).n)+' ('+cn[i]+'×)</option>').join('')+'</select></label>'+
-      (ser.length?svgLine(ser,null,esc(e.n)+': '+ser.length+' Einheiten, zuletzt '+ser[ser.length-1][1]):'<div class="empty">Keine Daten.</div>')+
-      '<p class="dim" style="font-size:12.5px;margin-top:4px">'+(e.m==='kg'?'Geschätzter Bestwert pro Einheit in kg (Gewicht und Wiederholungen zusammengerechnet).':'Beste Leistung pro Einheit in '+unitOf(e).replace(/\.$/,'')+'.')+'</p></section>';
+  const P=exProg().filter(p=>p.e);
+  if(P.length){
+    const t0=dayNum(dayKey()),rec=P.filter(p=>t0-dayNum(p.last)<=14),up=rec.filter(p=>p.diff>0).length,prs=rec.filter(p=>p.pr).length;
+    const show=vAll?P:P.slice(0,5);
+    h+='<section class="win"><div class="sub"><div><div class="lbl">Fortschritt</div><h2>Deine Übungen</h2></div></div>'+
+      '<p class="dim" style="font-size:13.5px;margin-bottom:10px">'+(rec.length?(up?'In den letzten 14 Tagen bist du bei <b style="color:var(--ok)">'+up+'</b> von '+rec.length+' Übungen besser geworden'+(prs?', '+prs+' neuer Bestwert'+(prs>1?'e':''):'')+'.':'In den letzten 14 Tagen hast du '+rec.length+' Übung'+(rec.length>1?'en':'')+' trainiert. Noch keine Steigerung zum letzten Mal.'):'Seit 14 Tagen keine Übung protokolliert.')+' Der Vergleich geht immer gegen das letzte Mal.</p>'+
+      '<div class="pgl">'+show.map(exCard).join('')+'</div>'+
+      (P.length>5?'<div class="acts" style="margin-top:10px"><button class="btn ghost sm" data-act="v-all">'+(vAll?'Weniger zeigen':'Alle '+P.length+' zeigen')+'</button></div>':'')+'</section>';
+  }
+  const act=cnt.filter(n=>n>0).length,best=Math.max(...cnt),avg=cnt.reduce((a,b)=>a+b,0)/12;
+  let ws=0;for(let i=11;i>=0;i--){if(cnt[i]>0)ws++;else if(i<11)break;else continue}
+  h+='<section class="win"><div class="sub"><div><div class="lbl">Rhythmus</div><h2>Training pro Woche</h2></div><span class="qp">letzte 12 Wochen</span></div>'+
+    '<div class="wks" role="img" aria-label="Einheiten pro Woche, letzte 12 Wochen. Diese Woche: '+cnt[11]+'">'+cnt.map((n,i)=>'<div class="wkn'+(n>0?' l'+Math.min(3,n):'')+(pl>0&&n>=pl?' full':'')+(i===11?' now':'')+'"><b>'+(n||'')+'</b></div>').join('')+'</div>'+
+    '<div class="wkl"><span>'+shortD(wk[0])+'</span><span>diese Woche</span></div>'+
+    '<div class="kv" style="margin-top:10px"><div><span class="lbl">Aktive Wochen</span><span class="num">'+act+' / 12</span></div><div><span class="lbl">Schnitt</span><span class="num">'+fmtN(Math.round(avg*10)/10)+'</span></div><div><span class="lbl">Beste Woche</span><span class="num">'+best+'</span></div></div>'+
+    (pl>0?'<p class="dim" style="font-size:12.5px;margin-top:8px">Gold: alle '+pl+' geplanten Einheiten der Woche geschafft.</p>':'')+'</section>';
+  if(vol.some(v=>v>0))h+='<section class="win"><div class="sub"><div><div class="lbl">Pro Woche</div><h2>Bewegtes Gewicht</h2></div><span class="qp">in Tonnen</span></div>'+svgBars(vol,wk.map((w,i)=>((11-i)%3===0)?shortD(w):''),'Bewegtes Gewicht pro Woche in Tonnen. Diese Woche: '+vol[11])+'</section>';
+  if(P.length){
+    if(!P.some(p=>p.id===vEx))vEx=P[0].id;
+    const p=P.find(x=>x.id===vEx),e=p.e,ser=p.L.map(x=>[x.d,x.sc]);
+    const f=p.L[0],tot=Math.round((p.cur.sc-f.sc)*10)/10,pct=f.sc>0?Math.round((p.cur.sc-f.sc)/f.sc*100):0;
+    const u=e.m==='kg'?'kg':unitOf(e).replace(/\.$/,'');
+    h+='<section id="v-det" class="win"><div class="sub"><div><div class="lbl">Verlauf</div><h2>'+esc(e.n)+'</h2></div></div><label class="f"><select id="vEx" aria-label="Übung wählen">'+P.map(q=>'<option value="'+esc(q.id)+'"'+(q.id===vEx?' selected':'')+'>'+esc(q.e.n)+' ('+q.n+'×)</option>').join('')+'</select></label>'+
+      (ser.length>1?svgLine(ser,null,esc(e.n)+': '+ser.length+' Einheiten, zuletzt '+p.cur.sc):'<p class="dim" style="font-size:13.5px;margin-top:10px">Erst eine Einheit mit dieser Übung. Ab der zweiten siehst du hier die Kurve.</p>')+
+      '<div class="kv" style="margin-top:10px"><div><span class="lbl">Erster Wert</span><span class="num">'+exVal(e,f)+'</span></div><div><span class="lbl">Jetzt</span><span class="num">'+exVal(e,p.cur)+'</span></div><div><span class="lbl">Seit Beginn</span><span class="num" style="color:'+(tot>0?'var(--ok)':'inherit')+'">'+(tot>0?'+':'')+fmtW(tot).replace('-','−')+' '+u+(f.sc>0&&ser.length>1?' ('+(pct>0?'+':'')+pct+' %)':'')+'</span></div></div>'+
+      '<p class="dim" style="font-size:12.5px;margin-top:8px">'+(e.m==='kg'?'Die Kurve zeigt deinen geschätzten Bestwert pro Einheit in kg. Gewicht und Wiederholungen werden dafür zusammengerechnet.':'Die Kurve zeigt deine beste Leistung pro Einheit in '+unitOf(e).replace(/\.$/,'')+'.')+'</p></section>';
   }
   return h;
 }
@@ -4965,6 +5036,8 @@ document.addEventListener('click',e=>{
     }
     case 'st-sub':stSub=id;break;
     case 'v-sub':vSub=id;gForm=false;gArm=null;break;
+    case 'v-ex':vEx=id;jump='v-det';break;
+    case 'v-all':vAll=!vAll;break;
     case 'goal-new':gForm=!gForm;break;
     case 'goal-save':{
       const v=i=>(document.getElementById(i)||{}).value;
