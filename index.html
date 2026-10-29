@@ -814,6 +814,20 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .chc .acts{gap:8px;align-items:center}
 .chc.cwin b{color:var(--ok)}
 .chc.closs b{color:var(--bad)}
+/* v23g Arena */
+.crown.g{color:#ffd36b}.crown.s{color:#d6dcec}.crown.b{color:#cd8a4a}
+.crown b{margin-left:1px}
+.plb{display:inline-flex;gap:8px;align-items:center;background:transparent;border:0;padding:2px 4px;margin-left:4px;vertical-align:middle;cursor:pointer;border-radius:8px}
+.plb .crown{margin-left:0}
+.plb:active{background:#ffffff14}
+.peer.me{flex-wrap:nowrap}
+.peer.me .mid{flex:1 1 0}
+.peer .cons2{color:var(--dim);margin-top:2px}
+.wlr{flex:none;display:grid;gap:4px;text-align:right;font-size:13.5px;color:var(--dim)}
+.wlr b{font-family:var(--f-d);font-size:20px;color:var(--fg);margin-right:5px}
+.peer .pact{width:114px;gap:5px}
+.peer .pact .btn{padding:5px 4px;min-height:32px;font-size:12px;letter-spacing:0}
+
 
 /* v23d Kampf */
 .stage .intent{display:block;align-self:flex-start;font-size:12px;font-weight:600;color:#fff;background:#d81f3ce6;border-radius:8px;padding:3px 9px;margin-top:3px;line-height:1.25;max-width:100%}
@@ -2048,6 +2062,29 @@ function champs(){
   });
   return out;
 }
+function places(){
+  const out={};
+  REC.forEach(r=>{
+    const e=[],m=S.pr&&S.pr[r.k]?S.pr[r.k].v:0;
+    if(m>0)e.push(['me',m]);
+    peers.filter(isFriend).forEach(p=>{const c=cleanCard(p),v=c.rc&&c.rc[r.k];if(v>0)e.push([p.id,v])});
+    if(e.length<2)return;
+    e.forEach(([id,v])=>{const pl=1+e.filter(x=>x[1]>v).length;if(pl<=3)(out[id]=out[id]||{1:[],2:[],3:[]})[pl].push({k:r.k,n:r.n,u:r.u,v})});
+  });
+  return out;
+}
+const PLC=['','g','s','b'];
+function plBadge(pl,id){
+  if(!pl)return '';
+  let h='';
+  [1,2,3].forEach(p=>{const n=pl[p].length;if(n)h+='<span class="crown '+PLC[p]+'">'+CROWN+'<b>'+n+'</b></span>'});
+  return h?'<button type="button" class="plb" data-act="pl-open" data-id="'+esc(id)+'" aria-label="Platzierungen anzeigen">'+h+'</button>':'';
+}
+function plModal(id){
+  const pl=places()[id],pe=peers.find(x=>x.id===id),nm=id==='me'?S.name:(pe?pe.name:'Hunter');
+  if(!pl)return;
+  modal({title:'Platzierungen: '+nm,body:[1,2,3].filter(p=>pl[p].length).map(p=>'<div style="text-align:left;margin:8px 0"><div class="crown '+PLC[p]+'" style="margin:0 0 4px"><span style="display:inline-flex">'+CROWN+'</span><b style="font-size:16px;margin-left:6px">Platz '+p+'</b></div>'+pl[p].map(x=>'<div class="dim" style="margin-left:2px">'+esc(x.n)+': <b style="color:var(--fg)">'+fmtRec(recOf(x.k),x.v)+'</b> '+esc(x.u)+'</div>').join('')+'</div>').join('')});
+}
 const champLine=n=>n&&n.length?'<div class="qp champ">Champion: '+n.map(esc).join(', ')+'</div>':'';
 /* ---------- Schritt 2: System-Dungeons, Steigerung, Wochen-Quest und Boss ---------- */
 const GSTAT={kraft:'str',ausdauer:'vit',abnehmen:'vit',beweglich:'agi',lernen:'int',alltag:'dis'};
@@ -2771,7 +2808,7 @@ function viewProfile(p){
     '<div class="hm"><div class="pname'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="ptitle">'+(c.cls?esc(c.cls)+' · ':'')+esc(TITLES[c.rank])+(c.ti?' · <span class="tt">'+esc(c.ti)+'</span>':'')+'</div></div>'+
     '<div class="lvw">'+emblem(c.rank,58)+'<div class="lvbox"><small>Level</small><b class="num">'+c.level+'</b></div></div></div>'+
     '<div class="pills"><span class="pill pw" title="Kampfkraft">Kampfkraft '+pw+helpBtn('kampfkraft')+'</span><span class="pill pc" title="Konstanz">Konstanz '+c.cons+' %'+helpBtn('konstanz')+'</span></div>'+
-    '<div class="acts" style="margin-top:12px"><button class="btn bad" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(fr&&online?'<button class="btn vio" data-act="ch-new" data-id="'+esc(p.id)+'">Herausfordern</button>':'')+(fr?(frArm===p.id?'<button class="btn bad sm" data-act="delfriend" data-id="'+esc(p.id)+'">Ja, entfernen</button><button class="btn ghost sm" data-act="delfriend-no">Nicht entfernen</button>':'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'">Freund entfernen</button>'):'')+'</div></section>';
+    '<div class="acts" style="margin-top:12px"><button class="btn bad" data-act="duel" data-id="'+esc(p.id)+'">Duell</button>'+(isFriend(p)&&online?'<button class="btn vio" data-act="ch-new" data-id="'+esc(p.id)+'">Herausfordern</button>':'')+(fr?(frArm===p.id?'<button class="btn bad sm" data-act="delfriend" data-id="'+esc(p.id)+'">Ja, entfernen</button><button class="btn ghost sm" data-act="delfriend-no">Nicht entfernen</button>':'<button class="btn ghost sm" data-act="delfriend" data-id="'+esc(p.id)+'">Freund entfernen</button>'):'')+'</div></section>';
   h+='<section class="win"><div class="sub"><div class="lbl">Beste Erfolge</div><span class="qp">'+un.length+' von '+ACH.length+'</span></div>'+
     (top.length?top.map(row).join(''):'<div class="empty">Noch keine Erfolge sichtbar.</div>')+
     (un.length>3?'<details class="offd"><summary>Alle '+un.length+' Erfolge</summary><div class="achg">'+un.map(a=>'<div class="ag" title="'+esc(a[3])+'">'+gico('seal-'+a[1],30)+'<span>'+esc(a[2])+'</span></div>').join('')+'</div></details>':'')+'</section>';
@@ -4414,28 +4451,28 @@ function viewStatus(){
 }
 function viewArena(){
   if(profId){const pp=peers.find(x=>x.id===profId);if(pp)return viewProfile(pp);profId=null}
-  const me=myCard(),ch=champs();
+  const me=myCard(),pl=places();
   const shown=peers.filter(p=>showAll||isFriend(p));
   let h='<section class="win">'+scene('arena')+'<div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde'+helpBtn('fairness')+'</h2></div></div>'+
-    '<div class="peer me">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura)+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+champBadge(ch.me)+'</div><div class="qp">'+lvChip(me.level,me.rank)+' <span class="cons">Konstanz '+me.cons+' %'+helpBtn('konstanz')+'</span></div></div><div class="qp wl">Siege '+S.arena.w+' · Niederlagen '+S.arena.l+'</div></div></section>';
+    '<div class="peer me">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura)+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+plBadge(pl.me,'me')+'</div><div class="qp">'+lvChip(me.level,me.rank)+'</div><div class="qp cons2">Konstanz '+me.cons+' %'+helpBtn('konstanz')+'</div></div><div class="wlr"><div><b>'+S.arena.w+'</b>Siege</div><div><b>'+S.arena.l+'</b>Niederlagen</div></div></div></section>';
   if(online){
+    h+='<section class="win"><div class="sub"><h2>'+(showAll?'Hunter in der Arena':'Freunde in der Arena')+'</h2></div>'+
+      (shown.length?shown.map(p=>{const c=cleanCard(p);
+        return '<div class="peer pr">'+avatarHtml('sm',c.thumb,c.rank,c.name,c.au)+'<div class="mid tap" data-act="peer-open" data-id="'+esc(p.id)+'"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+plBadge(pl[p.id],p.id)+'</div><div class="qp">'+lvChip(c.level,c.rank)+'</div></div><div class="pact"><button class="btn ghost sm" data-act="peer-open" data-id="'+esc(p.id)+'">Profil</button><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button><button class="btn vio sm" data-act="ch-new" data-id="'+esc(p.id)+'">Herausfordern</button></div></div>'}).join('')
+      :'<div class="empty">'+(peersLoaded?'Noch keine Freunde in der Liste. Schick deinen Einladungs-Link oder füge oben einen Freundescode hinzu.':'Lade ...')+'</div>')+
+      '</section>';
     const inc=duelsIn;
     const dw=inc.filter(d=>!d.fw).length,dl=inc.length-dw;
-    h+='<section id="duel-in" class="win"><div class="sub"><div><div class="lbl">Postfach</div><h2>Herausforderungen an dich</h2></div>'+(inc.length?'<span class="qp">verteidigt '+dw+' · verloren '+dl+'</span>':'')+'</div>'+
+    h+='<section id="duel-in" class="win"><div class="sub"><div><div class="lbl">Postfach</div><h2>Duelle gegen dich</h2></div>'+(inc.length?'<span class="qp">verteidigt '+dw+' · verloren '+dl+'</span>':'')+'</div>'+
       (inc.length?inc.slice(0,15).map(d=>{const nw=d.t>arenaSince;return '<div class="item"><span class="nm">'+esc(d.fn)+' hat dich herausgefordert</span>'+(nw?'<span class="chip sys">NEU</span>':'')+'<span class="chip '+(d.fw?'':'sys')+'" style="'+(d.fw?'color:var(--bad);border-color:#ff546877':'')+'">'+(d.fw?'Du hast verloren':'Du hast gewonnen')+'</span><span class="dim" style="font-size:12px">'+esc(new Date(d.t).toLocaleDateString('de-CH'))+'</span></div>'}).join('')
-       :'<div class="empty">Noch keine Herausforderungen. Wenn ein Freund dich im Duell herausfordert, siehst du hier das Ergebnis.</div>')+'</section>';
+       :'<div class="empty">Noch keine Duelle. Wenn ein Freund dich im Duell herausfordert, siehst du hier das Ergebnis.</div>')+'</section>';
+    h+=recRankSection();
     h+='<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Freunde</div><h2>Einladen und hinzufügen</h2></div></div>'+
       '<div class="kv" style="margin-bottom:10px"><div><span class="lbl">Dein Freundescode</span><span class="num" style="letter-spacing:.15em">'+esc(me.fc)+'</span></div><div><span class="lbl">Freunde</span><span class="num">'+shown.filter(p=>isFriend(p)).length+'</span></div></div>'+
       '<div class="acts"><button class="btn" data-act="invite">Einladungs-Link kopieren</button></div>'+
       '<p class="dim" style="font-size:13px;margin:8px 0 12px">Wer deinen Link öffnet, ist sofort mit dir befreundet. Ihr seht euch dann gegenseitig in der Liste und könnt euch herausfordern.</p>'+
       '<div class="acts"><input type="text" id="friendIn" maxlength="8" placeholder="Freundescode eingeben" style="flex:1 1 160px;text-transform:uppercase"><button class="btn ok" data-act="addfriend">Hinzufügen</button></div>'+
       '<label class="item" style="cursor:pointer;margin-top:10px"><input type="checkbox" data-act="toggleall" style="width:20px;height:20px"'+(showAll?' checked':'')+'><span class="nm dim" style="font-weight:400">Alle Hunter anzeigen, nicht nur Freunde</span></label></section>';
-    h+=recRankSection();
-    h+='<section class="win"><div class="sub"><h2>'+(showAll?'Hunter in der Arena':'Freunde in der Arena')+'</h2></div>'+
-      (shown.length?shown.map(p=>{const c=cleanCard(p);
-        return '<div class="peer pr">'+avatarHtml('sm',c.thumb,c.rank,c.name,c.au)+'<div class="mid tap" data-act="peer-open" data-id="'+esc(p.id)+'"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+champBadge(ch[p.id])+'</div><div class="qp">'+lvChip(c.level,c.rank)+'</div></div><div class="pact"><button class="btn ghost sm" data-act="peer-open" data-id="'+esc(p.id)+'">Profil</button><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button></div></div>'}).join('')
-      :'<div class="empty">'+(peersLoaded?'Noch keine Freunde in der Liste. Schick deinen Einladungs-Link oder füge oben einen Freundescode hinzu.':'Lade ...')+'</div>')+
-      '</section>';
   }else{
     h+='<section class="win"><div class="empty">Die Online-Arena ist nicht verbunden. Prüfe deine Internetverbindung oder nutze den Hunter-Code weiter unten.'+(onlineErr?'<p class="dim" style="font-size:13px;margin-top:8px;overflow-wrap:anywhere">Technische Meldung: '+esc(onlineErr)+'</p>':'')+'</div></section>';
   }
@@ -4631,6 +4668,7 @@ document.addEventListener('click',e=>{
     case 'addfriend':{addFriendByCode((document.getElementById('friendIn')||{}).value||'',false);return}
     case 'delfriend-no':break;
     case 'ch-new':chNewModal(id);break;
+    case 'pl-open':plModal(id);break;
     case 'ch-send':chSend();return;
     case 'ch-acc':chAccept(id);return;
     case 'ch-no':chDecline(id);return;
