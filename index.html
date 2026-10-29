@@ -590,6 +590,30 @@ input[type=time]{color-scheme:dark;font-size:16px}
 @media (prefers-reduced-motion:reduce){.flash{animation:none;outline:2px solid var(--glow)}}
 [id=pen-zone],[id=gymc],[id=stat-pts],[id=doors],[id=duel-in]{scroll-margin-top:10px}
 .chart{width:100%;height:auto;display:block;margin-top:8px}
+.hexw{display:inline-block;flex:none}
+.hexb{--hs:84px;--tc:linear-gradient(160deg,#f0a868,#8a4a1c);--tc2:#f0a868;position:relative;display:block;width:var(--hs);height:calc(var(--hs)*1.1547);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--tc)}
+.hexb.t-silver{--tc:linear-gradient(160deg,#f2f5ff,#7a86a8);--tc2:#cfd8ff}
+.hexb.t-gold{--tc:linear-gradient(160deg,#ffe58f,#a8741a);--tc2:#ffd36b}
+.hexb.t-diamond{--tc:linear-gradient(160deg,#c8f8ff,#7b6bff 70%,#4ad8ff);--tc2:#9fefff}
+.hexb.lock{--tc:linear-gradient(160deg,#3a4468,#1a2040);--tc2:#5a6794}
+.hexb .hxi{position:absolute;inset:calc(var(--hs)*.05);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:radial-gradient(80% 80% at 50% 35%,#1b2552,#070b1d);display:grid;place-items:center}
+.hexb.lock .hxi{background:#0a0f2a}
+.hexb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.hexb i{font-style:normal;font-family:var(--f-d);font-weight:700;font-size:calc(var(--hs)*.46);line-height:1;color:var(--tc2);text-shadow:0 0 calc(var(--hs)*.1) var(--tc2)}
+.hexb img+i{display:none}
+.hexb.lock i{text-shadow:none}
+.hxt.on .hexw{filter:drop-shadow(0 0 7px rgba(255,211,107,.3))}
+.hexg{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 6px;margin-top:12px}
+.hxt{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:2px 0;min-width:0}
+.hxn{font-family:var(--f-d);font-size:15px;letter-spacing:.03em;line-height:1.1;text-align:center;overflow-wrap:anywhere;max-width:100%}
+.hxt:not(.on) .hxn{color:var(--dim)}
+.hxs{font-size:11px;color:var(--warn);border:1px solid rgba(255,195,74,.5);border-radius:10px;padding:0 7px;margin-top:-2px}
+.hxf{display:flex;gap:6px;flex-wrap:wrap}
+.hxc{border:1px solid var(--line);background:none;color:var(--dim);border-radius:16px;padding:5px 12px;font:inherit;font-size:13.5px;cursor:pointer}
+.hxc.on{color:var(--fg);border-color:var(--glow);background:rgba(90,210,255,.1)}
+#modal .hxbig{display:grid;place-items:center;margin:6px 0 12px}
+@media (max-width:359px){.hexg{grid-template-columns:repeat(2,1fr)}}
+
 @keyframes spx{to{transform:rotate(360deg)}}
 @keyframes spp{0%,100%{opacity:.55;transform:scale(.96)}50%{opacity:1;transform:scale(1.04)}}
 .emb.sp::before,.emb.sp::after{content:'';position:absolute;inset:-12%;border-radius:50%;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 10%,var(--spc,#ffd36b) 14%,transparent 22% 45%,var(--spc,#ffd36b) 50%,transparent 58% 80%,var(--spc,#ffd36b) 85%,transparent 92%);-webkit-mask:radial-gradient(circle,transparent 52%,#000 56%,#000 62%,transparent 70%);mask:radial-gradient(circle,transparent 52%,#000 56%,#000 62%,transparent 70%);animation:spx 7s linear infinite;opacity:.9}
@@ -1047,7 +1071,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S∞ ---------- */
-const APP_V='v23j';
+const APP_V='v23k';
 const SPR=[{r:'S+',n:'Schattenkönig',d:100,c:'#ffd36b'},{r:'S∞',n:'Ewiger Monarch',d:365,c:'#ff7ad9'}];
 const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Schattenkönig an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist der Ewige Monarch.'];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -2352,13 +2376,13 @@ const ACH=[
  ['w10','bronze','Türöffner','10 Kämpfe gewinnen','Türöffner',()=>S.wins,10,'Kampf'],
  ['w50','gold','Torbrecher','50 Kämpfe gewinnen','Torbrecher',()=>S.wins,50,'Kampf'],
  ['sd5','silver','Schattenführer','5 Schatten-Soldaten','Schattenführer',()=>(S.shadows||[]).length,5,'Kampf'],
- ['sd20','diamond','Schattenkönig','20 Schatten-Soldaten','Schattenkönig',()=>(S.shadows||[]).length,20,'Kampf'],
+ ['sd20','diamond','Schattenherrscher','20 Schatten-Soldaten','Schattenherrscher',()=>(S.shadows||[]).length,20,'Kampf'],
  ['sdg','gold','Seltene Seele','Einen Gold-Schatten besitzen','Seelensammler',()=>(S.shadows||[]).filter(x=>x.r>=2).length,1,'Kampf'],
  ['sdt','silver','Typenmeister','Alle 5 Schatten-Typen besitzen','Typenmeister',()=>new Set((S.shadows||[]).map(x=>x.t)).size,5,'Kampf'],
  ['wk5','gold','Zielstrebig','5 Wochenziele erfüllen','Zielstrebig',()=>cntOf('weekly'),5,'Kampf']
 ];
 const ACHM={};ACH.forEach(a=>{ACHM[a[0]]=a});
-let achAll=false;
+let achAll=false,achF='all';
 const titleOf=()=>{const a=S.title&&ACHM[S.title];return a&&S.ach&&S.ach[S.title]?a[4]:''};
 function checkAch(){
   if(!S.ach)S.ach={};
@@ -2367,24 +2391,35 @@ function checkAch(){
   fresh.forEach(a=>{S.ach[a[0]]=dayKey()});
   if(!S.title)S.title=fresh[fresh.length-1][0];
   const show=fresh.slice(-4);
-  modal({pic:'rankup',kind:'vio',title:fresh.length>1?'Erfolge freigeschaltet':'Erfolg freigeschaltet',body:show.map(a=>'<div class="ach on" style="text-align:left">'+gico('seal-'+a[1],52)+'<div class="am"><b>'+esc(a[2])+'</b><small>'+esc(a[3])+'</small>'+(a[4]!==a[2]?'<small style="color:var(--warn)">Titel: '+esc(a[4])+'</small>':'')+'</div></div>').join('')+(fresh.length>4?'<p class="dim">und '+(fresh.length-4)+' weitere</p>':'')+'<p class="dim">Wähle deinen Titel im Status-Fenster unter Erfolge.</p>',btn:'Weiter'});
+  modal({pic:'rankup',kind:'vio',title:fresh.length>1?'Erfolge freigeschaltet':'Erfolg freigeschaltet',body:show.map(a=>'<div class="ach on" style="text-align:left">'+achBadge(a,52)+'<div class="am"><b>'+esc(a[2])+'</b><small>'+esc(a[3])+'</small>'+(a[4]!==a[2]?'<small style="color:var(--warn)">Titel: '+esc(a[4])+'</small>':'')+'</div></div>').join('')+(fresh.length>4?'<p class="dim">und '+(fresh.length-4)+' weitere</p>':'')+'<p class="dim">Wähle deinen Titel im Status-Fenster unter Erfolge.</p>',btn:'Weiter'});
   return true;
 }
-function achRow(a){
-  const un=!!(S.ach&&S.ach[a[0]]),v=Math.min(a[6],a[5]()),pct=Math.min(100,v/a[6]*100);
-  return '<div class="ach'+(un?' on':'')+'">'+gico('seal-'+a[1],46)+'<div class="am"><b>'+esc(a[2])+'</b><small>'+esc(a[3])+'</small>'+(un?'':'<div class="bar"><i style="width:'+pct+'%"></i></div>')+'</div>'+
-    (un?'<button type="button" class="btn '+(S.title===a[0]?'ok':'ghost')+' sm" data-act="ach-title" data-id="'+a[0]+'" aria-pressed="'+(S.title===a[0])+'">'+(S.title===a[0]?'Getragen':'Tragen')+'</button>':'<span class="qp">'+(v>=1000?Math.round(v/100)/10+'k':Math.round(v))+' / '+(a[6]>=1000?a[6]/1000+'k':a[6])+'</span>')+'</div>';
+/* v23k: Erfolge als Hex-Badges */
+const ACH_G=['Training','Quests','Fortschritt','Kampf'];
+function achBadge(a,sz,un){
+  const lock=un===false;
+  return '<span class="hexw"><span class="hexb t-'+a[1]+(lock?' lock':'')+'" style="--hs:'+sz+'px"><span class="hxi">'+(lock?'':'<img alt="" loading="lazy" src="img/ach-'+a[0]+'.webp" onerror="this.remove()">')+'<i>'+(lock?'?':esc(a[2].charAt(0)))+'</i></span></span></span>';
+}
+function achTile(a){
+  const un=!!(S.ach&&S.ach[a[0]]);
+  return '<button type="button" class="hxt'+(un?' on':'')+'" data-act="ach-open" data-id="'+a[0]+'" aria-label="'+(un?esc(a[2]):'Gesperrter Erfolg')+'">'+achBadge(a,84,un)+'<span class="hxn">'+(un?esc(a[2]):'?')+'</span>'+(un&&S.title===a[0]?'<span class="hxs">Titel</span>':'')+'</button>';
+}
+function achOpen(id){
+  const a=ACHM[id];if(!a)return;
+  const un=!!(S.ach&&S.ach[id]),v=Math.min(a[6],a[5]()),pct=Math.min(100,v/a[6]*100);
+  const fm=n=>n>=1000?(Math.round(n/100)/10)+'k':Math.round(n);
+  modal({title:un?a[2]:'Noch gesperrt',nobtn:true,body:'<div class="hxbig">'+achBadge(a,150,un)+'</div><p>'+esc(a[3])+'</p>'+
+    (un?'<p class="dim">Freigeschaltet am '+esc(String(S.ach[id]).split('-').reverse().join('.'))+(a[4]?'. Titel: <b style="color:var(--warn)">'+esc(a[4])+'</b>':'')+'</p>':'<div class="bar"><i style="width:'+pct+'%"></i></div><p class="dim">'+fm(v)+' / '+fm(a[6])+'</p>')+
+    '<div class="btnrow">'+(un?'<button class="btn '+(S.title===id?'ghost':'ok')+'" data-act="ach-tm" data-id="'+id+'">'+(S.title===id?'Titel ablegen':'Titel tragen')+'</button>':'')+'<button class="btn ghost" data-act="modal-ok">Schließen</button></div>'});
 }
 function achSection(){
-  const un=ACH.filter(a=>S.ach&&S.ach[a[0]]),lk=ACH.filter(a=>!(S.ach&&S.ach[a[0]]));
-  const next=lk.slice().sort((a,b)=>Math.min(1,b[5]()/b[6])-Math.min(1,a[5]()/a[6])).slice(0,3);
-  let h='<section class="win"><div class="sub"><div><div class="lbl">Erfolge und Titel</div><h2>'+un.length+' / '+ACH.length+'</h2></div><button class="btn ghost sm" data-act="ach-all">'+(achAll?'Weniger':'Alle zeigen')+'</button></div>'+
-    '<p class="dim" style="font-size:13.5px;margin-bottom:6px">'+(titleOf()?'Dein Titel: <b style="color:var(--warn)">'+esc(titleOf())+'</b>. Er steht neben deinem Namen, auch für Freunde.':'Schalte Erfolge frei und trage den passenden Titel.')+'</p>';
-  if(achAll){
-    ['Training','Quests','Fortschritt','Kampf'].forEach(g=>{h+='<div class="lbl" style="margin:12px 0 2px">'+g+'</div>'+ACH.filter(a=>a[7]===g).map(achRow).join('')});
-  }else{
-    h+=(un.length?'<div class="lbl" style="margin:8px 0 2px">Freigeschaltet</div>'+un.slice(-3).reverse().map(achRow).join(''):'')+(next.length?'<div class="lbl" style="margin:12px 0 2px">Als Nächstes</div>'+next.map(achRow).join(''):'');
-  }
+  const un=ACH.filter(a=>S.ach&&S.ach[a[0]]);
+  const isU=a=>S.ach&&S.ach[a[0]]?1:0,list=(achF==='all'?ACH:ACH.filter(a=>a[7]===achF)).slice().sort((a,b)=>isU(b)-isU(a));
+  let h='<section class="win"><div class="sub"><div><div class="lbl">Erfolge und Titel</div><h2>'+un.length+' / '+ACH.length+' freigeschaltet</h2></div></div>'+
+    '<div class="bar ok" style="margin-bottom:8px"><i style="width:'+(un.length/ACH.length*100)+'%"></i></div>'+
+    '<p class="dim" style="font-size:13.5px;margin-bottom:8px">'+(titleOf()?'Dein Titel: <b style="color:var(--warn)">'+esc(titleOf())+'</b>. Er steht neben deinem Namen, auch für Freunde.':'Tippe auf ein Abzeichen für Details. Freigeschaltete kannst du als Titel tragen.')+'</p>'+
+    '<div class="hxf">'+['all'].concat(ACH_G).map(g=>'<button type="button" class="hxc'+(achF===g?' on':'')+'" data-act="ach-f" data-id="'+g+'" aria-pressed="'+(achF===g)+'">'+(g==='all'?'Alle':g)+'</button>').join('')+'</div>'+
+    '<div class="hexg">'+list.map(achTile).join('')+'</div>';
   if(un.length&&S.title)h+='<div class="acts" style="margin-top:10px"><button class="btn ghost sm" data-act="ach-title" data-id="'+S.title+'">Titel ablegen</button></div>';
   return h+'</section>';
 }
@@ -2958,7 +2993,7 @@ function viewProfile(p){
   const me=STATS.reduce((a,[k])=>a+S.stats[k],0),he=STATS.reduce((a,[k])=>a+c.stats[k],0);
   const un=ACH.filter(a=>c.ac.includes(a[0]));
   const top=un.slice().sort((a,b)=>{const x=TIER_ORD.indexOf(a[1]),y=TIER_ORD.indexOf(b[1]);return (x<0?9:x)-(y<0?9:y)||ACH.indexOf(b)-ACH.indexOf(a)}).slice(0,3);
-  const row=a=>'<div class="ach on">'+gico('seal-'+a[1],44)+'<div class="am"><b>'+esc(a[2])+'</b><small>'+esc(a[3])+'</small></div></div>';
+  const row=a=>'<div class="ach on">'+achBadge(a,44)+'<div class="am"><b>'+esc(a[2])+'</b><small>'+esc(a[3])+'</small></div></div>';
   let h='<div class="acts" style="margin-bottom:10px"><button class="btn ghost" data-act="peer-close">Zurück zur Arena</button></div>';
   h+='<section class="win phdr"><div class="ph-top">'+avatarHtml('',c.thumb,c.rank,c.name,c.au)+
     '<div class="hm"><div class="pname'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+'</div><div class="ptitle">'+(c.cls?esc(c.cls)+' · ':'')+esc(c.sp?SPR[c.sp-1].n:TITLES[c.rank])+(c.ti?' · <span class="tt">'+esc(c.ti)+'</span>':'')+'</div></div>'+
@@ -4922,6 +4957,13 @@ document.addEventListener('click',e=>{
     case 'pw-change':pwModal();return;
     case 'pw-save':pwSave();return;
     case 'ach-all':achAll=!achAll;break;
+    case 'ach-open':achOpen(id);return;
+    case 'ach-f':achF=id;break;
+    case 'ach-tm':{
+      if(!S.ach)S.ach={};
+      if(S.title===id)S.title='';else if(S.ach[id]&&ACHM[id])S.title=id;
+      nextModal();save();break;
+    }
     case 'ach-title':{
       if(!S.ach)S.ach={};
       if(S.title===id)S.title='';
@@ -5199,7 +5241,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S∞</b> für lange Serien, nur ab Rang S</li></ul>'});
+  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S∞</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li></ul>'});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
