@@ -1037,10 +1037,10 @@ function pickMark(act,val){document.querySelectorAll('[data-act="'+act+'"]').for
 const EMB_C={E:[50,57.5,.4],D:[49.8,46.6,.36],C:[49.8,57.9,.3],B:[49.9,48.1,.32],A:[49.9,46.2,.3],S:[50.2,46.1,.32]};
 const EMB_L={E:'#9ec5ff',D:'#6ff3d6',C:'#b4e8ff',B:'#ffd36b',A:'#ff7a7a',S:'#e2bcff'};
 function emblem(r,sz,cls){
-  const sp=r==='S+'?1:r==='S∞'?2:0,lab=r;
+  const sp=r==='S+'?1:r==='S★'?2:0,lab=r;
   if(sp)r='S';
-  r=EMB_C[r]?r:'E';const c=EMB_C[r];
-  const lf=sp?c[2]*.78:c[2],el=sp?['#ffe9a8','#ffc2f0'][sp-1]:EMB_L[r];
+  r=EMB_C[r]?r:'E';const c=sp?[[50,47.3,.23],[49.9,44.5,.19]][sp-1]:EMB_C[r];
+  const lf=c[2],el=sp?['#ffe9a8','#ffc2f0'][sp-1]:EMB_L[r];
   const img=sp?'<img alt="" src="img/emblem-'+['Splus','Sinf'][sp-1]+'.webp" onerror="if(this.dataset.f){this.parentNode.classList.add(\'nf\');this.remove()}else{this.dataset.f=1;this.src=\'img/emblem-S.webp\'}">':'<img alt="" src="img/emblem-'+r+'.webp" onerror="this.parentNode.classList.add(\'nf\');this.remove()">';
   return '<span class="emb '+(cls||'')+(sp?' sp sp'+sp:'')+'" style="--sz:'+sz+'px;--cx:'+c[0]+'%;--cy:'+c[1]+'%;--lf:'+lf+';--el:'+el+'">'+img+'<b>'+lab+'</b></span>';
 }
@@ -1070,10 +1070,10 @@ function tierIco(i){const k=shopKey(i);return '<span class="ico tier"><img alt="
 const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer':'schattenlaeufer','Magier':'magier','Eiserner Wächter':'waechter','Assassine':'assassine','Paladin':'paladin','Berserker':'berserker','Schattenmonarch':'monarch'};
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
-/* ---------- v23j: Verborgene Ränge S+ und S∞ ---------- */
+/* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
 const APP_V='v23k';
-const SPR=[{r:'S+',n:'Schattenkönig',d:100,c:'#ffd36b'},{r:'S∞',n:'Ewiger Monarch',d:365,c:'#ff7ad9'}];
-const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Schattenkönig an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist der Ewige Monarch.'];
+const SPR=[{r:'S+',n:'Schattenkönig',d:100,c:'#ffd36b'},{r:'S★',n:'Monster',d:365,c:'#ff7ad9'}];
+const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Schattenkönig an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.'];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
 const rkOf=()=>S.sp>0&&SPR[S.sp-1]?SPR[S.sp-1].r:rankOf(S.level);
 const ttlOf=()=>S.sp>0&&SPR[S.sp-1]?SPR[S.sp-1].n:TITLES[rankOf(S.level)];
@@ -2361,7 +2361,7 @@ const ACH=[
  ['q100','silver','Quest-Läufer','100 Quests abschließen','Quest-Läufer',()=>S.totalDone,100,'Quests'],
  ['q500','gold','Quest-Meister','500 Quests abschließen','Quest-Meister',()=>S.totalDone,500,'Quests'],
  ['sp1','diamond','Schattenkönig','Rang S+: 100 Tage Serie als Rang S','Schattenkönig',()=>(S.spSeen||0)>=1?1:0,1,'Quests'],
- ['sp2','diamond','Ewiger Monarch','Rang S∞: 365 Tage Serie als Rang S','Ewiger Monarch',()=>(S.spSeen||0)>=2?1:0,1,'Quests'],
+ ['sp2','diamond','Monster','Rang S★: 365 Tage Serie als Rang S','Monster',()=>(S.spSeen||0)>=2?1:0,1,'Quests'],
  ['st7','bronze','Wochenwächter','7 Tage Serie','Wochenwächter',()=>S.bestStreak,7,'Quests'],
  ['st30','silver','Monatsmeister','30 Tage Serie','Monatsmeister',()=>S.bestStreak,30,'Quests'],
  ['st100','gold','Unbeugsam','100 Tage Serie','Der Unbeugsame',()=>S.bestStreak,100,'Quests'],
@@ -5241,7 +5241,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S∞</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li></ul>'});
+  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li></ul>'});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
