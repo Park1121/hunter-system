@@ -590,6 +590,47 @@ input[type=time]{color-scheme:dark;font-size:16px}
 @media (prefers-reduced-motion:reduce){.flash{animation:none;outline:2px solid var(--glow)}}
 [id=pen-zone],[id=gymc],[id=stat-pts],[id=doors],[id=duel-in]{scroll-margin-top:10px}
 .chart{width:100%;height:auto;display:block;margin-top:8px}
+.bdyg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.bdyk{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:4px}
+.bdyk .num{font-size:40px}
+.bdyt{font-size:13.5px;padding:4px 11px;border-radius:999px;border:1px solid;font-weight:600;white-space:nowrap}
+.bdyt.ok{color:#2fd39a;border-color:#2fd39a}.bdyt.low{color:#4aa3ff;border-color:#4aa3ff}.bdyt.mid{color:#e8a33a;border-color:#e8a33a}.bdyt.high,.bdyt.warn{color:#ff7a7a;border-color:#ff7a7a}
+.bdys{position:relative;height:10px;border-radius:6px;margin-top:10px;background:linear-gradient(90deg,#4aa3ff 0 14%,#2fd39a 14% 40%,#e8a33a 40% 60%,#ff7a7a 60%)}
+.bdys i{position:absolute;top:-4px;width:4px;height:18px;margin-left:-2px;border-radius:2px;background:#fff;box-shadow:0 0 6px #fff}
+.bdyl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--dim);margin-top:4px}
+.bdyq{display:flex;gap:8px;margin-top:6px}
+.bdyq input{flex:1;min-width:0}
+#bdy-sec .item .nm small{display:block;margin-top:2px;font-weight:400}
+#bdy-sec .item .rv small{margin-left:4px}
+#bdy-sec .item .rv{white-space:nowrap}
+
+.mmf{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mmcap{text-align:center;font-family:var(--f-d);font-size:15px;letter-spacing:.06em;color:var(--dim);margin-bottom:2px}
+.mmap{display:block;width:100%;height:auto;overflow:visible}
+.mmap .mbi{pointer-events:none}
+.mu{--mc:#232d63;cursor:pointer;outline:none}
+.mu path{fill:var(--mc);stroke:#0a1030;stroke-width:2;stroke-linejoin:round;transition:fill .2s}
+.mu.l1{--mc:#e8a33a}.mu.l2{--mc:#2fd39a}.mu.l3{--mc:#ffd36b}
+.mu.l3 path{filter:drop-shadow(0 0 6px #ffd36b)}
+.mu.sel path{stroke:#fff;stroke-width:4}
+.mu:focus-visible path{stroke:#5ad2ff;stroke-width:4}
+.mu path{fill-opacity:.55;mix-blend-mode:screen}
+.mu.l0 path{fill-opacity:0;stroke:#ffffff26;stroke-width:1.5}
+.mu.l0:hover path{fill-opacity:.12}
+.mmlg{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 12px;margin-top:10px;font-size:12.5px;color:var(--dim)}
+.mmlg span::before{content:'';display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:#232d63;border:1px solid #3a4a8a}
+.mmlg .l1::before{background:#e8a33a;border-color:#e8a33a}.mmlg .l2::before{background:#2fd39a;border-color:#2fd39a}.mmlg .l3::before{background:#ffd36b;border-color:#ffd36b}
+.mmw,.mms{display:flex;flex-wrap:wrap;gap:6px}
+.mmc{font-family:var(--f-b);font-size:14px;padding:6px 11px;border-radius:999px;background:#0b1233;border:1px solid var(--line2);color:var(--fg);cursor:pointer}
+.mmc.l1{border-color:#e8a33a99}
+.mmb{font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid #3a4a8a;color:var(--dim);white-space:nowrap}
+.mmb.l1{border-color:#e8a33a;color:#e8a33a}.mmb.l2{border-color:#2fd39a;color:#2fd39a}.mmb.l3{border-color:#ffd36b;color:#ffd36b}
+.mml{display:grid;gap:6px;margin:6px 0 4px}
+.mml>div{display:grid;grid-template-columns:1fr auto;gap:0 10px;padding:7px 10px;background:#0a1030;border:1px solid var(--line);border-radius:10px;font-size:14px}
+.mml>div small{grid-column:1 / -1;color:var(--dim);font-size:12px}
+.mml>div span small{display:inline;color:var(--dim)}
+.mms .btn{flex:1 1 100%;text-align:left}
+
 .hexw{display:inline-block;flex:none}
 .hexb{--hs:84px;--tc:linear-gradient(160deg,#f0a868,#8a4a1c);--tc2:#f0a868;position:relative;display:block;width:var(--hs);height:calc(var(--hs)*1.1547);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--tc)}
 .hexb.t-silver{--tc:linear-gradient(160deg,#f2f5ff,#7a86a8);--tc2:#cfd8ff}
@@ -1071,7 +1112,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v23m';
+const APP_V='v23p';
 const SPR=[{r:'S+',n:'Schattenkönig',d:100,c:'#ffd36b'},{r:'S★',n:'Monster',d:365,c:'#ff7ad9'}];
 const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Schattenkönig an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.'];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -2010,21 +2051,107 @@ function buildPlan(P,rec){
   });
 }
 
+/* ---------- v23o: Körperdaten (nur auf diesem Gerät) ---------- */
+const BODY_KEY='hunter-body-v1';
+let BODY={sex:'',born:0,h:0,w:0,waist:0,act:0,view:'',log:[]};
+try{const o=JSON.parse(localStorage.getItem(BODY_KEY)||'null');if(o&&typeof o==='object')BODY=Object.assign(BODY,o)}catch(e){}
+if(!Array.isArray(BODY.log))BODY.log=[];
+function saveBody(){try{localStorage.setItem(BODY_KEY,JSON.stringify(BODY))}catch(e){}}
+function wipeBody(){BODY={sex:'',born:0,h:0,w:0,waist:0,act:0,view:'',log:[]};try{localStorage.removeItem(BODY_KEY)}catch(e){}}
+const nz=v=>{const n=Number(String(v).replace(',','.'));return isFinite(n)&&n>0?n:0};
+const bodyOk=b=>(!b.h||(b.h>=120&&b.h<=230))&&(!b.w||(b.w>=30&&b.w<=300))&&(!b.born||(b.born>=1915&&b.born<=new Date().getFullYear()-8))&&(!b.waist||(b.waist>=40&&b.waist<=200));
+const bView=()=>BODY.view||(BODY.sex==='f'?'f':'m');
+const bAge=()=>BODY.born?new Date().getFullYear()-BODY.born:0;
+const fmtK=(v,d)=>String(Math.round(v*(d?10:1))/(d?10:1)).replace('.',',');
+function logWeight(w){
+  const d=dayKey(),L=BODY.log;
+  if(L.length&&L[L.length-1].d===d)L[L.length-1].w=w;else L.push({d,w});
+  if(L.length>300)BODY.log=L.slice(-300);
+}
+function applyBody(b){
+  const old=BODY.sex;
+  BODY.sex=b.sex||'';BODY.born=b.born||0;BODY.h=b.h||0;BODY.w=b.w||0;BODY.waist=b.waist||0;BODY.act=b.act||0;
+  if(BODY.sex&&(!BODY.view||BODY.sex!==old))BODY.view=BODY.sex==='f'?'f':'m';
+  if(BODY.w)logWeight(BODY.w);
+  saveBody();
+}
+function bodyCalc(){
+  const h=BODY.h,w=BODY.w;if(!(h&&w))return null;
+  const m=h/100,bmi=w/(m*m),age=bAge(),r={bmi,lo:18.5*m*m,hi:24.9*m*m,age,cat:'',tone:'',whtr:BODY.waist?BODY.waist/h:0};
+  if(age>=18||!age){
+    if(bmi<16){r.cat='Starkes Untergewicht';r.tone='warn'}
+    else if(bmi<18.5){r.cat='Untergewicht';r.tone='low'}
+    else if(bmi<25){r.cat='Normalgewicht';r.tone='ok'}
+    else if(bmi<30){r.cat='Übergewicht';r.tone='mid'}
+    else if(bmi<35){r.cat='Adipositas Grad 1';r.tone='high'}
+    else if(bmi<40){r.cat='Adipositas Grad 2';r.tone='high'}
+    else{r.cat='Adipositas Grad 3';r.tone='warn'}
+  }
+  if(age){
+    const s=BODY.sex==='m'?5:BODY.sex==='f'?-161:-78;
+    r.bmr=10*w+6.25*h-5*age+s;
+    r.tdee=r.bmr*[1.2,1.2,1.375,1.55,1.725][BODY.act||1];
+  }
+  return r;
+}
+function bodyFields(b,pre){
+  const sx=[['m','Mann'],['f','Frau'],['d','Divers']];
+  const ac=[[1,'Überwiegend sitzend','Büro, Schule, wenig Bewegung'],[2,'Leicht aktiv','Viel Stehen oder Gehen'],[3,'Aktiv','Regelmäßig auf den Beinen'],[4,'Körperlich anstrengend','Handwerk, Pflege, tägliche Belastung']];
+  const inp=(k,l,v,ph,st,mx)=>'<label class="f">'+l+'<input type="number" inputmode="decimal" id="'+pre+'-'+k+'" value="'+(v?esc(String(v)):'')+'" placeholder="'+ph+'" step="'+st+'" min="0" max="'+mx+'"></label>';
+  return '<div><span class="lbl">Geschlecht</span><div class="pick" style="margin-top:6px">'+sx.map(x=>obChip(pre+'-sex',x[0],b.sex===x[0],x[1])).join('')+'</div></div>'+
+    '<div class="bdyg">'+inp('born','Geburtsjahr',b.born,'z. B. 1995','1',2030)+inp('h','Größe in cm',b.h,'z. B. 178','1',230)+inp('w','Gewicht in kg',b.w,'z. B. 75,5','0.1',300)+inp('waist','Taille in cm (optional)',b.waist,'z. B. 82','1',200)+'</div>'+
+    '<div class="ob-grp"><span class="lbl">Wie aktiv bist du im Alltag?</span><div class="oc-list">'+ac.map(a=>obCard(pre+'-act',a[0],b.act===a[0],'',a[1],a[2],'sm')).join('')+'</div></div>';
+}
+function bodyRead(pre,b){
+  ['born','h','w','waist'].forEach(k=>{const e=document.getElementById(pre+'-'+k);if(e)b[k]=nz(e.value)});
+}
+let bodyForm=false,bf=null,bdArm=false;
+function bodySection(){
+  const c=bodyCalc();
+  let h='<section class="win" id="bdy-sec"><div class="sub"><div><div class="lbl">Gesundheit</div><h2>Dein Körper</h2></div></div>';
+  if(bodyForm){
+    return h+'<p class="dim" style="font-size:13px;margin:0 0 10px">Die Angaben bleiben auf diesem Gerät. Sie werden nicht online gespeichert und nicht an Freunde gezeigt.</p>'+bodyFields(bf,'bf')+
+      (bodyOk(bf)?'':'<p class="ob-note" style="color:var(--bad)">Bitte prüfe die Werte: Größe 120 bis 230 cm, Gewicht 30 bis 300 kg, Taille 40 bis 200 cm.</p>')+
+      '<div class="acts" style="margin-top:14px"><button class="btn ok" data-act="body-save">Speichern</button><button class="btn ghost" data-act="body-cancel">Abbrechen</button></div></section>';
+  }
+  if(!c)return h+'<p class="dim" style="margin-bottom:10px">Trage Größe und Gewicht ein, dann zeigt dir das System BMI, Normbereich und Grundumsatz. Die Angaben bleiben auf diesem Gerät.</p><div class="acts"><button class="btn" data-act="body-edit">Angaben eintragen</button></div></section>';
+  const pos=Math.max(0,Math.min(100,(c.bmi-15)/25*100));
+  h+='<div class="bdyk"><div><span class="lbl">BMI</span><span class="num">'+fmtK(c.bmi,1)+'</span></div>'+(c.cat?'<span class="bdyt '+c.tone+'">'+c.cat+'</span>':'')+'</div>'+
+    '<div class="bdys" role="img" aria-label="BMI-Skala"><i style="left:'+pos+'%"></i></div>'+
+    '<div class="bdyl"><span>15</span><span>18,5</span><span>25</span><span>30</span><span>40</span></div>'+
+    '<div class="kv" style="margin:12px 0"><div><span class="lbl">Gewicht</span><span class="num">'+fmtK(BODY.w,1)+'<small> kg</small></span></div><div><span class="lbl">Größe</span><span class="num">'+BODY.h+'<small> cm</small></span></div><div><span class="lbl">Normbereich</span><span class="num" style="font-size:20px">'+Math.round(c.lo)+' bis '+Math.round(c.hi)+'<small> kg</small></span></div></div>';
+  if(c.whtr){
+    const t=c.whtr<.4?'niedrig':c.whtr<.5?'günstig':c.whtr<.6?'erhöht':'deutlich erhöht';
+    h+='<div class="item"><span class="nm">Taille zu Größe<small class="dim">Unter 0,5 gilt als günstig. Der Wert sagt über Bauchfett oft mehr als der BMI.</small></span><span class="num rv">'+String(Math.round(c.whtr*100)/100).replace('.',',')+'<small>'+t+'</small></span></div>';
+  }
+  if(c.bmr)h+='<div class="item"><span class="nm">Grundumsatz<small class="dim">Energie, die dein Körper in Ruhe braucht. Richtwert nach Mifflin-St Jeor.</small></span><span class="num rv">'+Math.round(c.bmr/10)*10+'<small>kcal</small></span></div>'+
+    '<div class="item"><span class="nm">Tagesbedarf<small class="dim">Mit deiner Alltagsaktivität, ohne Training.</small></span><span class="num rv">'+Math.round(c.tdee/10)*10+'<small>kcal</small></span></div>';
+  if(c.bmi<17||c.bmi>=35)h+='<p class="ob-note" style="color:var(--warn)">Dein Wert liegt deutlich außerhalb des Normbereichs. Wenn du dir Sorgen machst, sprich mit einer Ärztin oder einem Arzt.</p>';
+  h+='<p class="dim" style="font-size:12.5px;margin:10px 0">'+(c.age&&c.age<18?'Für unter 18-Jährige gelten Altersperzentile, deshalb gibt es hier keine Einstufung. Eine Ärztin oder ein Arzt kann das einordnen. ':'Der BMI ist ein grober Richtwert für Erwachsene. Er unterscheidet nicht zwischen Muskeln und Fett. ')+'Das ersetzt keine ärztliche Beratung.</p>';
+  const L=BODY.log;
+  h+='<div class="lbl" style="margin-top:12px">Gewicht eintragen</div><div class="bdyq"><input type="number" inputmode="decimal" step="0.1" id="bw-quick" placeholder="'+fmtK(BODY.w,1)+' kg" aria-label="Neues Gewicht in kg"><button class="btn sm" data-act="body-w">Eintragen</button></div>';
+  if(L.length>1){const d=Math.round((L[L.length-1].w-L[0].w)*10)/10;h+='<div class="item" style="margin-top:8px"><span class="nm">Verlauf<small class="dim">Seit '+muD(L[0].d)+' ('+L.length+' Einträge)</small></span>'+spark(L.map(x=>({sc:x.w})))+'<span class="num rv">'+(d>0?'+':d<0?'−':'')+fmtK(Math.abs(d),1)+'<small>kg</small></span></div>'}
+  return h+'<div class="acts" style="margin-top:12px"><button class="btn ghost" data-act="body-edit">Angaben ändern</button><button class="btn ghost" data-act="body-del">'+(bdArm?'Wirklich löschen?':'Körperdaten löschen')+'</button></div></section>';
+}
+const obBodyStep=()=>obHead('Dein Körper','Für eine fachliche Einschätzung mit BMI und Grundumsatz. Alles ist freiwillig. Die Angaben bleiben nur auf diesem Gerät.')+bodyFields(ob.body,'ob')+(ob.err&&!bodyOk(ob.body)?'<p class="ob-note" style="color:var(--bad)">Bitte prüfe die Werte: Größe 120 bis 230 cm, Gewicht 30 bis 300 kg, Geburtsjahr ab 1915, Taille 40 bis 200 cm.</p>':'')+
+  '<p class="ob-note">Die Taille misst du auf Höhe des Bauchnabels. Sie sagt oft mehr über die Gesundheit als der BMI. Mit dem Geschlecht wählt das System auch die passende Körperansicht für die Muskelkarte. Du kannst sie später jederzeit ändern.</p>';
+
 /* Fragebogen: Ablauf */
 let ob=null,obLast=-1;
 function obNew(redo){
   const p=S.prof||{};
   return {redo:!!redo,step:redo?2:0,name:S.started?S.name:'',file:null,cls:S.cls||'',goals:(p.goals||[]).slice(),place:p.place||'home',equip:(p.equip||[]).slice(),
-    level:p.level||'anf',time:p.time||30,days:p.days||3,role:p.role||'',limits:(p.limits||[]).slice(),test:{}};
+    level:p.level||'anf',time:p.time||30,days:p.days||3,role:p.role||'',limits:(p.limits||[]).slice(),test:{},bodySkip:false,body:{sex:BODY.sex,born:BODY.born,h:BODY.h,w:BODY.w,waist:BODY.waist,act:BODY.act}};
 }
 const obProf=()=>({goals:ob.goals.slice(),place:ob.place,equip:ob.place==='gym'?[]:ob.equip.slice(),level:ob.level,time:ob.time,days:ob.days,role:ob.role,limits:ob.limits.slice(),at:dayKey()});
 function obCollect(){
   if(!ob)return;
   const n=document.getElementById('ob-name');if(n)ob.name=n.value;
+  bodyRead('ob',ob.body);
   const f=document.getElementById('ob-photo');if(f&&f.files&&f.files[0])ob.file=f.files[0];
   document.querySelectorAll('#onb [data-ot]').forEach(i=>{const v=String(i.value).trim();if(v)ob.test[i.dataset.ot]=v;else delete ob.test[i.dataset.ot]});
 }
-const obValid=()=>!(ob.step===2&&!ob.goals.length);
+const obValid=()=>!((ob.step===2&&!bodyOk(ob.body))||(ob.step===3&&!ob.goals.length));
 const tog=(a,v)=>{const i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v)};
 const obChip=(act,id,on,t)=>'<button type="button" aria-pressed="'+!!on+'" class="'+(on?'on':'')+'" data-act="'+act+'" data-id="'+id+'">'+t+'</button>';
 const obCard=(act,id,on,icon,t,d,cls)=>'<button type="button" aria-pressed="'+!!on+'" class="oc'+(on?' on':'')+(cls?' '+cls:'')+'" data-act="'+act+'" data-id="'+id+'">'+(icon||'')+'<span><b>'+t+'</b>'+(d?'<small>'+d+'</small>':'')+'</span></button>';
@@ -2048,19 +2175,20 @@ function obStep(){
     '<label class="f">Dein Name<input type="text" id="ob-name" maxlength="30" value="'+esc(ob.name)+'" placeholder="Spieler" autocomplete="nickname"></label>'+
     '<label class="f" style="margin-top:12px">Foto für deinen Charakter (optional)<input type="file" id="ob-photo" accept="image/*" class="ob-file">'+(ob.file?'<small style="color:var(--ok)">Gewählt: '+esc(ob.file.name)+'</small>':'')+'</label>'+
     '<div class="ob-grp"><span class="lbl">Klasse (optional)</span><div class="pick cls">'+CLASSES.filter(c=>c[1]<=1).map(c=>'<button type="button" class="cl'+(ob.cls===c[0]?' on':'')+'" data-act="ob-cls" data-id="'+c[0]+'" aria-pressed="'+(ob.cls===c[0])+'">'+clsIco(c[0])+'<span>'+c[0]+'</span></button>').join('')+'</div>'+(ob.cls?clsInfo(ob.cls):'<div class="dim clsi">Jede Klasse gibt kleine Boni und eine Spezialfähigkeit im Dungeon. Du kannst sie später ändern.</div>')+'</div>';
-  if(s===2)return obHead('Was willst du erreichen?','Wähle bis zu drei Ziele. Das System gewichtet deine Quests danach.')+
+  if(s===2)return obBodyStep();
+  if(s===3)return obHead('Was willst du erreichen?','Wähle bis zu drei Ziele. Das System gewichtet deine Quests danach.')+
     '<div class="oc-list">'+GOALS.map(g=>obCard('ob-goal',g.k,ob.goals.includes(g.k),ico2(g.ic,42),g.n,g.d)).join('')+'</div>';
-  if(s===3)return obHead('Wo trainierst du?','Daran richtet sich die Auswahl der Übungen.')+
+  if(s===4)return obHead('Wo trainierst du?','Daran richtet sich die Auswahl der Übungen.')+
     '<div class="oc-list">'+PLACES.map(p=>obCard('ob-place',p[0],ob.place===p[0],ico2(p[3],42),p[1],p[2])).join('')+'</div>'+
     (ob.place!=='gym'?'<div class="ob-grp"><span class="lbl">Was hast du dabei?</span><div class="pick">'+EQUIP.map(e=>obChip('ob-eq',e[0],ob.equip.includes(e[0]),e[1])).join('')+'</div><p class="ob-note">Nur ankreuzen, was du wirklich hast. Ohne Klimmzugstange plant das System keine Klimmzüge.</p></div>':'');
-  if(s===4)return obHead('Deine Erfahrung','Das bestimmt, wie hoch das System die Tagesziele ansetzt.')+
+  if(s===5)return obHead('Deine Erfahrung','Das bestimmt, wie hoch das System die Tagesziele ansetzt.')+
     '<div class="oc-list">'+LEVELS.map(l=>obCard('ob-lvl',l[0],ob.level===l[0],'',l[1],l[2])).join('')+'</div>'+
     '<div class="ob-grp"><span class="lbl">Zeit pro Tag</span><div class="pick">'+TIMES.map(t=>obChip('ob-time',t[0],ob.time===t[0],t[1])).join('')+'</div><p class="ob-note">Je mehr Zeit, desto mehr Quests und desto höher die Tagesziele.</p></div>'+
     '<div class="ob-grp"><span class="lbl">Trainingstage pro Woche</span><div class="pick">'+[2,3,4,5,6].map(d=>obChip('ob-days',d,ob.days===d,String(d))).join('')+'</div><p class="ob-note">Das System nutzt das später für deinen Trainingsplan.</p></div>';
-  if(s===5)return obHead('Dein Alltag','Damit das System Lern- und Fokusquests passend einplant.')+
+  if(s===6)return obHead('Dein Alltag','Damit das System Lern- und Fokusquests passend einplant.')+
     '<div class="oc-list two">'+ROLES.map(r=>obCard('ob-role',r[0],ob.role===r[0],'',r[1],'','sm')).join('')+'</div>'+
     '<div class="ob-grp"><span class="lbl">Gibt es Einschränkungen?</span><div class="pick">'+obChip('ob-lim','none',!ob.limits.length,'Keine')+LIMITS.map(l=>obChip('ob-lim',l[0],ob.limits.includes(l[0]),l[1])).join('')+'</div><p class="ob-note">Das System lässt dann passende Übungen weg oder tauscht sie aus.</p><p class="ob-note">'+HEALTH+'</p></div>';
-  if(s===6){
+  if(s===7){
     const keys=REC.filter(r=>!r.bar||ob.place==='gym'||ob.equip.includes('bar'));
     return obHead('Max-Test','Wie viele schaffst du? Mit deinen Werten passen die Quests besser zu dir.')+
       '<p class="ob-note" style="margin:-6px 0 12px">Nur Wiederholungen und Zeit, keine Gewichte. Teste jetzt oder überspringe den Schritt. Du kannst den Test jederzeit im Status nachholen.</p>'+
@@ -2075,8 +2203,9 @@ function obStep(){
 function obFoot(){
   const s=ob.step,bk='<button type="button" class="btn ghost" data-act="ob-back">'+(ob.redo&&s<=2?'Abbrechen':'Zurück')+'</button>';
   if(s===0)return '<button type="button" class="btn" data-act="ob-next">Los geht\'s</button>';
-  if(s===6)return bk+'<button type="button" class="btn ghost" data-act="ob-skip">Überspringen</button><button type="button" class="btn" data-act="ob-next">Weiter</button>';
-  if(s===7)return bk+'<button type="button" class="btn ok" data-act="ob-next">'+(ob.redo?'Quests übernehmen':'Hunter starten')+'</button>';
+  if(s===2)return bk+'<button type="button" class="btn ghost" data-act="ob-bskip">Überspringen</button><button type="button" class="btn" data-act="ob-next">Weiter</button>';
+  if(s===7)return bk+'<button type="button" class="btn ghost" data-act="ob-skip">Überspringen</button><button type="button" class="btn" data-act="ob-next">Weiter</button>';
+  if(s===8)return bk+'<button type="button" class="btn ok" data-act="ob-next">'+(ob.redo?'Quests übernehmen':'Hunter starten')+'</button>';
   return bk+'<button type="button" class="btn"'+(obValid()?'':' disabled')+' data-act="ob-next">Weiter</button>';
 }
 function obRender(){
@@ -2084,7 +2213,7 @@ function obRender(){
   if(!ob){if(el)el.remove();obLast=-1;return}
   const old=document.getElementById('ob-body'),keep=old&&obLast===ob.step?old.scrollTop:0;
   if(!el){el=document.createElement('div');el.id='onb';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Fragebogen');document.body.appendChild(el)}
-  el.innerHTML='<div class="ob-top"><div class="ob-brand"><span>Hunter System</span><span>'+(ob.step+1)+' / 8</span></div><div class="ob-bar"><i style="width:'+((ob.step+1)/8*100)+'%"></i></div></div>'+
+  el.innerHTML='<div class="ob-top"><div class="ob-brand"><span>Hunter System</span><span>'+(ob.step+1)+' / 9</span></div><div class="ob-bar"><i style="width:'+((ob.step+1)/9*100)+'%"></i></div></div>'+
     '<div class="ob-body" id="ob-body"><div class="ob-in">'+obStep()+'</div></div><div class="ob-foot"><div class="ob-in">'+obFoot()+'</div></div>';
   const b=document.getElementById('ob-body');b.scrollTop=keep;obLast=ob.step;
 }
@@ -2092,6 +2221,7 @@ function obFinish(){
   obCollect();
   const P=obProf(),redo=ob.redo,file=ob.file;
   Object.keys(ob.test).forEach(k=>setRecord(k,ob.test[k]));
+  if(!ob.bodySkip&&(ob.body.sex||ob.body.h||ob.body.w||ob.body.born))applyBody(ob.body);
   S.prof=P;S.onbSkip=true;S.growAt=dayKey();
   const qs=buildPlan(P,S.pr);
   if(redo)S.quests=qs.concat(S.quests.filter(q=>q.type!=='daily'));
@@ -2690,9 +2820,95 @@ function viewGoals(){
   if(!G.length&&!gForm)h='<section class="win"><div class="empty">Setze dir ein Ziel mit Zahlen: Körpergewicht, Bankdrücken, 5 km Zeit. Du trägst ab und zu deinen Wert ein und siehst, wie nah du bist.</div></section>'+h;
   return h;
 }
+/* ---------- v23n: Muskelkarte ---------- */
+const MU={schulter:'Schultern',brust:'Brust',bizeps:'Bizeps',unterarm:'Unterarme',bauch:'Bauch',seite:'Seitliche Bauchmuskeln',quad:'Oberschenkel vorne',trap:'Nacken und Trapez',lat:'Oberer Rücken',uruecken:'Unterer Rücken',trizeps:'Trizeps',gesaess:'Gesäß',hamstring:'Oberschenkel hinten',wade:'Waden'};
+const MUX={};
+[
+ 'bankdruecken,kh_bankdruecken,brustpresse|brust:1,trizeps:.5,schulter:.5','schraegbank|brust:1,schulter:.6,trizeps:.5','fliegende,butterfly|brust:1,schulter:.3',
+ 'liegestuetze,knie_liegestuetze|brust:1,trizeps:.5,schulter:.5,bauch:.3','dips|trizeps:1,brust:.8,schulter:.5','band_brust|brust:1,trizeps:.4',
+ 'klimmzuege|lat:1,bizeps:.6,trap:.4,unterarm:.4','latzug,band_latzug|lat:1,bizeps:.5','rudern_lh|lat:.8,trap:.7,uruecken:.5,bizeps:.4','rudern_kh,rudern_kabel,band_rudern|lat:.8,trap:.6,bizeps:.4',
+ 'kreuzheben|uruecken:1,gesaess:.8,hamstring:.8,trap:.6,unterarm:.4,quad:.4','australian|lat:.8,trap:.6,bizeps:.5','superman|uruecken:1,gesaess:.5','shrugs|trap:1,unterarm:.3',
+ 'kniebeuge_lh|quad:1,gesaess:.8,uruecken:.4,bauch:.3','kniebeuge,goblet|quad:1,gesaess:.6,bauch:.3','beinpresse|quad:1,gesaess:.6','ausfallschritte,ausfall_kh|quad:1,gesaess:.7,hamstring:.3','bulgarian|quad:1,gesaess:.8',
+ 'rdl,rdl_kh|hamstring:1,gesaess:.8,uruecken:.6','beinbeuger|hamstring:1,wade:.3','beinstrecker,wandsitzen|quad:1','hip_thrust|gesaess:1,hamstring:.5','glute_bridge|gesaess:1,hamstring:.4','wadenheben|wade:1','step_up|quad:.9,gesaess:.8',
+ 'schulter_kh,schulter_lh,schulterpresse,band_schulter|schulter:1,trizeps:.5,trap:.3','seitheben,band_seitheben|schulter:1','reverse_fly|schulter:.8,trap:.5','face_pull|schulter:.7,trap:.6','pike|schulter:1,trizeps:.5',
+ 'bizeps_kh,hammer,curl_lh,kabel_curl,band_curl|bizeps:1,unterarm:.5','chin_ups|bizeps:1,lat:.8','trizeps_druecken,trizeps_kh,band_trizeps|trizeps:1','bankdips|trizeps:1,schulter:.3','enge_ls|trizeps:1,brust:.6,schulter:.4',
+ 'plank|bauch:1,seite:.6,uruecken:.4,schulter:.3','seitstuetz|seite:1,bauch:.4','crunches,situps,beinheben,deadbug,hollow|bauch:1','knieheben|bauch:1,unterarm:.4','russian|seite:1,bauch:.7','mountain|bauch:.8,schulter:.4,quad:.4','kabel_crunch|bauch:1,seite:.4',
+ 'laufen,intervalle,laufband|quad:.6,wade:.7,hamstring:.4,gesaess:.4','rudergeraet|lat:.5,quad:.5,uruecken:.3,bizeps:.3','crosstrainer|quad:.5,gesaess:.4,wade:.4','radfahren|quad:.7,wade:.4,gesaess:.3','seilspringen|wade:1,quad:.4',
+ 'burpees|quad:.5,brust:.4,schulter:.4,bauch:.4','hampel|wade:.4,schulter:.3','schwimmen|lat:.7,schulter:.6,trizeps:.4,brust:.3','gehen|wade:.4,quad:.3,gesaess:.3','treppen|quad:.6,gesaess:.6,wade:.5'
+].forEach(l=>{const [ids,sp]=l.split('|');ids.split(',').forEach(i=>{MUX[i]=sp})});
+const MUC={brust:'brust:1,trizeps:.4',ruecken:'lat:1,bizeps:.4',beine:'quad:1,gesaess:.6',schultern:'schulter:1',arme:'bizeps:1,trizeps:.6',rumpf:'bauch:1',ausdauer:'quad:.5,wade:.5',beweglichkeit:''};
+function muW(e){
+  const s=e?(MUX[e.id]!=null?MUX[e.id]:MUC[e.c]):'',o={};
+  if(s)s.split(',').forEach(p=>{const q=p.split(':');o[q[0]]=+q[1]});
+  return o;
+}
+let mPer='w',mSel='';
+function muStats(){
+  const from=mPer==='w'?weekStart():addDays(dayKey(),-27),pts={},det={};
+  (S.tlog||[]).forEach(t=>{
+    if(!t.ex||t.d<from)return;
+    t.ex.forEach(x=>{
+      const e=exOf(x[0]);if(!e)return;
+      const w=muW(e),n=(e.m==='min'||e.m==='km')?1:(x[1]||[]).length;if(!n)return;
+      Object.keys(w).forEach(k=>{
+        pts[k]=(pts[k]||0)+n*w[k];
+        const d=det[k]||(det[k]={}),r=d[e.id]||(d[e.id]={e,n:0,last:'',pw:w[k]});
+        r.n+=n;if(t.d>r.last)r.last=t.d;
+      });
+    });
+  });
+  return {pts,det};
+}
+const muAvg=p=>mPer==='w'?p:p/4;
+const muLv=p=>{const v=muAvg(p||0);return v<.5?0:v<4?1:v<10?2:3};
+const MU_LV=['Nicht trainiert','Wenig','Gut','Stark'];
+const MU_VB=[560,1022];
+const MU_P={"m":{"front":[["quad","M196.0 448.0Q203.0 427.0 227.5 437.5Q252.0 448.0 261.8 469.0Q271.6 490.0 267.4 525.0Q263.2 560.0 257.6 588.0Q252.0 616.0 238.0 624.8Q224.0 633.5 208.2 628.2Q192.5 623.0 183.1 598.5Q173.6 574.0 174.3 546.0Q175.0 518.0 182.0 493.5Q189.0 469.0 196.0 448.0Z","M361.2 448.0Q354.2 427.0 329.7 437.5Q305.2 448.0 295.4 469.0Q285.6 490.0 289.8 525.0Q294.0 560.0 299.6 588.0Q305.2 616.0 319.2 624.8Q333.2 633.5 348.9 628.2Q364.7 623.0 374.1 598.5Q383.6 574.0 382.9 546.0Q382.2 518.0 375.2 493.5Q368.2 469.0 361.2 448.0Z"],["wade","M178.5 665.0Q192.5 647.5 217.0 647.5Q241.5 647.5 239.0 677.2Q236.6 707.0 228.6 745.5Q220.5 784.0 211.8 833.0Q203.0 882.0 192.5 887.2Q182.0 892.5 175.7 859.2Q169.4 826.0 163.4 780.5Q157.5 735.0 161.0 708.8Q164.5 682.5 178.5 665.0Z","M378.7 665.0Q364.7 647.5 340.2 647.5Q315.7 647.5 318.1 677.2Q320.6 707.0 328.6 745.5Q336.7 784.0 345.4 833.0Q354.2 882.0 364.7 887.2Q375.2 892.5 381.5 859.2Q387.8 826.0 393.8 780.5Q399.7 735.0 396.2 708.8Q392.7 682.5 378.7 665.0Z"],["seite","M207.2 301.0Q208.6 266.0 223.3 268.8Q238.0 271.6 237.3 293.3Q236.6 315.0 240.1 339.5Q243.6 364.0 251.3 386.4Q259.0 408.8 246.8 406.7Q234.5 404.6 220.5 402.5Q206.5 400.4 206.1 368.2Q205.8 336.0 207.2 301.0Z","M350.0 301.0Q348.6 266.0 333.9 268.8Q319.2 271.6 319.9 293.3Q320.6 315.0 317.1 339.5Q313.6 364.0 305.9 386.4Q298.2 408.8 310.4 406.7Q322.7 404.6 336.7 402.5Q350.7 400.4 351.0 368.2Q351.4 336.0 350.0 301.0Z"],["brust","M199.5 203.7Q204.4 183.4 221.2 180.9Q238.0 178.5 258.3 180.9Q278.6 183.4 278.6 221.9Q278.6 260.4 265.3 263.9Q252.0 267.4 238.0 263.9Q224.0 260.4 214.2 250.9Q204.4 241.5 199.5 232.8Q194.6 224.0 199.5 203.7Z","M357.7 203.7Q352.8 183.4 336.0 180.9Q319.2 178.5 298.9 180.9Q278.6 183.4 278.6 221.9Q278.6 260.4 291.9 263.9Q305.2 267.4 319.2 263.9Q333.2 260.4 343.0 250.9Q352.8 241.5 357.7 232.8Q362.6 224.0 357.7 203.7Z"],["bauch","M238.0 293.3Q239.4 271.6 259.0 269.5Q278.6 267.4 278.6 340.2Q278.6 413.0 268.1 411.2Q257.6 409.5 249.5 386.8Q241.5 364.0 239.0 339.5Q236.6 315.0 238.0 293.3Z","M319.2 293.3Q317.8 271.6 298.2 269.5Q278.6 267.4 278.6 340.2Q278.6 413.0 289.1 411.2Q299.6 409.5 307.6 386.8Q315.7 364.0 318.1 339.5Q320.6 315.0 319.2 293.3Z"],["bizeps","M145.6 276.5Q154.0 269.5 169.4 266.0Q184.8 262.5 182.0 281.8Q179.2 301.0 169.4 322.0Q159.6 343.0 140.0 343.7Q120.4 344.4 123.2 326.2Q126.0 308.0 131.6 295.8Q137.2 283.5 145.6 276.5Z","M411.6 276.5Q403.2 269.5 387.8 266.0Q372.4 262.5 375.2 281.8Q378.0 301.0 387.8 322.0Q397.6 343.0 417.2 343.7Q436.8 344.4 434.0 326.2Q431.2 308.0 425.6 295.8Q420.0 283.5 411.6 276.5Z"],["unterarm","M107.4 364.0Q120.4 346.5 140.7 345.4Q161.0 344.4 147.0 371.7Q133.0 399.0 119.7 420.7Q106.4 442.4 89.9 436.4Q73.5 430.5 84.0 406.0Q94.5 381.5 107.4 364.0Z","M449.8 364.0Q436.8 346.5 416.5 345.4Q396.2 344.4 410.2 371.7Q424.2 399.0 437.5 420.7Q450.8 442.4 467.2 436.4Q483.7 430.5 473.2 406.0Q462.7 381.5 449.8 364.0Z"],["schulter","M203.0 177.8Q203.0 166.6 186.2 169.8Q169.4 172.9 158.2 180.9Q147.0 189.0 141.4 201.2Q135.8 213.5 137.2 229.2Q138.6 245.0 146.3 257.2Q154.0 269.5 168.7 264.9Q183.4 260.4 189.0 242.2Q194.6 224.0 198.8 206.5Q203.0 189.0 203.0 177.8Z","M354.2 177.8Q354.2 166.6 371.0 169.8Q387.8 172.9 399.0 180.9Q410.2 189.0 415.8 201.2Q421.4 213.5 420.0 229.2Q418.6 245.0 410.9 257.2Q403.2 269.5 388.5 264.9Q373.8 260.4 368.2 242.2Q362.6 224.0 358.4 206.5Q354.2 189.0 354.2 177.8Z"]],"back":[["hamstring","M196.0 505.8Q203.0 497.0 224.0 495.2Q245.0 493.5 259.0 495.9Q273.0 498.4 272.3 529.2Q271.6 560.0 265.3 595.0Q259.0 630.0 245.0 635.2Q231.0 640.5 215.2 635.2Q199.5 630.0 191.4 595.0Q183.4 560.0 186.2 537.2Q189.0 514.5 196.0 505.8Z","M364.0 505.8Q357.0 497.0 336.0 495.2Q315.0 493.5 301.0 495.9Q287.0 498.4 287.7 529.2Q288.4 560.0 294.7 595.0Q301.0 630.0 315.0 635.2Q329.0 640.5 344.8 635.2Q360.5 630.0 368.5 595.0Q376.6 560.0 373.8 537.2Q371.0 514.5 364.0 505.8Z"],["wade","M180.2 670.2Q192.5 651.0 211.8 649.2Q231.0 647.5 231.0 673.8Q231.0 700.0 225.8 735.0Q220.5 770.0 213.5 805.0Q206.5 840.0 196.0 845.2Q185.5 850.5 175.0 820.8Q164.5 791.0 161.0 763.0Q157.5 735.0 162.8 712.2Q168.0 689.5 180.2 670.2Z","M379.8 670.2Q367.5 651.0 348.2 649.2Q329.0 647.5 329.0 673.8Q329.0 700.0 334.2 735.0Q339.5 770.0 346.5 805.0Q353.5 840.0 364.0 845.2Q374.5 850.5 385.0 820.8Q395.5 791.0 399.0 763.0Q402.5 735.0 397.2 712.2Q392.0 689.5 379.8 670.2Z"],["lat","M193.2 252.7Q193.2 232.4 205.1 222.9Q217.0 213.5 230.3 220.5Q243.6 227.5 255.5 246.0Q267.4 264.6 273.0 280.0Q278.6 295.4 277.5 312.2Q276.5 329.0 259.0 332.5Q241.5 336.0 229.2 350.0Q217.0 364.0 214.2 357.0Q211.4 350.0 206.5 325.5Q201.6 301.0 197.4 287.0Q193.2 273.0 193.2 252.7Z","M366.8 252.7Q366.8 232.4 354.9 222.9Q343.0 213.5 329.7 220.5Q316.4 227.5 304.5 246.0Q292.6 264.6 287.0 280.0Q281.4 295.4 282.4 312.2Q283.5 329.0 301.0 332.5Q318.5 336.0 330.8 350.0Q343.0 364.0 345.8 357.0Q348.6 350.0 353.5 325.5Q358.4 301.0 362.6 287.0Q366.8 273.0 366.8 252.7Z"],["trap","M276.8 204.8Q275.1 115.5 262.8 126.0Q250.6 136.5 238.0 145.9Q225.4 155.4 213.5 161.7Q201.6 168.0 209.3 176.8Q217.0 185.5 229.2 204.8Q241.5 224.0 253.8 245.0Q266.0 266.0 272.3 280.0Q278.6 294.0 276.8 204.8Z","M283.1 204.8Q284.9 115.5 297.1 126.0Q309.4 136.5 322.0 145.9Q334.6 155.4 346.5 161.7Q358.4 168.0 350.7 176.8Q343.0 185.5 330.8 204.8Q318.5 224.0 306.2 245.0Q294.0 266.0 287.7 280.0Q281.4 294.0 283.1 204.8Z"],["uruecken","M228.5 351.8Q241.5 336.0 259.0 332.5Q276.5 329.0 277.5 359.1Q278.6 389.2 264.6 390.6Q250.6 392.0 235.6 390.6Q220.5 389.2 218.1 378.4Q215.6 367.5 228.5 351.8Z","M331.4 351.8Q318.5 336.0 301.0 332.5Q283.5 329.0 282.4 359.1Q281.4 389.2 295.4 390.6Q309.4 392.0 324.4 390.6Q339.5 389.2 341.9 378.4Q344.4 367.5 331.4 351.8Z"],["gesaess","M208.2 441.0Q206.5 420.0 229.2 416.5Q252.0 413.0 265.3 420.0Q278.6 427.0 279.3 455.0Q280.0 483.0 269.5 488.2Q259.0 493.5 245.0 490.0Q231.0 486.5 220.5 474.2Q210.0 462.0 208.2 441.0Z","M351.8 441.0Q353.5 420.0 330.8 416.5Q308.0 413.0 294.7 420.0Q281.4 427.0 280.7 455.0Q280.0 483.0 290.5 488.2Q301.0 493.5 315.0 490.0Q329.0 486.5 339.5 474.2Q350.0 462.0 351.8 441.0Z"],["trizeps","M141.1 255.5Q145.6 245.0 168.0 239.7Q190.4 234.5 187.9 259.0Q185.5 283.5 175.0 308.0Q164.5 332.5 145.9 333.5Q127.4 334.6 129.5 314.3Q131.6 294.0 134.1 280.0Q136.5 266.0 141.1 255.5Z","M418.9 255.5Q414.4 245.0 392.0 239.7Q369.6 234.5 372.0 259.0Q374.5 283.5 385.0 308.0Q395.5 332.5 414.0 333.5Q432.6 334.6 430.5 314.3Q428.4 294.0 425.9 280.0Q423.5 266.0 418.9 255.5Z"],["unterarm","M114.4 359.4Q127.4 337.4 145.9 336.0Q164.5 334.6 148.8 366.8Q133.0 399.0 119.7 422.1Q106.4 445.2 92.4 443.1Q78.4 441.0 89.9 411.2Q101.5 381.5 114.4 359.4Z","M445.5 359.4Q432.6 337.4 414.0 336.0Q395.5 334.6 411.2 366.8Q427.0 399.0 440.3 422.1Q453.6 445.2 467.6 443.1Q481.6 441.0 470.0 411.2Q458.5 381.5 445.5 359.4Z"],["schulter","M209.3 175.7Q203.0 168.0 185.5 171.5Q168.0 175.0 157.5 184.8Q147.0 194.6 143.5 209.3Q140.0 224.0 142.8 234.5Q145.6 245.0 167.3 238.0Q189.0 231.0 197.8 217.0Q206.5 203.0 211.1 193.2Q215.6 183.4 209.3 175.7Z","M350.7 175.7Q357.0 168.0 374.5 171.5Q392.0 175.0 402.5 184.8Q413.0 194.6 416.5 209.3Q420.0 224.0 417.2 234.5Q414.4 245.0 392.7 238.0Q371.0 231.0 362.2 217.0Q353.5 203.0 348.9 193.2Q344.4 183.4 350.7 175.7Z"]]},"f":{"front":[["quad","M193.2 444.5Q203.0 427.0 231.0 432.2Q259.0 437.5 266.0 460.2Q273.0 483.0 271.6 521.5Q270.2 560.0 264.6 591.5Q259.0 623.0 245.0 631.8Q231.0 640.5 218.8 631.8Q206.5 623.0 197.8 598.5Q189.0 574.0 183.8 542.5Q178.5 511.0 180.9 486.5Q183.4 462.0 193.2 444.5Z","M366.8 444.5Q357.0 427.0 329.0 432.2Q301.0 437.5 294.0 460.2Q287.0 483.0 288.4 521.5Q289.8 560.0 295.4 591.5Q301.0 623.0 315.0 631.8Q329.0 640.5 341.2 631.8Q353.5 623.0 362.2 598.5Q371.0 574.0 376.2 542.5Q381.5 511.0 379.0 486.5Q376.6 462.0 366.8 444.5Z"],["wade","M199.5 670.2Q210.0 651.0 231.0 651.0Q252.0 651.0 247.8 682.5Q243.6 714.0 237.3 759.5Q231.0 805.0 224.0 854.0Q217.0 903.0 204.8 904.7Q192.5 906.5 189.0 866.2Q185.5 826.0 182.0 787.5Q178.5 749.0 183.8 719.2Q189.0 689.5 199.5 670.2Z","M360.5 670.2Q350.0 651.0 329.0 651.0Q308.0 651.0 312.2 682.5Q316.4 714.0 322.7 759.5Q329.0 805.0 336.0 854.0Q343.0 903.0 355.2 904.7Q367.5 906.5 371.0 866.2Q374.5 826.0 378.0 787.5Q381.5 749.0 376.2 719.2Q371.0 689.5 360.5 670.2Z"],["seite","M220.5 313.2Q220.5 297.5 235.6 299.2Q250.6 301.0 249.5 318.5Q248.5 336.0 250.9 358.8Q253.4 381.5 259.0 402.9Q264.6 424.2 249.5 422.1Q234.5 420.0 220.5 416.5Q206.5 413.0 208.9 388.5Q211.4 364.0 215.9 346.5Q220.5 329.0 220.5 313.2Z","M339.5 313.2Q339.5 297.5 324.4 299.2Q309.4 301.0 310.4 318.5Q311.5 336.0 309.0 358.8Q306.6 381.5 301.0 402.9Q295.4 424.2 310.4 422.1Q325.5 420.0 339.5 416.5Q353.5 413.0 351.0 388.5Q348.6 364.0 344.0 346.5Q339.5 329.0 339.5 313.2Z"],["brust","M212.8 229.2Q215.6 213.5 226.1 203.0Q236.6 192.5 257.6 201.2Q278.6 210.0 278.6 251.3Q278.6 292.6 263.5 295.0Q248.5 297.5 235.5 295.0Q222.6 292.6 216.3 284.5Q210.0 276.5 210.0 260.8Q210.0 245.0 212.8 229.2Z","M347.2 229.2Q344.4 213.5 333.9 203.0Q323.4 192.5 302.4 201.2Q281.4 210.0 281.4 251.3Q281.4 292.6 296.4 295.0Q311.5 297.5 324.4 295.0Q337.4 292.6 343.7 284.5Q350.0 276.5 350.0 260.8Q350.0 245.0 347.2 229.2Z"],["bauch","M250.2 318.5Q252.0 301.0 265.3 300.3Q278.6 299.6 278.6 363.3Q278.6 427.0 271.6 425.2Q264.6 423.5 259.0 402.5Q253.4 381.5 250.9 358.8Q248.5 336.0 250.2 318.5Z","M309.8 318.5Q308.0 301.0 294.7 300.3Q281.4 299.6 281.4 363.3Q281.4 427.0 288.4 425.2Q295.4 423.5 301.0 402.5Q306.6 381.5 309.0 358.8Q311.5 336.0 309.8 318.5Z"],["bizeps","M170.8 281.8Q175.0 269.5 191.8 274.0Q208.6 278.6 204.4 296.8Q200.2 315.0 189.3 337.8Q178.5 360.5 161.0 362.2Q143.5 364.0 149.4 343.0Q155.4 322.0 161.0 308.0Q166.6 294.0 170.8 281.8Z","M389.2 281.8Q385.0 269.5 368.2 274.0Q351.4 278.6 355.6 296.8Q359.8 315.0 370.6 337.8Q381.5 360.5 399.0 362.2Q416.5 364.0 410.5 343.0Q404.6 322.0 399.0 308.0Q393.4 294.0 389.2 281.8Z"],["unterarm","M129.5 389.2Q141.4 365.4 160.3 363.6Q179.2 361.9 164.8 390.9Q150.5 420.0 138.2 442.8Q126.0 465.5 108.5 462.0Q91.0 458.5 104.3 435.8Q117.6 413.0 129.5 389.2Z","M430.5 389.2Q418.6 365.4 399.7 363.6Q380.8 361.9 395.1 390.9Q409.5 420.0 421.8 442.8Q434.0 465.5 451.5 462.0Q469.0 458.5 455.7 435.8Q442.4 413.0 430.5 389.2Z"],["schulter","M220.5 198.8Q225.4 187.6 212.4 193.9Q199.5 200.2 188.6 207.9Q177.8 215.6 173.9 228.5Q170.1 241.5 172.6 255.5Q175.0 269.5 186.2 274.0Q197.4 278.6 204.4 260.0Q211.4 241.5 213.5 225.8Q215.6 210.0 220.5 198.8Z","M339.5 198.8Q334.6 187.6 347.5 193.9Q360.5 200.2 371.4 207.9Q382.2 215.6 386.0 228.5Q389.9 241.5 387.4 255.5Q385.0 269.5 373.8 274.0Q362.6 278.6 355.6 260.0Q348.6 241.5 346.5 225.8Q344.4 210.0 339.5 198.8Z"]],"back":[["hamstring","M197.8 511.0Q203.0 500.5 227.5 498.7Q252.0 497.0 264.2 500.5Q276.5 504.0 274.8 535.5Q273.0 567.0 267.8 598.5Q262.5 630.0 248.5 642.2Q234.5 654.5 220.5 651.0Q206.5 647.5 199.5 614.2Q192.5 581.0 192.5 551.2Q192.5 521.5 197.8 511.0Z","M365.0 511.0Q359.8 500.5 335.3 498.7Q310.8 497.0 298.5 500.5Q286.3 504.0 288.0 535.5Q289.8 567.0 295.0 598.5Q300.3 630.0 314.3 642.2Q328.3 654.5 342.3 651.0Q356.3 647.5 363.3 614.2Q370.3 581.0 370.3 551.2Q370.3 521.5 365.0 511.0Z"],["wade","M194.2 691.2Q203.0 661.5 222.2 659.8Q241.5 658.0 246.7 682.5Q252.0 707.0 248.5 738.5Q245.0 770.0 238.0 784.0Q231.0 798.0 225.8 847.0Q220.5 896.0 210.0 897.8Q199.5 899.5 196.0 862.8Q192.5 826.0 190.8 798.0Q189.0 770.0 187.2 745.5Q185.5 721.0 194.2 691.2Z","M368.5 691.2Q359.8 661.5 340.5 659.8Q321.3 658.0 316.0 682.5Q310.8 707.0 314.3 738.5Q317.8 770.0 324.8 784.0Q331.8 798.0 337.0 847.0Q342.3 896.0 352.8 897.8Q363.3 899.5 366.8 862.8Q370.3 826.0 372.0 798.0Q373.8 770.0 375.5 745.5Q377.3 721.0 368.5 691.2Z"],["lat","M217.7 247.8Q219.8 236.6 227.1 227.5Q234.5 218.4 246.8 222.9Q259.0 227.5 268.1 246.8Q277.2 266.0 276.5 283.5Q275.8 301.0 257.6 300.3Q239.4 299.6 232.4 289.8Q225.4 280.0 220.5 269.5Q215.6 259.0 217.7 247.8Z","M345.1 247.8Q343.0 236.6 335.6 227.5Q328.3 218.4 316.0 222.9Q303.8 227.5 294.7 246.8Q285.6 266.0 286.3 283.5Q287.0 301.0 305.2 300.3Q323.4 299.6 330.4 289.8Q337.4 280.0 342.3 269.5Q347.2 259.0 345.1 247.8Z"],["trap","M277.9 204.8Q277.2 143.5 267.4 152.2Q257.6 161.0 248.5 172.2Q239.4 183.4 231.7 191.4Q224.0 199.5 238.0 204.8Q252.0 210.0 262.5 220.5Q273.0 231.0 275.8 248.5Q278.6 266.0 277.9 204.8Z","M284.9 204.8Q285.6 143.5 295.4 152.2Q305.2 161.0 314.3 172.2Q323.4 183.4 331.1 191.4Q338.8 199.5 324.8 204.8Q310.8 210.0 300.3 220.5Q289.8 231.0 287.0 248.5Q284.2 266.0 284.9 204.8Z"],["uruecken","M231.3 325.5Q235.2 301.0 255.5 301.7Q275.8 302.4 277.2 357.7Q278.6 413.0 265.3 411.2Q252.0 409.5 241.5 399.0Q231.0 388.5 229.2 369.2Q227.5 350.0 231.3 325.5Z","M331.4 325.5Q327.6 301.0 307.3 301.7Q287.0 302.4 285.6 357.7Q284.2 413.0 297.5 411.2Q310.8 409.5 321.3 399.0Q331.8 388.5 333.5 369.2Q335.3 350.0 331.4 325.5Z"],["gesaess","M208.6 430.5Q211.4 420.0 231.7 419.3Q252.0 418.6 265.3 426.3Q278.6 434.0 278.6 462.0Q278.6 490.0 265.3 495.2Q252.0 500.5 236.2 497.0Q220.5 493.5 211.1 481.2Q201.6 469.0 203.7 455.0Q205.8 441.0 208.6 430.5Z","M354.2 430.5Q351.4 420.0 331.1 419.3Q310.8 418.6 297.5 426.3Q284.2 434.0 284.2 462.0Q284.2 490.0 297.5 495.2Q310.8 500.5 326.5 497.0Q342.3 493.5 351.8 481.2Q361.2 469.0 359.1 455.0Q357.0 441.0 354.2 430.5Z"],["trizeps","M180.6 281.8Q186.2 273.0 198.8 269.5Q211.4 266.0 208.9 287.0Q206.5 308.0 197.8 329.0Q189.0 350.0 171.5 351.8Q154.0 353.5 159.2 334.2Q164.5 315.0 169.8 302.8Q175.0 290.5 180.6 281.8Z","M382.2 281.8Q376.6 273.0 364.0 269.5Q351.4 266.0 353.8 287.0Q356.3 308.0 365.0 329.0Q373.8 350.0 391.3 351.8Q408.8 353.5 403.5 334.2Q398.3 315.0 393.0 302.8Q387.8 290.5 382.2 281.8Z"],["unterarm","M141.8 384.3Q154.0 355.6 171.5 353.5Q189.0 351.4 173.2 385.7Q157.5 420.0 141.8 448.0Q126.0 476.0 110.2 473.2Q94.5 470.4 112.0 441.7Q129.5 413.0 141.8 384.3Z","M421.0 384.3Q408.8 355.6 391.3 353.5Q373.8 351.4 389.5 385.7Q405.3 420.0 421.0 448.0Q436.8 476.0 452.5 473.2Q468.3 470.4 450.8 441.7Q433.3 413.0 421.0 384.3Z"],["schulter","M228.2 205.4Q231.0 197.4 217.7 199.5Q204.4 201.6 193.9 209.3Q183.4 217.0 179.9 231.0Q176.4 245.0 181.3 258.3Q186.2 271.6 198.1 268.1Q210.0 264.6 214.9 249.5Q219.8 234.5 222.6 224.0Q225.4 213.5 228.2 205.4Z","M334.6 205.4Q331.8 197.4 345.1 199.5Q358.4 201.6 368.9 209.3Q379.4 217.0 382.9 231.0Q386.4 245.0 381.5 258.3Q376.6 271.6 364.7 268.1Q352.8 264.6 347.9 249.5Q343.0 234.5 340.2 224.0Q337.4 213.5 334.6 205.4Z"]]}};
+function muFig(side,st){
+  const sx=bView()==='f'?'f':'m',L=MU_P[sx][side],w=MU_VB[0],hh=MU_VB[1];
+  let h='<svg class="mmap" viewBox="0 0 '+w+' '+hh+'" role="group" aria-label="'+(side==='front'?'Vorderseite':'Rückseite')+'">'+
+    '<image class="mbi" href="img/body-'+side+(sx==='f'?'-f':'')+'.webp" x="0" y="0" width="'+w+'" height="'+hh+'"/>';
+  L.forEach(m=>{
+    const k=m[0],lv=muLv(st.pts[k]);
+    h+='<g class="mu l'+lv+(mSel===k?' sel':'')+'" data-act="mu-sel" data-id="'+k+'" role="button" tabindex="0" aria-label="'+MU[k]+': '+MU_LV[lv]+'"><path d="'+m[1]+'"/><path d="'+m[2]+'"/></g>';
+  });
+  return h+'</svg>';
+}
+function muSug(k,det){
+  const av=eqSet(S.tp&&S.tp.set),lim=limsOf(),done=new Set(Object.keys(det[k]||{}));
+  const all=EXD.concat(S.cx||[]).filter(e=>muW(e)[k]>=1&&e.t!=='x'&&(!e.q||av.has(e.q))&&!(e.x||[]).some(x=>lim.includes(x)));
+  return all.map(e=>({e,s:(done.has(e.id)?0:2)+(e.t==='c'?1:0)})).sort((a,b)=>b.s-a.s).slice(0,4).map(x=>x.e);
+}
+const muD=k=>k?k.slice(8)+'.'+k.slice(5,7)+'.':'';
+function muDetail(st){
+  const per=mPer==='w'?'diese Woche':'in 4 Wochen';
+  if(!mSel){
+    const weak=Object.keys(MU).map(k=>({k,p:st.pts[k]||0})).filter(x=>muLv(x.p)<=1).sort((a,b)=>a.p-b.p);
+    return '<section class="win" id="mm-det"><div class="lbl">Schwachstellen</div>'+(weak.length?'<p class="dim" style="font-size:13.5px;margin:6px 0 10px">Diese Muskeln hast du '+per+' kaum oder gar nicht trainiert. Tippe auf einen, um passende Übungen zu sehen.</p><div class="mmw">'+weak.map(x=>'<button class="mmc l'+muLv(x.p)+'" data-act="mu-sel" data-id="'+x.k+'">'+MU[x.k]+'</button>').join('')+'</div>':'<p class="dim" style="margin-top:8px">Stark. Alle Muskelgruppen sind '+per+' gut abgedeckt.</p>')+'</section>';
+  }
+  const k=mSel,p=st.pts[k]||0,lv=muLv(p),dl=Object.keys(st.det[k]||{}).map(i=>st.det[k][i]).sort((a,b)=>b.pw-a.pw||b.n-a.n);
+  const sets=Math.round(muAvg(p)*10)/10;
+  let h='<section class="win" id="mm-det"><div class="sub"><div><div class="lbl">Muskel</div><h2>'+MU[k]+'</h2></div><span class="mmb l'+lv+'">'+MU_LV[lv]+'</span></div>'+
+    '<p class="dim" style="font-size:13.5px;margin:4px 0 10px">'+(mPer==='w'?'Diese Woche':'Im Schnitt pro Woche (4 Wochen)')+': <b style="color:var(--fg)">'+String(sets).replace('.',',')+' Sätze</b>. Ziel: 10 bis 20 Sätze pro Woche.</p>';
+  h+='<div class="lbl">Trainiert mit</div>'+(dl.length?'<div class="mml">'+dl.map(r=>'<div><span>'+esc(r.e.n)+(r.pw<1?' <small>(nebenbei)</small>':'')+'</span><b>'+r.n+' Sätze</b><small>zuletzt '+muD(r.last)+'</small></div>').join('')+'</div>':'<p class="dim" style="margin:6px 0 10px">'+(mPer==='w'?'Diese Woche':'In den letzten 4 Wochen')+' noch keine Übung für diesen Muskel.</p>');
+  const sg=muSug(k,st.det);
+  if(sg.length)h+='<div class="lbl" style="margin-top:12px">Übungen für '+MU[k]+'</div><div class="mms">'+sg.map(e=>'<button class="btn" data-act="mu-ex" data-id="'+e.id+'">'+esc(e.n)+'</button>').join('')+'</div>';
+  return h+'<div class="acts" style="margin-top:12px"><button class="btn" data-act="mu-sel" data-id="'+k+'">Auswahl aufheben</button></div></section>';
+}
+function viewMuskel(){
+  const st=muStats(),has=(S.tlog||[]).some(t=>t.ex&&t.ex.length);
+  const seg='<div class="seg c2" role="tablist" style="margin-bottom:12px">'+[['w','Diese Woche'],['m','4 Wochen']].map(([k,l])=>'<button role="tab" aria-selected="'+(mPer===k)+'" data-act="mu-per" data-id="'+k+'">'+l+'</button>').join('')+'</div>';
+  const vw='<div class="seg c2" role="tablist" aria-label="Körperansicht" style="margin:-4px 0 12px">'+[['m','Männlich'],['f','Weiblich']].map(([k,l])=>'<button role="tab" aria-selected="'+(bView()===k)+'" data-act="mu-view" data-id="'+k+'">'+l+'</button>').join('')+'</div>';
+  let h=seg+vw+'<section class="win"><div class="mmf"><div><div class="mmcap">Vorne</div>'+muFig('front',st)+'</div><div><div class="mmcap">Hinten</div>'+muFig('back',st)+'</div></div>'+
+    '<div class="mmlg"><span class="l0">Nicht trainiert</span><span class="l1">Wenig</span><span class="l2">Gut</span><span class="l3">Stark</span></div>'+
+    '<p class="dim" style="font-size:12.5px;text-align:center;margin-top:6px">Gezählt werden Sätze pro Woche: wenig unter 4, gut 4 bis 9, stark ab 10.</p>'+
+    (has?'':'<p class="dim" style="text-align:center;margin-top:8px">Noch keine Einheit mit Übungen protokolliert. Sobald du im Training-Tab trainierst, färbt sich die Karte.</p>')+'</section>';
+  return h+muDetail(st);
+}
+
 function viewVerlauf(){
-  const T=[['kal','Kalender'],['train','Training'],['ziele','Ziele']];
-  return '<div class="seg" role="tablist" style="margin-bottom:12px">'+T.map(([k,l])=>'<button role="tab" aria-selected="'+(vSub===k)+'" data-act="v-sub" data-id="'+k+'">'+l+'</button>').join('')+'</div>'+({kal:viewKalender,train:viewTrain,ziele:viewGoals})[vSub]();
+  const T=[['kal','Kalender'],['train','Training'],['muskel','Muskeln'],['ziele','Ziele']];
+  return '<div class="seg c4" role="tablist" style="margin-bottom:12px">'+T.map(([k,l])=>'<button role="tab" aria-selected="'+(vSub===k)+'" data-act="v-sub" data-id="'+k+'">'+l+'</button>').join('')+'</div>'+({kal:viewKalender,train:viewTrain,muskel:viewMuskel,ziele:viewGoals})[vSub]();
 }
 /* Status in Unterreiter */
 function stSplit(str){
@@ -4744,7 +4960,7 @@ function viewStatus(){
      '<div class="acts"><button class="btn sm" data-act="photo">'+(S.avatar?'Foto ändern':'Foto wählen')+'</button>'+(S.avatar&&samp&&sampImg?'<button class="btn vio sm" data-act="profile">Profil neu erzeugen</button>':'')+'</div></div></div></section>'+
    rankSection()+'<section id="stat-pts" class="win"><div class="sub"><div class="lbl">Werte'+helpBtn('skill')+'</div></div>'+radar()+'<div class="kv" style="margin:12px 0"><div><span class="lbl">Rang</span><span class="num">'+r+'</span></div><div><span class="lbl">Level</span><span class="num">'+S.level+'</span></div><div><span class="lbl">Lebenspunkte</span><span class="num">'+p.hp+'</span></div><div><span class="lbl">Mana</span><span class="num">'+p.mp+'</span></div><div><span class="lbl">Angriff</span><span class="num">'+Math.round(p.atk)+'</span></div><div><span class="lbl">Verteidigung</span><span class="num">'+Math.round(p.def)+'</span></div></div>'+
    st+'<p class="dim" style="margin:8px 0 0;font-size:13px">Jede Fähigkeit hat ihren eigenen Balken und wächst nur durch Quests, die sie stärken. Insgesamt erarbeitet: <b>'+Math.round(skillSum())+' XP</b>. Alle zwei Level steigen zusätzlich alle Werte um 1.</p></section>'+
-   '\u0001'+recSection()+achSection()+'\u0002'+profSection()+'\u0003'+
+   '\u0001'+recSection()+achSection()+'\u0002'+bodySection()+profSection()+'\u0003'+
    '\u0004'+'<section class="win vio"><div class="sub"><div class="lbl" style="color:var(--violet)">Fähigkeiten</div></div>'+clsCard()+sk+'</section>'+
    '\u0005'+(online?(acct.guest
      ?'<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Konto</div><h2>Charakter sichern</h2></div></div><p class="dim" style="margin-bottom:10px">Du spielst als Gast. Ohne Konto ist dein Charakter weg, wenn du den Browser wechselst oder die Browserdaten löschst. Mit E-Mail und Passwort findest du ihn überall wieder.</p><div class="grid"><label class="f">E-Mail<input type="text" id="accMail" autocomplete="email" inputmode="email" autocapitalize="off"></label><label class="f">Passwort<input type="password" id="accPw" autocomplete="new-password"></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="acc-upgrade">Konto anlegen</button></div></section>'
@@ -4842,9 +5058,20 @@ document.addEventListener('click',e=>{
     case 'modal-ok':nextModal();render();return;
     case 'onb-start':ob=obNew(true);obRender();return;
     case 'onb-later':S.onbSkip=true;save();break;
-    case 'ob-next':{obCollect();if(!obValid())return;if(ob.step>=7){obFinish();return}ob.step++;obRender();return}
+    case 'ob-next':{obCollect();if(!obValid()){if(ob.step===2){ob.err=1;obRender()}return}ob.err=0;if(ob.step>=8){obFinish();return}ob.step++;obRender();return}
     case 'ob-back':{obCollect();if(ob.redo&&ob.step<=2){ob=null;obRender();return}ob.step=Math.max(0,ob.step-1);obRender();return}
-    case 'ob-skip':{ob.test={};ob.step=7;obRender();return}
+    case 'ob-skip':{ob.test={};ob.step=8;obRender();return}
+    case 'ob-bskip':{ob.bodySkip=true;ob.step=3;obRender();return}
+    case 'ob-sex':obCollect();ob.body.sex=ob.body.sex===id?'':id;obRender();return;
+    case 'ob-act':obCollect();ob.body.act=ob.body.act===Number(id)?0:Number(id);obRender();return;
+    case 'body-edit':bodyForm=true;bf=Object.assign({},BODY);bdArm=false;break;
+    case 'body-cancel':bodyForm=false;break;
+    case 'bf-sex':bodyRead('bf',bf);bf.sex=bf.sex===id?'':id;break;
+    case 'bf-act':bodyRead('bf',bf);bf.act=bf.act===Number(id)?0:Number(id);break;
+    case 'body-save':{bodyRead('bf',bf);if(!bodyOk(bf)){toast('Bitte Werte prüfen');break}applyBody(bf);bodyForm=false;toast('Gespeichert');break}
+    case 'body-w':{const e=document.getElementById('bw-quick'),v=e?nz(e.value):0;if(!(v>=30&&v<=300)){toast('Bitte ein Gewicht zwischen 30 und 300 kg eingeben');return}BODY.w=v;logWeight(v);saveBody();toast('Gewicht eingetragen');break}
+    case 'body-del':if(bdArm){wipeBody();bdArm=false;toast('Körperdaten gelöscht')}else bdArm=true;break;
+    case 'mu-view':BODY.view=id==='f'?'f':'m';saveBody();break;
     case 'ob-cls':obCollect();ob.cls=ob.cls===id?'':id;obRender();return;
     case 'ob-goal':{obCollect();if(!ob.goals.includes(id)&&ob.goals.length>=3){toast('Höchstens drei Ziele');return}tog(ob.goals,id);obRender();return}
     case 'ob-place':obCollect();ob.place=id;obRender();return;
@@ -5136,7 +5363,7 @@ document.addEventListener('click',e=>{
       save();toast('Gespeichert');break;
     }
     case 'reset':
-      if(penArmed){S=defaults();S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};ensureLive();penArmed=false;tab='quests';B=null;save();toast('Neu gestartet')}else penArmed=true;break;
+      if(penArmed){wipeBody();S=defaults();S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};ensureLive();penArmed=false;tab='quests';B=null;save();toast('Neu gestartet')}else penArmed=true;break;
     case 'buy':if(!buyItem(id))return;save();break;
     case 'pen-erlass':if(!usePardon(id))return;save();break;
     case 'decree':if(!useDecree())return;save();break;
@@ -5157,6 +5384,14 @@ document.addEventListener('click',e=>{
     case 'v-sub':vSub=id;gForm=false;gArm=null;break;
     case 'v-ex':vEx=id;jump='v-det';break;
     case 'v-all':vAll=!vAll;break;
+    case 'mu-per':mPer=id==='m'?'m':'w';break;
+    case 'mu-sel':mSel=(mSel===id)?'':id;if(mSel)jump='mm-det';break;
+    case 'mu-ex':{
+      const e=exOf(id);if(!e)return;
+      const w=muW(e),ks=Object.keys(w).sort((a,b)=>w[b]-w[a]);
+      modal({title:e.n,btn:'Schließen',body:(e.cue?'<p class="cue">'+esc(e.cue)+'</p>':'')+'<div class="chips" style="justify-content:center">'+ks.map(k=>'<span class="chip">'+MU[k]+(w[k]<1?' (nebenbei)':'')+'</span>').join('')+'</div><p class="dim" style="font-size:13px;margin-top:10px">'+esc((EQN[e.q]||['',''])[0])+(e.s>1?' · '+e.s+' Sätze à '+e.r:'')+'. Zum Plan hinzufügen kannst du die Übung im Training-Tab unter Plan.</p>'});
+      return;
+    }
     case 'goal-new':gForm=!gForm;break;
     case 'goal-save':{
       const v=i=>(document.getElementById(i)||{}).value;
@@ -5242,7 +5477,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
+  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Hunter > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Hunter > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
