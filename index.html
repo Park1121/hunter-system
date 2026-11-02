@@ -590,6 +590,17 @@ input[type=time]{color-scheme:dark;font-size:16px}
 @media (prefers-reduced-motion:reduce){.flash{animation:none;outline:2px solid var(--glow)}}
 [id=pen-zone],[id=gymc],[id=stat-pts],[id=doors],[id=duel-in]{scroll-margin-top:10px}
 .chart{width:100%;height:auto;display:block;margin-top:8px}
+.mms{display:grid;gap:6px}
+.mmx{display:block;padding:9px 10px 10px 12px;background:#0a1030;border:1px solid var(--line);border-radius:10px}
+.mmn{display:block;width:100%;background:none;border:0;color:var(--fg);text-align:left;font:inherit;cursor:pointer;padding:0;min-width:0}
+.mmn b{display:block;font-size:15px;font-weight:600}
+.mmn small{display:block;color:var(--dim);font-size:12px}
+.mmx .mmy{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.mmx .mmy .btn{width:100%;min-height:38px;padding:6px 8px;font-size:13px;letter-spacing:.03em;white-space:nowrap;text-align:center}
+.mmx .mmy .btn.on{opacity:.6}
+.lnk{background:none;border:0;color:#5ad2ff;text-decoration:underline;font:inherit;cursor:pointer;padding:2px 0}
+.gym.def .gx{margin:0 0 10px}
+
 .bdyg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 .bdyk{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:4px}
 .bdyk .num{font-size:40px}
@@ -610,8 +621,8 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .mmap .mbi{pointer-events:none}
 .mu{--mc:#232d63;cursor:pointer;outline:none}
 .mu path{fill:var(--mc);stroke:#0a1030;stroke-width:2;stroke-linejoin:round;transition:fill .2s}
-.mu.l1{--mc:#e8a33a}.mu.l2{--mc:#2fd39a}.mu.l3{--mc:#ffd36b}
-.mu.l3 path{filter:drop-shadow(0 0 6px #ffd36b)}
+.mu.l1{--mc:#ff5a4a}.mu.l2{--mc:#ffd23f}.mu.l3{--mc:#3dffb0}
+.mu.l3 path{filter:drop-shadow(0 0 6px #3dffb0)}
 .mu.sel path{stroke:#fff;stroke-width:4}
 .mu:focus-visible path{stroke:#5ad2ff;stroke-width:4}
 .mu path{fill-opacity:.55;mix-blend-mode:screen}
@@ -619,17 +630,16 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .mu.l0:hover path{fill-opacity:.12}
 .mmlg{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 12px;margin-top:10px;font-size:12.5px;color:var(--dim)}
 .mmlg span::before{content:'';display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:#232d63;border:1px solid #3a4a8a}
-.mmlg .l1::before{background:#e8a33a;border-color:#e8a33a}.mmlg .l2::before{background:#2fd39a;border-color:#2fd39a}.mmlg .l3::before{background:#ffd36b;border-color:#ffd36b}
-.mmw,.mms{display:flex;flex-wrap:wrap;gap:6px}
+.mmlg .l1::before{background:#ff5a4a;border-color:#ff5a4a}.mmlg .l2::before{background:#ffd23f;border-color:#ffd23f}.mmlg .l3::before{background:#3dffb0;border-color:#3dffb0}
+.mmw{display:flex;flex-wrap:wrap;gap:6px}
 .mmc{font-family:var(--f-b);font-size:14px;padding:6px 11px;border-radius:999px;background:#0b1233;border:1px solid var(--line2);color:var(--fg);cursor:pointer}
-.mmc.l1{border-color:#e8a33a99}
+.mmc.l1{border-color:#ff5a4a99}
 .mmb{font-size:12.5px;padding:3px 9px;border-radius:999px;border:1px solid #3a4a8a;color:var(--dim);white-space:nowrap}
-.mmb.l1{border-color:#e8a33a;color:#e8a33a}.mmb.l2{border-color:#2fd39a;color:#2fd39a}.mmb.l3{border-color:#ffd36b;color:#ffd36b}
+.mmb.l1{border-color:#ff5a4a;color:#ff5a4a}.mmb.l2{border-color:#ffd23f;color:#ffd23f}.mmb.l3{border-color:#3dffb0;color:#3dffb0}
 .mml{display:grid;gap:6px;margin:6px 0 4px}
 .mml>div{display:grid;grid-template-columns:1fr auto;gap:0 10px;padding:7px 10px;background:#0a1030;border:1px solid var(--line);border-radius:10px;font-size:14px}
 .mml>div small{grid-column:1 / -1;color:var(--dim);font-size:12px}
 .mml>div span small{display:inline;color:var(--dim)}
-.mms .btn{flex:1 1 100%;text-align:left}
 
 .hexw{display:inline-block;flex:none}
 .hexb{--hs:84px;--tc:linear-gradient(160deg,#f0a868,#8a4a1c);--tc2:#f0a868;position:relative;display:block;width:var(--hs);height:calc(var(--hs)*1.1547);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);background:var(--tc)}
@@ -1112,7 +1122,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v23p';
+const APP_V='v23q';
 const SPR=[{r:'S+',n:'Schattenkönig',d:100,c:'#ffd36b'},{r:'S★',n:'Monster',d:365,c:'#ff7ad9'}];
 const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Schattenkönig an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.'];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -1488,6 +1498,7 @@ const gymStat=d=>{const c=mainCat(d);return c==='ausdauer'?'vit':c==='beweglichk
 const isTrain=d=>!!(d&&d.t&&d.ex&&d.ex.length);
 function syncTraining(){
   if(!Array.isArray(S.quests))return;
+  if(S.tp&&S.tp.days){const k0=dayKey();S.tp.days.forEach(d=>{if(d&&d.ex&&d.ex.some(x=>x.once&&x.once!==k0))d.ex=d.ex.filter(x=>!x.once||x.once===k0)})}
   const d=S.tp&&S.tp.days&&S.tp.days[wdToday()],tk=dayKey();
   let q=S.quests.find(x=>x.type==='gym'&&x.day===tk);
   S.quests=S.quests.filter(x=>x.type!=='gym'||x===q);
@@ -1516,7 +1527,7 @@ function gymCard(){
     const nx=nextTrain();
     return '<section id="gymc" class="win gym rest"><div class="gr">'+gico('ico-rest',64)+'<div><div class="lbl">Heute</div><h2>Ruhetag</h2><p class="dim" style="font-size:14px;margin-top:2px">Erholung gehört zum Training.'+(nx?' Nächste Einheit: '+(nx.k===1?'morgen':WDL[nx.i])+', '+esc(nx.d.n)+'.':'')+'</p>'+(S.started&&protLeft()>0?'<div class="chips" style="margin-top:8px"><span class="chip sys">Serie geschützt</span></div>':'')+'</div></div></section>';
   }
-  const st=dayStats(d),cat=mainCat(d),done=q&&q.done,S0=S.ses&&S.ses.day===dayKey()?S.ses:null;
+  const st=dayStats(d),cat=mainCat(d),done=q&&q.done,S0=S.ses&&!S.ses.kind&&S.ses.day===dayKey()?S.ses:null;
   const names=d.ex.map(x=>{const e=exOf(x.e);return e?esc(e.n):''}).filter(Boolean);
   let h='<section id="gymc" class="win gym'+(done?' done':'')+'"><div class="gbanner"><img alt="" src="img/cat-'+cat+'.webp" onerror="this.remove()"><span class="gtag">GYM</span><div class="gcap"><div class="gt">'+esc(d.n)+'</div><div class="gs">'+st.n+' Übungen · '+st.sets+' Sätze · ca. '+st.min+' Min.</div></div></div>';
   if(done){
@@ -1639,7 +1650,7 @@ function pkPick(id){
 
 /* ---------- Session ---------- */
 function sesBuild(d){
-  return {day:dayKey(),n:d.n,f:d.f,t0:Date.now(),cur:0,rest:null,ex:d.ex.filter(x=>exOf(x.e)).map(x=>{
+  return {day:dayKey(),n:d.n,f:d.f,kind:d.kind||0,t0:Date.now(),cur:0,rest:null,ex:d.ex.filter(x=>exOf(x.e)).map(x=>{
     const e=exOf(x.e),L=(S.exl||{})[x.e];
     let w='';
     if(e.m==='kg'&&L&&L.w>0){w=L.w+(L.up?(e.q==='db'?(L.w<10?1:2):2.5):0)}
@@ -1653,6 +1664,7 @@ function sesOpen(){
   const q=S.quests.find(x=>x.type==='gym'&&x.day===dayKey());
   if(q&&q.done){toast('Das Training für heute ist schon erledigt');return}
   if(S.ses&&(S.ses.day!==dayKey()||Date.now()-S.ses.t0>10*3600e3))S.ses=null;
+  if(S.ses&&S.ses.kind){toast('Beende zuerst das Defizit-Training');return}
   if(!S.ses){S.ses=sesBuild(d);save()}
   sesOn=true;sesArm=false;sesRender();sesWake();
 }
@@ -1711,7 +1723,7 @@ function sesRender(){
   const old=el&&el.querySelector('.ov-body'),keep=old?old.scrollTop:0;
   if(!el){el=document.createElement('div');el.id='ses';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label','Training');document.body.appendChild(el)}
   const left=c.tt-c.dn;
-  el.innerHTML='<div class="ov-top"><div class="ov-brand"><span>GYM · '+esc(s.n)+'</span><span><span class="num" id="ses-el">'+fmtT((Date.now()-s.t0)/1000)+'</span> <button type="button" class="btn ghost sm" data-act="ses-min" style="margin-left:8px">Minimieren</button></span></div><div class="ob-bar"><i style="width:'+(c.tt?c.dn/c.tt*100:0)+'%"></i></div><div class="qp">'+c.dn+' von '+c.tt+' Sätzen</div></div>'+
+  el.innerHTML='<div class="ov-top"><div class="ov-brand"><span>'+(s.kind?'DEFIZIT':'GYM')+' · '+esc(s.n)+'</span><span><span class="num" id="ses-el">'+fmtT((Date.now()-s.t0)/1000)+'</span> <button type="button" class="btn ghost sm" data-act="ses-min" style="margin-left:8px">Minimieren</button></span></div><div class="ob-bar"><i style="width:'+(c.tt?c.dn/c.tt*100:0)+'%"></i></div><div class="qp">'+c.dn+' von '+c.tt+' Sätzen</div></div>'+
    '<div class="ov-body"><div class="ov-in">'+s.ex.map(sesExHtml).join('')+'</div></div>'+sesRestHtml()+
    '<div class="ov-foot"><div class="ov-in"><button type="button" class="btn ghost" data-act="ses-cancel">'+(sesArm==='cancel'?'Sicher?':'Verwerfen')+'</button><button type="button" class="btn ok" data-act="ses-end" '+(c.dn?'':'disabled')+'>'+(sesArm==='end'?'Sicher? '+left+' Sätze offen':'Beenden · +'+cal.xp+' XP')+'</button></div></div>';
   const b=el.querySelector('.ov-body');if(b)b.scrollTop=keep;
@@ -1756,7 +1768,8 @@ function sesTick(){
 }
 function sesFinish(direct){
   const s=S.ses;
-  const q=S.quests.find(x=>x.type==='gym'&&!x.done);
+  const dfi=!direct&&!!(s&&s.kind==='defi');
+  const q=dfi?null:S.quests.find(x=>x.type==='gym'&&!x.done);
   let xp,vol=0,sets=0,prs=[];
   if(direct){
     const d=S.tp&&S.tp.days[wdToday()];
@@ -1784,7 +1797,11 @@ function sesFinish(direct){
   }
   const ms=s?Date.now()-s.t0:0;
   S.ses=null;sesOn=false;sesArm=false;sesRender();
-  if(q){q.xp=xp;q.gold=Math.round(xp/2);completeQuest(q)}
+  if(dfi){
+    xp=Math.round(xp*.8);
+    const dq=S.dq;if(dq)dq.done=1;
+    completeQuest({id:uid(),type:'gym',name:'Defizit-Training',target:1,cur:0,done:false,xp,gold:Math.round(xp/2),stat:gymStat({ex:(dq&&dq.ex)||[]}),rank:'E',day:dayKey()});
+  }else if(q){q.xp=xp;q.gold=Math.round(xp/2);completeQuest(q)}
   else{S.gold+=Math.round(xp/2);grantXP(xp);toast('Training: +'+xp+' XP')}
   if(!direct){
     modal({pic:'victory',title:'Training geschafft',body:'<div class="big">+'+xp+' XP</div><div class="kv"><div><span class="lbl">Sätze</span><span class="num">'+sets+'</span></div><div><span class="lbl">Volumen</span><span class="num">'+(vol?vol+' kg':'–')+'</span></div><div><span class="lbl">Dauer</span><span class="num">'+Math.max(1,Math.round(ms/60000))+' Min.</span></div></div>'+
@@ -2884,15 +2901,24 @@ function muDetail(st){
   const per=mPer==='w'?'diese Woche':'in 4 Wochen';
   if(!mSel){
     const weak=Object.keys(MU).map(k=>({k,p:st.pts[k]||0})).filter(x=>muLv(x.p)<=1).sort((a,b)=>a.p-b.p);
-    return '<section class="win" id="mm-det"><div class="lbl">Schwachstellen</div>'+(weak.length?'<p class="dim" style="font-size:13.5px;margin:6px 0 10px">Diese Muskeln hast du '+per+' kaum oder gar nicht trainiert. Tippe auf einen, um passende Übungen zu sehen.</p><div class="mmw">'+weak.map(x=>'<button class="mmc l'+muLv(x.p)+'" data-act="mu-sel" data-id="'+x.k+'">'+MU[x.k]+'</button>').join('')+'</div>':'<p class="dim" style="margin-top:8px">Stark. Alle Muskelgruppen sind '+per+' gut abgedeckt.</p>')+'</section>';
+    return '<section class="win" id="mm-det"><div class="lbl">Schwachstellen</div>'+(weak.length?'<p class="dim" style="font-size:13.5px;margin:6px 0 10px">Diese Muskeln hast du '+per+' kaum oder gar nicht trainiert. Tippe auf einen, um passende Übungen zu sehen.</p><div class="mmw">'+weak.map(x=>'<button class="mmc l'+muLv(x.p)+'" data-act="mu-sel" data-id="'+x.k+'">'+MU[x.k]+'</button>').join('')+'</div>'+'<div class="acts" style="margin-top:12px"><button class="btn vio" data-act="mu-defw">Defizit-Training aus Schwachstellen bauen</button></div>'+(dqToday()&&!dqToday().done?'<p class="dim" style="font-size:13px;margin:10px 0 0">Bereit unter Heute: <b style="color:var(--fg)">'+esc(dqToday().n)+'</b>. <button class="lnk" data-act="def-go">Zu Heute</button></p>':''):'<p class="dim" style="margin-top:8px">Stark. Alle Muskelgruppen sind '+per+' gut abgedeckt.</p>')+'</section>';
   }
   const k=mSel,p=st.pts[k]||0,lv=muLv(p),dl=Object.keys(st.det[k]||{}).map(i=>st.det[k][i]).sort((a,b)=>b.pw-a.pw||b.n-a.n);
   const sets=Math.round(muAvg(p)*10)/10;
   let h='<section class="win" id="mm-det"><div class="sub"><div><div class="lbl">Muskel</div><h2>'+MU[k]+'</h2></div><span class="mmb l'+lv+'">'+MU_LV[lv]+'</span></div>'+
     '<p class="dim" style="font-size:13.5px;margin:4px 0 10px">'+(mPer==='w'?'Diese Woche':'Im Schnitt pro Woche (4 Wochen)')+': <b style="color:var(--fg)">'+String(sets).replace('.',',')+' Sätze</b>. Ziel: 10 bis 20 Sätze pro Woche.</p>';
   h+='<div class="lbl">Trainiert mit</div>'+(dl.length?'<div class="mml">'+dl.map(r=>'<div><span>'+esc(r.e.n)+(r.pw<1?' <small>(nebenbei)</small>':'')+'</span><b>'+r.n+' Sätze</b><small>zuletzt '+muD(r.last)+'</small></div>').join('')+'</div>':'<p class="dim" style="margin:6px 0 10px">'+(mPer==='w'?'Diese Woche':'In den letzten 4 Wochen')+' noch keine Übung für diesen Muskel.</p>');
-  const sg=muSug(k,st.det);
-  if(sg.length)h+='<div class="lbl" style="margin-top:12px">Übungen für '+MU[k]+'</div><div class="mms">'+sg.map(e=>'<button class="btn" data-act="mu-ex" data-id="'+e.id+'">'+esc(e.n)+'</button>').join('')+'</div>';
+  const sg=muSug(k,st.det),dq=dqToday(),dd=S.tp&&S.tp.days[wdToday()],tr=isTrain(dd);
+  if(sg.length){
+    h+='<div class="lbl" style="margin-top:12px">Übungen für '+MU[k]+'</div><div class="mms">'+sg.map(e=>{
+      const inD=!!(dq&&dq.ex.some(x=>x.e===e.id)),inT=!!(tr&&dd.ex.some(x=>x.e===e.id));
+      return '<div class="mmx"><button class="mmn" data-act="mu-ex" data-id="'+e.id+'"><b>'+esc(e.n)+'</b><small>'+((EQN[e.q]||['',''])[0])+'</small></button><div class="mmy">'+
+        (tr?'<button class="btn sm'+(inT?' on':'')+'" data-act="mu-today" data-id="'+e.id+'"'+(inT?' aria-pressed="true"':'')+'>'+(inT?'Im Training':'+ Heute')+'</button>':'')+
+        '<button class="btn sm vio'+(inD?' on':'')+'" data-act="mu-def" data-id="'+e.id+'"'+(inD?' aria-pressed="true"':'')+'>'+(inD?'Im Defizit':'+ Defizit')+'</button></div></div>';
+    }).join('')+'</div><p class="dim" style="font-size:12.5px;margin:8px 0 0">'+(tr?'Heute: nur für heute ins geplante Training. ':'Heute ist Ruhetag. ')+'Defizit: ein eigenes Zusatztraining unter Heute.</p>'+
+      '<div class="acts" style="margin-top:10px"><button class="btn vio" data-act="mu-defk" data-id="'+k+'">Defizit-Training für '+MU[k]+' bauen</button></div>';
+  }
+  if(dq&&!dq.done)h+='<p class="dim" style="font-size:13px;margin:10px 0 0">Dein Defizit-Training heute: <b style="color:var(--fg)">'+esc(dq.n)+'</b> ('+dq.ex.length+' Übungen). <button class="lnk" data-act="def-go">Zu Heute</button></p>';
   return h+'<div class="acts" style="margin-top:12px"><button class="btn" data-act="mu-sel" data-id="'+k+'">Auswahl aufheben</button></div></section>';
 }
 function viewMuskel(){
@@ -2905,6 +2931,43 @@ function viewMuskel(){
     (has?'':'<p class="dim" style="text-align:center;margin-top:8px">Noch keine Einheit mit Übungen protokolliert. Sobald du im Training-Tab trainierst, färbt sich die Karte.</p>')+'</section>';
   return h+muDetail(st);
 }
+
+/* ---------- Defizit-Training ---------- */
+function dqToday(){return S.dq&&S.dq.day===dayKey()?S.dq:null}
+function dqAdd(ids,ks){
+  const t=dayKey();
+  if(S.dq&&S.dq.day===t&&S.dq.done)return 'Das Defizit-Training für heute ist schon erledigt.';
+  if(S.ses&&S.ses.kind)return 'Beende zuerst das laufende Defizit-Training.';
+  if(!S.dq||S.dq.day!==t)S.dq={day:t,n:'',ks:[],ex:[],done:0};
+  const q=S.dq;let n=0;
+  ids.forEach(id=>{const e=exOf(id);if(!e||q.ex.length>=6||q.ex.some(x=>x.e===id))return;q.ex.push({id:uid(),e:id,s:scaleSets(e,S.tp&&S.tp.set),r:e.r});n++});
+  ks.forEach(k=>{if(k&&MU[k]&&!q.ks.includes(k))q.ks.push(k)});
+  q.n=q.ks.slice(0,3).map(k=>MU[k]).join(', ')+(q.ks.length>3?' u. a.':'');
+  if(!q.ex.length){S.dq=null;save();return 'Keine passende Übung gefunden.'}
+  save();
+  return n?'Im Defizit-Training: '+n+(n>1?' Übungen':' Übung')+'. Du findest es unter Heute.':(q.ex.length>=6?'Das Defizit-Training ist voll (6 Übungen).':'Die Übung ist schon im Defizit-Training.');
+}
+function sesOpenDef(){
+  const q=dqToday();
+  if(!q||!q.ex.length){toast('Kein Defizit-Training für heute');return}
+  if(q.done){toast('Das Defizit-Training für heute ist schon erledigt');return}
+  if(S.ses&&(S.ses.day!==dayKey()||Date.now()-S.ses.t0>10*3600e3))S.ses=null;
+  if(S.ses&&!S.ses.kind){toast('Beende zuerst dein Training von heute');return}
+  if(!S.ses){S.ses=sesBuild({n:q.n,f:'defi',kind:'defi',ex:q.ex});save()}
+  sesOn=true;sesArm=false;sesRender();sesWake();
+}
+function defCard(){
+  const q=dqToday();if(!q||!q.ex.length)return '';
+  const names=q.ex.map(x=>{const e=exOf(x.e);return e?esc(e.n):''}).filter(Boolean);
+  let h='<section id="defc" class="win gym def'+(q.done?' done':'')+'"><div class="sub"><div><div class="lbl">Defizit-Training</div><h2>'+esc(q.n)+'</h2></div></div>';
+  if(q.done)return h+'<div class="gdone">'+gico('ico-setdone',44)+'<div><b>Erledigt</b><small>Schwachstelle trainiert</small></div></div></section>';
+  const st=dayStats({ex:q.ex}),S0=S.ses&&S.ses.kind&&S.ses.day===dayKey()?S.ses:null;
+  const dn=S0?S0.ex.reduce((a,x)=>a+x.sets.filter(s=>s.d).length,0):0,tt=S0?S0.ex.reduce((a,x)=>a+(x.sk?0:x.sets.length),0):0;
+  h+='<div class="chips" style="margin:6px 0 8px"><span class="chip xp">bis +'+Math.round(st.xp*.8)+' XP</span><span class="chip">'+st.n+' Übungen · ca. '+st.min+' Min.</span></div><p class="gx">'+names.join(', ')+'</p>'+
+    '<div class="acts"><button class="btn ok" data-act="def-open">'+(S0?'Fortsetzen ('+dn+' / '+tt+' Sätze)':'Defizit-Training starten')+'</button><button class="btn ghost" data-act="def-drop">'+(defArm?'Sicher?':'Verwerfen')+'</button></div></section>';
+  return h;
+}
+let defArm=false;
 
 function viewVerlauf(){
   const T=[['kal','Kalender'],['train','Training'],['muskel','Muskeln'],['ziele','Ziele']];
@@ -4922,6 +4985,7 @@ function viewQuests(){
   if(S.auto)h+=autoCard();
   else h+=form&&form.type==='daily'?formHtml():'<div class="acts"><button class="btn" data-act="newq" data-id="daily">+ Eigene Quest</button><button class="btn vio" data-act="sug-toggle" aria-expanded="'+sugOpen+'">'+(sugOpen?'Vorschläge schließen':'Vorschläge')+'</button></div>'+sugHtml();
   h+=S.tp?gymCard():(S.tpHide?'':gymCard().replace('<div class="acts"><button class="btn" data-act="tp-quick">Plan erstellen</button><button class="btn ghost" data-act="go-plan">Anpassen</button></div>','<div class="acts"><button class="btn" data-act="tp-quick">Plan erstellen</button><button class="btn ghost" data-act="go-plan">Anpassen</button><button class="btn ghost" data-act="tp-hide">Ausblenden</button></div>'));
+  h+=defCard();
   const sq=S.quests.filter(q=>q.type==='system');
   if(S.sys.q&&S.sys.st==='open'){
     const s=S.sys.q;
@@ -5318,6 +5382,34 @@ document.addEventListener('click',e=>{
     case 'go-konto':tab='status';stSub='konto';form=null;profId=null;break;
     case 'tp-quick':{S.tp=genPlan(tpDefaults());S.tpHide=false;tpd=null;tpArm=null;tpSetOpen=false;tpOpenEx=null;tpFocus=false;tpDay=wdToday();syncTraining();save();toast('Plan erstellt. Du kannst ihn im Tab Training ändern.');break}
     case 'ses-open':sesOpen();return;
+    case 'def-open':sesOpenDef();return;
+    case 'def-drop':{
+      if(!defArm){defArm=true;break}
+      defArm=false;if(S.ses&&S.ses.kind){S.ses=null;sesOn=false;sesRender()}
+      S.dq=null;save();toast('Defizit-Training verworfen');break;
+    }
+    case 'def-go':tab='quests';jump='defc';form=null;break;
+    case 'mu-today':{
+      const e=exOf(id);if(!e)return;
+      const d=S.tp&&S.tp.days[wdToday()],gq=S.quests.find(x=>x.type==='gym'&&x.day===dayKey());
+      if(!isTrain(d)){toast('Heute ist Ruhetag. Nimm das Defizit-Training.');return}
+      if(gq&&gq.done){toast('Das Training von heute ist schon erledigt. Nimm das Defizit-Training.');return}
+      if(S.ses&&S.ses.kind){toast('Beende zuerst das Defizit-Training');return}
+      if(d.ex.some(x=>x.e===id)){toast('Die Übung steht heute schon im Training');return}
+      const x={id:uid(),e:id,s:scaleSets(e,S.tp.set),r:e.r,once:dayKey()};d.ex.push(x);
+      if(S.ses&&S.ses.day===dayKey()){const b=sesBuild({ex:[x]});if(b.ex[0])S.ses.ex.push(b.ex[0])}
+      syncTraining();save();toast(e.n+' steht heute im Training');break;
+    }
+    case 'mu-def':{toast(dqAdd([id],[mSel]));break}
+    case 'mu-defk':{
+      if(!MU[id])return;
+      toast(dqAdd(muSug(id,muStats().det).slice(0,3).map(e=>e.id),[id]));break;
+    }
+    case 'mu-defw':{
+      const st=muStats(),weak=Object.keys(MU).map(k=>({k,p:st.pts[k]||0})).filter(x=>muLv(x.p)<=1).sort((a,b)=>a.p-b.p).slice(0,4),ids=[];
+      weak.forEach(w=>{const e=muSug(w.k,st.det).find(x=>!ids.includes(x.id));if(e)ids.push(e.id)});
+      toast(dqAdd(ids,weak.map(w=>w.k)));break;
+    }
     case 'ses-min':sesOn=false;sesRender();render();return;
     case 'ses-cur':{if(!S.ses)return;const i=Number(id);S.ses.cur=S.ses.cur===i?-1:i;sesRender();return}
     case 'ses-set':{if(!S.ses)return;const p=String(id).split(':').map(Number);sesToggle(p[0],p[1]);return}
@@ -5389,7 +5481,7 @@ document.addEventListener('click',e=>{
     case 'mu-ex':{
       const e=exOf(id);if(!e)return;
       const w=muW(e),ks=Object.keys(w).sort((a,b)=>w[b]-w[a]);
-      modal({title:e.n,btn:'Schließen',body:(e.cue?'<p class="cue">'+esc(e.cue)+'</p>':'')+'<div class="chips" style="justify-content:center">'+ks.map(k=>'<span class="chip">'+MU[k]+(w[k]<1?' (nebenbei)':'')+'</span>').join('')+'</div><p class="dim" style="font-size:13px;margin-top:10px">'+esc((EQN[e.q]||['',''])[0])+(e.s>1?' · '+e.s+' Sätze à '+e.r:'')+'. Zum Plan hinzufügen kannst du die Übung im Training-Tab unter Plan.</p>'});
+      modal({title:e.n,btn:'Schließen',body:(e.cue?'<p class="cue">'+esc(e.cue)+'</p>':'')+'<div class="chips" style="justify-content:center">'+ks.map(k=>'<span class="chip">'+MU[k]+(w[k]<1?' (nebenbei)':'')+'</span>').join('')+'</div><p class="dim" style="font-size:13px;margin-top:10px">'+esc((EQN[e.q]||['',''])[0])+(e.s>1?' · '+e.s+' Sätze à '+e.r:'')+'. </p>'});
       return;
     }
     case 'goal-new':gForm=!gForm;break;
@@ -5477,7 +5569,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Hunter > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Hunter > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
+  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Hunter > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Hunter > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
