@@ -1122,7 +1122,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v23q';
+const APP_V='v24';
 const SPR=[{r:'S+',n:'Schattenkönig',d:100,c:'#ffd36b'},{r:'S★',n:'Monster',d:365,c:'#ff7ad9'}];
 const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Schattenkönig an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.'];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -4203,7 +4203,7 @@ function chalHtml(){
       if(i.st==='done'){
         const v=fmtRec(r,i.myV==null?0:i.myV)+' : '+fmtRec(r,i.oV==null?0:i.oV);
         if(i.win==='draw'){t='Unentschieden gegen '+nm;sub=what+' · '+v;btn='+'+CH_DRAW+' G holen'}
-        else if(i.win===i.me){t='Du hast gegen '+nm+' gewonnen';sub=what+(i.forfeit?' · kampflos, '+nm+' hat nichts eingetragen':' · '+v);btn='+'+(CH_REW+c.stake)+' G holen';cls=' cwin'}
+        else if(i.win===i.me){t='Du hast gegen '+nm+' gewonnen';sub=what+(i.forfeit?' · kampflos, '+nm+' hat nichts eingetragen':' · '+v);btn='+'+(CH_REW+(chOppClaim(c,i)?c.stake:0))+' G holen';cls=' cwin';if(c.stake&&!chOppClaim(c,i))sub+=' · Einsatz folgt, sobald '+nm+' bezahlt hat'}
         else{t='Du hast gegen '+nm+' verloren';sub=what+(i.forfeit?' · du hast nichts eingetragen':' · '+v)+(c.stake?' · −'+c.stake+' G':'');cls=' closs'}
       }else if(i.st==='void'){t='Duell mit '+nm+' verfallen';sub=what+' · niemand hat ein Ergebnis eingetragen'}
       else if(i.st==='declined'){t=nm+' hat abgelehnt';sub=what}
@@ -4287,6 +4287,29 @@ async function chSave(){
   }
   await loadChal();chBusy=false;render();
 }
+const chOppClaim=(c,i)=>!!(i.me==='from'?c.tclaim:c.fclaim);
+function chBonus(){
+  const d=dayKey();
+  if(!S.chwD||S.chwD.d!==d)S.chwD={d,n:0};
+  if(S.chwD.n>=3)return false;
+  S.chwD.n++;return true;
+}
+function chAuto(){
+  let ch=false;
+  chal.forEach(c=>{
+    const i=chInfo(c);
+    if(i.st==='done'&&i.win&&i.win!=='draw'&&i.win!==i.me&&!chClaimed(c,i))chClaim(c.id);
+  });
+  const pe=S.chPend;
+  if(pe)Object.keys(pe).forEach(id=>{
+    const p=pe[id],c=chal.find(x=>x.id===id);
+    if(!p||Date.now()-p.t>14*864e5){delete pe[id];ch=true;return}
+    if(!c)return;
+    const i=chInfo(c);
+    if(chOppClaim(c,i)){S.gold+=p.s;delete pe[id];ch=true;toast('Einsatz von '+(i.other||'deinem Gegner')+': +'+p.s+' G')}
+  });
+  if(ch){save();render()}
+}
 async function chClaim(id){
   const c=chal.find(x=>x.id===id);if(!c)return;
   const i=chInfo(c),cd=chDone();
@@ -4294,7 +4317,14 @@ async function chClaim(id){
   let msg='';
   if(i.st==='done'){
     if(i.win==='draw'){S.gold+=CH_DRAW;msg='Unentschieden: +'+CH_DRAW+' G'}
-    else if(i.win===i.me){S.gold+=CH_REW+c.stake;S.chw=(S.chw||0)+1;msg='Sieg: +'+(CH_REW+c.stake)+' G';save();grantXP(25+S.level)}
+    else if(i.win===i.me){
+      const opp=chOppClaim(c,i),bon=chBonus();
+      let g=bon?CH_REW:0;
+      if(c.stake>0){if(opp)g+=c.stake;else{if(!S.chPend)S.chPend={};S.chPend[id]={s:c.stake,t:Date.now()}}}
+      S.gold+=g;S.chw=(S.chw||0)+1;
+      msg='Sieg: +'+g+' G'+(c.stake&&!opp?' (Einsatz folgt)':'')+(bon?'':' (Tagesbonus aufgebraucht)');
+      save();if(bon)grantXP(25+S.level);
+    }
     else{const loss=Math.min(c.stake,S.gold);S.gold-=loss;S.chl=(S.chl||0)+1;msg=loss?'Niederlage: −'+loss+' G':'Niederlage'}
   }
   cd[id]=1;
@@ -4323,10 +4353,15 @@ async function flush(){
   writing=true;
   while(dirty){
     dirty=false;
-    try{await sb.from('saves').upsert({user_id:myId,state:clone(S),updated_at:new Date().toISOString()})}catch(e){}
+    try{const r=await sb.from('saves').upsert({user_id:myId,state:clone(S),updated_at:new Date().toISOString()});if(r&&r.error)hsErr(r.error)}catch(e){}
     try{await pubCard()}catch(e){}
   }
   writing=false;
+}
+let hsWarned=false;
+function hsErr(e){
+  const m=String((e&&e.message)||'');
+  if(/^HS:/.test(m)&&!hsWarned){hsWarned=true;toast('Der Server hat den Spielstand abgelehnt ('+m.slice(3).trim()+'). Er bleibt auf diesem Gerät gespeichert.')}
 }
 async function pubCard(){
   if(!online||!S.started)return;
@@ -4467,6 +4502,7 @@ async function refreshOnline(first){
     }
     if(tab==='arena')markSeen();
     if(await loadChal()){
+      chAuto();
       const ids=new Set(chal.map(c=>c.id));
       if(chalSeen===null){chalSeen=ids;if(chAttention()&&tab!=='quests')toast('Neues bei den Herausforderungen auf Heute')}
       else{chal.forEach(c=>{if(!chalSeen.has(c.id)){const i=chInfo(c);if(i.st==='open'&&i.me==='to'&&tab!=='quests')toast((c.from_name||'Ein Freund')+' fordert dich heraus')}});chalSeen=ids}
@@ -5569,7 +5605,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Hunter > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Hunter > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
+  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Hunter > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Hunter > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
