@@ -1042,14 +1042,14 @@ input[type=time]{color-scheme:dark;font-size:16px}
 (function(){
 'use strict';
 const KEY='hunter-system-v2';
-/* Online-Arena: Werte aus Supabase eintragen (Project URL und anon public key). Leer lassen = nur lokal + Hunter-Code. */
+/* Online-Arena: Werte aus Supabase eintragen (Project URL und anon public key). Leer lassen = nur lokal + Spieler-Code. */
 const SUPABASE_URL='https://jxbzejqhuzwzhautboqj.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4YnplanFodXp3emhhdXRib3FqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzNzU4MzgsImV4cCI6MjEwNzk1MTgzOH0.saG9VgPYFdZLJDxDMMXvH0GjVoJHyUyTrbEGc4Npl6g';
 const STATS=[['str','Stärke'],['vit','Ausdauer'],['agi','Agilität'],['int','Intelligenz'],['dis','Disziplin']];
 const HINT={str:'Kraft → Stärke',vit:'Cardio, Laufen → Ausdauer',agi:'Dehnen, Beweglichkeit → Agilität',int:'Lernen → Intelligenz',dis:'Gewohnheit → Disziplin'};
 const RANKS=['E','D','C','B','A','S'];
 const RANK_AT=[1,10,20,35,50,70];
-const TITLES={E:'Schwächster Hunter',D:'Aufsteiger',C:'Erprobter Hunter',B:'Elite-Hunter',A:'Nationaler Hunter',S:'Schattenmonarch'};
+const TITLES={E:'Schwächster Spieler',D:'Aufsteiger',C:'Erprobter Spieler',B:'Elite-Spieler',A:'Nationaler Spieler',S:'Monarch'};
 const DUNGEON_REWARD={E:[50,25],D:[100,50],C:[200,100],B:[400,200],A:[800,400],S:[1500,800]};
 const TIER_PRICE=[40,100,250,500],TIER_NAME=['Klein','Mittel','Groß','Riesig'];
 const QUEST_MAX=8,GATE_MAX=3,SHOP_MAX=15;
@@ -1126,19 +1126,19 @@ function itemIco(it,size){
   const t=k==='potion'?' pot':k==='gold'?' gold':k==='key'?' key':'';
   return '<span class="ico'+(size?' '+size:'')+cls+t+'"><img alt="" loading="lazy" src="img/item-'+k+'.webp" onerror="this.remove()"></span>';
 }
-const SH_T=['knight','assassin','beast'],SH_L={knight:'Schattenritter',assassin:'Schattenassassine',beast:'Schattenbestie'};
+const SH_T=['knight','assassin','beast'],SH_L={knight:'Dunkelritter',assassin:'Dunkelassassine',beast:'Dunkelbestie'};
 function scene(n,cls,pos){return '<div class="scene '+(cls||'')+'"><img alt="" loading="lazy" src="img/ui-'+n+'.webp" style="object-position:'+(pos||'50% 40%')+'" onerror="this.parentNode.remove()"></div>'}
 const tierOf=pr=>Math.max(0,Math.min(3,TIER_PRICE.filter(x=>pr>=x).length-1));
 const SHOPK=[[/anime|serie|folge|film|netflix|youtube/i,'anime'],[/snack|süss|süß|schoko|chips|nasch|dessert|glace|eis\b/i,'snack'],[/gaming|game|zock|konsole|playstation|spiel/i,'gaming'],[/abend|freier tag|frei(er)? tag|sofa|couch|chill|ausruh|ausschlaf/i,'evening'],[/cheat|burger|pizza|döner|fast ?food|restaurant|essen gehen|pommes/i,'cheat']];
 function shopKey(i){const n=i.name||'';for(const [re,k] of SHOPK)if(re.test(n))return k;return 'tier'+tierOf(i.price)}
 function tierIco(i){const k=shopKey(i);return '<span class="ico tier"><img alt="" loading="lazy" src="img/shop-'+k+'.webp" onerror="this.remove()"></span>'}
-const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer':'schattenlaeufer','Magier':'magier','Eiserner Wächter':'waechter','Assassine':'assassine','Paladin':'paladin','Berserker':'berserker','Schattenmonarch':'monarch'};
+const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer':'schattenlaeufer','Magier':'magier','Eiserner Wächter':'waechter','Assassine':'assassine','Paladin':'paladin','Berserker':'berserker','Monarch':'monarch'};
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v25b';
-const SPR=[{r:'S+',n:'Schattenkönig',d:100,c:'#ffd36b'},{r:'S★',n:'Monster',d:365,c:'#ff7ad9'}];
-const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Schattenkönig an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.'];
+const APP_V='v25c';
+const SPR=[{r:'S+',n:'Herrscher',d:100,c:'#ffd36b'},{r:'S★',n:'Monster',d:365,c:'#ff7ad9'}];
+const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.'];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
 const rkOf=()=>S.sp>0&&SPR[S.sp-1]?SPR[S.sp-1].r:rankOf(S.level);
 const ttlOf=()=>S.sp>0&&SPR[S.sp-1]?SPR[S.sp-1].n:TITLES[rankOf(S.level)];
@@ -1261,7 +1261,7 @@ function migrate(){
 }
 const SHADOW_EVERY=20;
 const AURAS=[['#4aa3ff','Blau'],['#5ee6c0','Türkis'],['#ffb54a','Gold'],['#ff5468','Rot'],['#9a6bff','Violett'],['#e8f0ff','Weiß']];
-const CLASSES=[['Krieger',1],['Dauerläufer',1],['Schattenläufer',1],['Magier',1],['Eiserner Wächter',1],['Assassine',10],['Paladin',20],['Berserker',35],['Schattenmonarch',70]];
+const CLASSES=[['Krieger',1],['Dauerläufer',1],['Schattenläufer',1],['Magier',1],['Eiserner Wächter',1],['Assassine',10],['Paladin',20],['Berserker',35],['Monarch',70]];
 const clsOk=(n,lv)=>CLASSES.some(c=>c[0]===n&&c[1]<=lv);
 const ELEMS=['Flammen','Sonne','Wald','Frost','Schatten','Nacht','Licht','Stahl'];
 const STAT_ELEM={str:'Flammen',vit:'Wald',agi:'Frost',int:'Schatten',dis:'Stahl'};
@@ -1273,9 +1273,9 @@ const ELEM_LORE={
   Frost:n=>n+' bleibt kühl und bricht unter keinem Druck.',
   Schatten:n=>n+' bewegt sich lautlos wie ein Schatten.',
   Nacht:n=>'Aus der Nacht kommt '+n+' und trainiert, wenn andere schlafen.',
-  Licht:n=>n+' strahlt klar und hell, ein Leuchtfeuer unter den Hunters.',
+  Licht:n=>n+' strahlt klar und hell, ein Leuchtfeuer unter den Spielern.',
   Stahl:n=>n+' ist hart wie Stahl und lässt sich nicht verbiegen.'};
-const RANK_LORE={E:'Der Weg hat gerade erst begonnen.',D:'Die ersten Tore sind überlebt.',C:'Das System stuft diesen Hunter als erprobt ein.',B:'Die Gilde respektiert diesen Namen.',A:'Der Name ist im ganzen Land bekannt.',S:'Eine lebende Legende.'};
+const RANK_LORE={E:'Der Weg hat gerade erst begonnen.',D:'Die ersten Tore sind überlebt.',C:'Das System stuft diesen Spieler als erprobt ein.',B:'Die Gilde respektiert diesen Namen.',A:'Der Name ist im ganzen Land bekannt.',S:'Eine lebende Legende.'};
 const RARITY=['Gewöhnlich','Ungewöhnlich','Selten','Episch','Legendär','Mythisch'];
 const BAG_MAX=30;
 const WD=['Mo','Di','Mi','Do','Fr','Sa','So'];
@@ -1943,7 +1943,7 @@ const PACKS={
   agi:{n:'Beweglichkeit',t:'Dehnen, Mobility',q:[['Dehnen',15,'Min.','agi'],['Mobility-Flow',12,'Min.','agi'],['Planke',45,'Sek.','str'],['Spazieren',20,'Min.','vit'],['Früh aufstehen und Bett machen',1,'','dis']]},
   int:{n:'Lernen & Fokus',t:'Lernen, Lesen',q:[['Fokus-Lernen',45,'Min.','int'],['Lesen',20,'Min.','int'],['Kalte Dusche',1,'','dis'],['Dehnen',10,'Min.','agi'],['Früh aufstehen und Bett machen',1,'','dis']]}
 };
-const RANKUP_TXT={D:'Du bist kein Anfänger mehr.',C:'Das System nimmt dich ernst.',B:'Elite-Hunter. Wenige kommen so weit.',A:'Nationaler Hunter. Dein Name ist bekannt.',S:'An der Spitze. Das System nennt dich Schattenmonarch.'};
+const RANKUP_TXT={D:'Du bist kein Anfänger mehr.',C:'Das System nimmt dich ernst.',B:'Elite-Spieler. Wenige kommen so weit.',A:'Nationaler Spieler. Dein Name ist bekannt.',S:'An der Spitze. Das System nennt dich Monarch.'};
 const SKILLS=[
   {id:'heavy',name:'Heftiger Schlag',lv:2,mp:10,desc:'1,8x Schaden'},
   {id:'step',name:'Blitzschritt',lv:5,mp:12,desc:'1,2x Schaden, weicht dem nächsten Angriff aus'},
@@ -2291,7 +2291,7 @@ function obStep0(){
       '<div class="of">'+gico('skill-blade',44)+'<span><b>Level, Rang und Kämpfe</b><small>Jede Quest bringt Erfahrung. Mit Schlüsseln öffnest du Dungeons und kämpfst gegen Monster.</small></span></div>'+
       '<div class="of">'+gico('class-paladin',44)+'<span><b>Freunde und Rekorde</b><small>Vergleiche deine Bestwerte mit Freunden und fordere sie zum Duell heraus.</small></span></div>'+
     '</div><p class="ob-note">Die nächsten Fragen dauern etwa zwei Minuten. Danach stellt das System deine ersten Quests zusammen.</p>';
-  if(s===1)return obHead('Dein Hunter','So sehen dich andere in der Arena.')+
+  if(s===1)return obHead('Dein Profil','So sehen dich andere in der Arena.')+
     '<label class="f">Dein Name<input type="text" id="ob-name" maxlength="30" value="'+esc(ob.name)+'" placeholder="Spieler" autocomplete="nickname"></label>'+
     '<label class="f" style="margin-top:12px">Foto für deinen Charakter (optional)<input type="file" id="ob-photo" accept="image/*" class="ob-file">'+(ob.file?'<small style="color:var(--ok)">Gewählt: '+esc(ob.file.name)+'</small>':'')+'</label>'+
     '<div class="ob-grp"><span class="lbl">Klasse (optional)</span><div class="pick cls">'+CLASSES.filter(c=>c[1]<=1).map(c=>'<button type="button" class="cl'+(ob.cls===c[0]?' on':'')+'" data-act="ob-cls" data-id="'+c[0]+'" aria-pressed="'+(ob.cls===c[0])+'">'+clsIco(c[0])+'<span>'+c[0]+'</span></button>').join('')+'</div>'+(ob.cls?clsInfo(ob.cls):'<div class="dim clsi">Jede Klasse gibt kleine Boni und eine Spezialfähigkeit im Dungeon. Du kannst sie später ändern.</div>')+'</div>';
@@ -2325,7 +2325,7 @@ function obFoot(){
   if(s===0)return '<button type="button" class="btn" data-act="ob-next">Los geht\'s</button>';
   if(s===2)return bk+'<button type="button" class="btn ghost" data-act="ob-bskip">Überspringen</button><button type="button" class="btn" data-act="ob-next">Weiter</button>';
   if(s===7)return bk+'<button type="button" class="btn ghost" data-act="ob-skip">Überspringen</button><button type="button" class="btn" data-act="ob-next">Weiter</button>';
-  if(s===8)return bk+'<button type="button" class="btn ok" data-act="ob-next">'+(ob.redo?'Quests übernehmen':'Hunter starten')+'</button>';
+  if(s===8)return bk+'<button type="button" class="btn ok" data-act="ob-next">'+(ob.redo?'Quests übernehmen':'Los geht\'s')+'</button>';
   return bk+'<button type="button" class="btn"'+(obValid()?'':' disabled')+' data-act="ob-next">Weiter</button>';
 }
 function obRender(){
@@ -2457,7 +2457,7 @@ function plBadge(pl,id){
   return h?'<button type="button" class="plb" data-act="pl-open" data-id="'+esc(id)+'" aria-label="Platzierungen anzeigen">'+h+'</button>':'';
 }
 function plModal(id){
-  const pl=places()[id],pe=peers.find(x=>x.id===id),nm=id==='me'?S.name:(pe?pe.name:'Hunter');
+  const pl=places()[id],pe=peers.find(x=>x.id===id),nm=id==='me'?S.name:(pe?pe.name:'Spieler');
   if(!pl)return;
   modal({title:'Platzierungen: '+nm,body:[1,2,3].filter(p=>pl[p].length).map(p=>'<div style="text-align:left;margin:8px 0"><div class="crown '+PLC[p]+'" style="margin:0 0 4px"><span style="display:inline-flex">'+CROWN+'</span><b style="font-size:16px;margin-left:6px">Platz '+p+'</b></div>'+pl[p].map(x=>'<div class="dim" style="margin-left:2px">'+esc(x.n)+': <b style="color:var(--fg)">'+fmtRec(recOf(x.k),x.v)+'</b> '+esc(x.u)+'</div>').join('')+'</div>').join('')});
 }
@@ -2611,7 +2611,7 @@ const ACH=[
  ['q10','bronze','Einsteiger','10 Quests abschließen','Frischling',()=>S.totalDone,10,'Quests'],
  ['q100','silver','Quest-Läufer','100 Quests abschließen','Quest-Läufer',()=>S.totalDone,100,'Quests'],
  ['q500','gold','Quest-Meister','500 Quests abschließen','Quest-Meister',()=>S.totalDone,500,'Quests'],
- ['sp1','diamond','Schattenkönig','Rang S+: 100 Tage Serie als Rang S','Schattenkönig',()=>(S.spSeen||0)>=1?1:0,1,'Quests'],
+ ['sp1','diamond','Herrscher','Rang S+: 100 Tage Serie als Rang S','Herrscher',()=>(S.spSeen||0)>=1?1:0,1,'Quests'],
  ['sp2','diamond','Monster','Rang S★: 365 Tage Serie als Rang S','Monster',()=>(S.spSeen||0)>=2?1:0,1,'Quests'],
  ['st7','bronze','Wochenwächter','7 Tage Serie','Wochenwächter',()=>S.bestStreak,7,'Quests'],
  ['st30','silver','Monatsmeister','30 Tage Serie','Monatsmeister',()=>S.bestStreak,30,'Quests'],
@@ -2626,10 +2626,10 @@ const ACH=[
  ['lv70','diamond','Monarch','Level 70 erreichen','Monarch',()=>S.level,70,'Fortschritt'],
  ['w10','bronze','Türöffner','10 Kämpfe gewinnen','Türöffner',()=>S.wins,10,'Kampf'],
  ['w50','gold','Torbrecher','50 Kämpfe gewinnen','Torbrecher',()=>S.wins,50,'Kampf'],
- ['sd5','silver','Schattenführer','5 Schatten-Soldaten','Schattenführer',()=>(S.shadows||[]).length,5,'Kampf'],
- ['sd20','diamond','Schattenherrscher','20 Schatten-Soldaten','Schattenherrscher',()=>(S.shadows||[]).length,20,'Kampf'],
- ['sdg','gold','Seltene Seele','Einen Gold-Schatten besitzen','Seelensammler',()=>(S.shadows||[]).filter(x=>x.r>=2).length,1,'Kampf'],
- ['sdt','silver','Typenmeister','Alle 5 Schatten-Typen besitzen','Typenmeister',()=>new Set((S.shadows||[]).map(x=>x.t)).size,5,'Kampf'],
+ ['sd5','silver','Truppführer','5 Gefährten','Truppführer',()=>(S.shadows||[]).length,5,'Kampf'],
+ ['sd20','diamond','Heerführer','20 Gefährten','Heerführer',()=>(S.shadows||[]).length,20,'Kampf'],
+ ['sdg','gold','Seltener Gefährte','Einen Gold-Gefährten besitzen','Gefährtensammler',()=>(S.shadows||[]).filter(x=>x.r>=2).length,1,'Kampf'],
+ ['sdt','silver','Typenmeister','Alle 5 Gefährten-Typen besitzen','Typenmeister',()=>new Set((S.shadows||[]).map(x=>x.t)).size,5,'Kampf'],
  ['wk5','gold','Zielstrebig','5 Wochenziele erfüllen','Zielstrebig',()=>cntOf('weekly'),5,'Kampf']
 ];
 const ACHM={};ACH.forEach(a=>{ACHM[a[0]]=a});
@@ -3029,7 +3029,7 @@ function viewMuskel(){
   const seg='<div class="seg c2" role="tablist" style="margin-bottom:12px">'+[['w','Diese Woche'],['m','4 Wochen']].map(([k,l])=>'<button role="tab" aria-selected="'+(mPer===k)+'" data-act="mu-per" data-id="'+k+'">'+l+'</button>').join('')+'</div>';
   let h=seg+'<section class="win"><div class="mmf"><div><div class="mmcap">Vorne</div>'+muFig('front',st)+'</div><div><div class="mmcap">Hinten</div>'+muFig('back',st)+'</div></div>'+
     '<div class="mmlg"><span class="l0">Nicht trainiert</span><span class="l1">Wenig</span><span class="l2">Gut</span><span class="l3">Stark</span></div>'+
-    '<p class="dim" style="font-size:12.5px;text-align:center;margin-top:6px">Gezählt werden Sätze pro Woche: wenig unter 4, gut 4 bis 9, stark ab 10. Männlich oder weiblich stellst du unter Hunter > Status > Konto ein.</p>'+
+    '<p class="dim" style="font-size:12.5px;text-align:center;margin-top:6px">Gezählt werden Sätze pro Woche: wenig unter 4, gut 4 bis 9, stark ab 10. Männlich oder weiblich stellst du unter Spieler > Status > Konto ein.</p>'+
     (has?'':'<p class="dim" style="text-align:center;margin-top:8px">Noch keine Einheit mit Übungen protokolliert. Sobald du im Training-Tab trainierst, färbt sich die Karte.</p>')+'</section>';
   return h+muDetail(st);
 }
@@ -3082,13 +3082,13 @@ function stSplit(str){
   return '<div class="seg c3" role="tablist" style="margin-bottom:12px">'+T.map(([k,l])=>'<button role="tab" aria-selected="'+(stSub===k)+'" data-act="st-sub" data-id="'+k+'">'+l+'</button>').join('')+'</div>'+(stSub==='erf'?scene('erfolge','vbn','50% 45%'):'')+body;
 }
 
-/* ---------- v20: Schatten-Karten, Team, Pausen-Spiel, Backup, Wochenrückblick ---------- */
+/* ---------- v20: Gefährten-Karten, Team, Pausen-Spiel, Backup, Wochenrückblick ---------- */
 const STYPE={
- kraft:{n:'Kraft',s:'str',c:'#ff6a3d',e:'Schatten-Berserker',nm:['Grimmak','Borag','Thrukk','Hakon','Brann']},
- ausdauer:{n:'Ausdauer',s:'vit',c:'#3de0b0',e:'Schattenwolf',nm:['Fenrix','Skoll','Varg','Rhuun','Ylva']},
- beweglichkeit:{n:'Beweglichkeit',s:'agi',c:'#4aa3ff',e:'Schatten-Assassine',nm:['Nyx','Kael','Zeph','Sirin','Vesper']},
- geist:{n:'Geist',s:'int',c:'#a56bff',e:'Schatten-Magier',nm:['Mordai','Ilthis','Orrun','Seraph','Veyra']},
- disziplin:{n:'Disziplin',s:'dis',c:'#cfd8ff',e:'Schatten-Ritter',nm:['Aldric','Kerron','Bastion','Torvald','Garr']}
+ kraft:{n:'Kraft',s:'str',c:'#ff6a3d',e:'Berserker',nm:['Grimmak','Borag','Thrukk','Hakon','Brann']},
+ ausdauer:{n:'Ausdauer',s:'vit',c:'#3de0b0',e:'Wolf',nm:['Fenrix','Skoll','Varg','Rhuun','Ylva']},
+ beweglichkeit:{n:'Beweglichkeit',s:'agi',c:'#4aa3ff',e:'Assassine',nm:['Nyx','Kael','Zeph','Sirin','Vesper']},
+ geist:{n:'Geist',s:'int',c:'#a56bff',e:'Magier',nm:['Mordai','Ilthis','Orrun','Seraph','Veyra']},
+ disziplin:{n:'Disziplin',s:'dis',c:'#cfd8ff',e:'Ritter',nm:['Aldric','Kerron','Bastion','Torvald','Garr']}
 };
 const STK=['kraft','beweglichkeit','geist','disziplin','ausdauer'];
 const STAT2T={str:'kraft',vit:'ausdauer',agi:'beweglichkeit',int:'geist',dis:'disziplin'};
@@ -3135,7 +3135,7 @@ function shadowXp(n,stat){
   if(ups.length)toast('Level-Up: '+ups.slice(0,3).join(', ')+(ups.length>3?' ...':''));
 }
 function extractModal(s,title,txt){
-  modal({pic:'shadows',kind:'vio',title:title,body:'<div style="display:flex;justify-content:center">'+cardHtml(s,{big:true})+'</div><p style="margin-top:10px">'+txt+'</p><p class="dim" style="font-size:13px">'+(S.team.includes(s.id)?'Er kämpft jetzt in deinem Team.':'Weise ihn im Tab Schatten deinem Team zu.')+'</p>',btn:'Aufstehen'});
+  modal({pic:'shadows',kind:'vio',title:title,body:'<div style="display:flex;justify-content:center">'+cardHtml(s,{big:true})+'</div><p style="margin-top:10px">'+txt+'</p><p class="dim" style="font-size:13px">'+(S.team.includes(s.id)?'Er kämpft jetzt in deinem Team.':'Weise ihn im Tab Gefährten deinem Team zu.')+'</p>',btn:'Aufstehen'});
 }
 function teamHit(){
   const tm=teamList(),mt=B.mon.shadow;
@@ -3189,7 +3189,7 @@ function backupSection(){
   const last=S.bk?'Letzte Sicherung: '+S.bk+'.':'Noch nie gesichert.';
   return '<section class="win"><div class="sub"><div><div class="lbl">Sicherung</div><h2>Spielstand als Datei</h2></div></div><p class="dim" style="font-size:14px;margin-bottom:10px">'+last+' Speichere die Datei an einem sicheren Ort. Mit ihr kannst du deinen Charakter auf jedem Gerät wiederherstellen.</p>'+
    '<div class="acts"><button class="btn" data-act="bk-save">Sicherung speichern</button><label class="btn ghost" style="cursor:pointer">Sicherung laden<input type="file" id="bkFile" accept="application/json,.json" style="display:none"></label></div></section>'+
-   '<section class="win"><div class="sub"><div><div class="lbl">App</div><h2>Auf dem Startbildschirm</h2></div></div><p class="dim" style="font-size:14px;margin-bottom:8px">Installiert startet Hunter wie eine App, ohne Browserleiste.</p>'+
+   '<section class="win"><div class="sub"><div><div class="lbl">App</div><h2>Auf dem Startbildschirm</h2></div></div><p class="dim" style="font-size:14px;margin-bottom:8px">Installiert startet Step Up wie eine App, ohne Browserleiste.</p>'+
    '<p style="margin:6px 0;font-size:14px"><b>Android (Chrome):</b> Menü ⋮ → „App installieren“ oder „Zum Startbildschirm“.</p>'+
    '<p style="margin:6px 0;font-size:14px"><b>iPhone (Safari):</b> Teilen-Symbol → „Zum Home-Bildschirm“.</p>'+(instEv?'<div class="acts" style="margin-top:10px"><button class="btn ok" data-act="inst">Jetzt installieren</button></div>':'')+'</section>';
 }
@@ -3200,12 +3200,12 @@ function rgRender(){
   if(!rg){const e=document.getElementById('rg');if(e)e.remove();return}
   const e=rgEl(),b=S.sg&&S.sg.best?'Bestzeit: '+S.sg.best+' ms':'';
   let m='';
-  if(rg.st==='ready')m='<h2>Reaktionstest</h2><p class="dim">Warte auf Grün, dann tippe so schnell du kannst. Drei Runden. Dein Team bekommt Schatten-XP.</p><div class="rg-b" data-act="rg-go"><b>Start</b></div><p class="qp">'+b+'</p>';
+  if(rg.st==='ready')m='<h2>Reaktionstest</h2><p class="dim">Warte auf Grün, dann tippe so schnell du kannst. Drei Runden. Dein Team bekommt Gefährten-XP.</p><div class="rg-b" data-act="rg-go"><b>Start</b></div><p class="qp">'+b+'</p>';
   else if(rg.st==='wait')m='<div class="rg-b w" data-rg="tap"><b>Warte ...</b></div><p class="qp">Runde '+(rg.r.length+1)+' von 3</p>';
   else if(rg.st==='go')m='<div class="rg-b g" data-rg="tap"><b>JETZT!</b></div><p class="qp">Runde '+(rg.r.length+1)+' von 3</p>';
   else if(rg.st==='early')m='<div class="rg-b e" data-act="rg-next"><b>Zu früh</b><small>Tippe zum Weitermachen</small></div>';
   else if(rg.st==='mid')m='<div class="rg-b" data-act="rg-next"><b>'+rg.r[rg.r.length-1]+' ms</b><small>Weiter</small></div><p class="qp">Runde '+rg.r.length+' von 3</p>';
-  else m='<h2>'+rg.avg+' ms</h2><p class="dim">Durchschnitt aus drei Runden.</p><p style="font-family:var(--f-d);font-size:22px;color:var(--ok)">'+(rg.gain>0?'+'+rg.gain+' Schatten-XP für dein Team':(teamList().length?'Heute ist das Limit erreicht':'Du hast noch keine Schatten im Team'))+'</p><div class="acts" style="justify-content:center"><button class="btn" data-act="rg-open">Nochmal</button><button class="btn ghost" data-act="rg-close">Schließen</button></div>';
+  else m='<h2>'+rg.avg+' ms</h2><p class="dim">Durchschnitt aus drei Runden.</p><p style="font-family:var(--f-d);font-size:22px;color:var(--ok)">'+(rg.gain>0?'+'+rg.gain+' Gefährten-XP für dein Team':(teamList().length?'Heute ist das Limit erreicht':'Du hast noch keine Gefährten im Team'))+'</p><div class="acts" style="justify-content:center"><button class="btn" data-act="rg-open">Nochmal</button><button class="btn ghost" data-act="rg-close">Schließen</button></div>';
   e.innerHTML='<div class="rg-in">'+m+(rg.st!=='done'?'<button class="btn ghost sm" data-act="rg-close" style="margin-top:14px">Abbrechen</button>':'')+'</div>';
 }
 function rgOpen(){rg={st:'ready',r:[],t0:0,tm:null,avg:0,gain:0};rgRender()}
@@ -3267,19 +3267,19 @@ function reviewCard(){
    '<p style="margin:10px 0 0;font-size:15px"><b>Tipp:</b> '+esc(weekTip(r))+'</p>'+
    '<div class="acts" style="margin-top:12px"><button class="btn ok" data-act="wr-ok">Neue Woche starten</button></div></section>';
 }
-/* Schatten-Ansicht */
+/* Gefährten-Ansicht */
 function viewShadows(){
   const k=S.totalDone%SHADOW_EVERY,tm=teamList(),all=S.shadows.slice().sort((a,b)=>b.r-a.r||b.lv-a.lv),ids=new Set(tm.map(s=>s.id));
-  let h='<section class="win vio">'+scene('shadows')+'<div class="sub"><div><div class="lbl" style="color:var(--violet)">Schattenarmee</div><h2>'+S.shadows.length+' Schatten'+helpBtn('schatten')+'</h2></div><span class="qp">Stärke '+fmtN(shadowPow())+'</span></div>'+
-   '<div class="row" style="justify-content:space-between;font-family:var(--f-d);letter-spacing:.08em;font-size:13px;margin-bottom:3px"><span class="dim">Nächste Extraktion</span><span class="num">'+k+' / '+SHADOW_EVERY+'</span></div><div class="bar vio"><i style="width:'+(k/SHADOW_EVERY*100)+'%"></i></div>'+
-   '<p class="dim" style="font-size:13px;margin:8px 0 0">Alle '+SHADOW_EVERY+' Quests extrahierst du einen Schatten, sein Typ folgt der Quest. Im Dungeon kannst du Schatten-Gegner besiegen und ihre Seele nehmen.</p></section>';
+  let h='<section class="win vio">'+scene('shadows')+'<div class="sub"><div><div class="lbl" style="color:var(--violet)">Deine Truppe</div><h2>'+S.shadows.length+' Gefährten'+helpBtn('schatten')+'</h2></div><span class="qp">Stärke '+fmtN(shadowPow())+'</span></div>'+
+   '<div class="row" style="justify-content:space-between;font-family:var(--f-d);letter-spacing:.08em;font-size:13px;margin-bottom:3px"><span class="dim">Nächste Rekrutierung</span><span class="num">'+k+' / '+SHADOW_EVERY+'</span></div><div class="bar vio"><i style="width:'+(k/SHADOW_EVERY*100)+'%"></i></div>'+
+   '<p class="dim" style="font-size:13px;margin:8px 0 0">Alle '+SHADOW_EVERY+' Quests rekrutierst du einen Gefährten, sein Typ folgt der Quest. Im Dungeon kannst du besiegte Gegner für dich gewinnen.</p></section>';
   h+='<section class="win"><div class="sub"><div><div class="lbl">Dein Team</div><h2>'+tm.length+' / '+TEAM_MAX+'</h2></div></div>'+
-   (tm.length?'<div class="steam">'+tm.map(s=>cardHtml(s,{extra:'<button class="btn ghost sm" data-act="sh-team" data-id="'+s.id+'">Entlassen</button>'})).join('')+'</div>':'<div class="empty">Dein Team ist leer. Wähle unten bis zu '+TEAM_MAX+' Schatten. Sie kämpfen im Dungeon mit und sammeln Erfahrung, wenn du Quests schaffst.</div>')+
-   '<p class="dim" style="font-size:13px;margin-top:10px">Schatten außerhalb des Teams helfen mit 40 % ihrer Stärke.</p></section>';
-  h+='<section class="win"><div class="sub"><div class="lbl">Typen</div></div><div class="tychart">'+STK.map((t,i)=>'<span class="tyc" style="--tc:'+STYPE[t].c+'">'+STYPE[t].n+'</span><i>›</i>').join('')+'<span class="tyc" style="--tc:'+STYPE.kraft.c+'">Kraft</span></div><p class="dim" style="font-size:13px;margin-top:8px">Jeder Typ schlägt den nächsten: 1,5× Schaden. Gegen den vorherigen sind es 0,7×. Das zählt gegen Schatten-Gegner im Dungeon.</p></section>';
+   (tm.length?'<div class="steam">'+tm.map(s=>cardHtml(s,{extra:'<button class="btn ghost sm" data-act="sh-team" data-id="'+s.id+'">Entlassen</button>'})).join('')+'</div>':'<div class="empty">Dein Team ist leer. Wähle unten bis zu '+TEAM_MAX+' Gefährten. Sie kämpfen im Dungeon mit und sammeln Erfahrung, wenn du Quests schaffst.</div>')+
+   '<p class="dim" style="font-size:13px;margin-top:10px">Gefährten außerhalb des Teams helfen mit 40 % ihrer Stärke.</p></section>';
+  h+='<section class="win"><div class="sub"><div class="lbl">Typen</div></div><div class="tychart">'+STK.map((t,i)=>'<span class="tyc" style="--tc:'+STYPE[t].c+'">'+STYPE[t].n+'</span><i>›</i>').join('')+'<span class="tyc" style="--tc:'+STYPE.kraft.c+'">Kraft</span></div><p class="dim" style="font-size:13px;margin-top:8px">Jeder Typ schlägt den nächsten: 1,5× Schaden. Gegen den vorherigen sind es 0,7×. Das zählt gegen Gegner im Dungeon.</p></section>';
   h+=expSection()+fuseSection();
   h+='<section class="win"><div class="sub"><div class="lbl">Sammlung</div><span class="qp">sortiert nach Seltenheit</span></div>'+
-   (all.length?'<div class="sgrid2">'+all.map(s=>cardHtml(s,{extra:shBtn(s,ids)})).join('')+'</div>':'<div class="empty">Noch keine Schatten. Schließe Quests ab oder besiege Schatten-Gegner im Dungeon.</div>')+'</section>';
+   (all.length?'<div class="sgrid2">'+all.map(s=>cardHtml(s,{extra:shBtn(s,ids)})).join('')+'</div>':'<div class="empty">Noch keine Gefährten. Schließe Quests ab oder besiege Gegner im Dungeon.</div>')+'</section>';
   return h;
 }
 
@@ -3392,8 +3392,8 @@ function viewProfile(p){
   h+='<section class="win"><div class="sub"><div class="lbl">Fähigkeiten im Vergleich</div><span class="qp">'+(he>=me?esc(c.name)+' liegt vorn':'Du liegst vorn')+': '+Math.abs(he-me)+' Punkte</span></div>'+radarCmp(S.stats,c.stats,c.name)+
     STATS.map(([k,l])=>{const a=c.stats[k],b=S.stats[k];
       return '<div class="cmp"><div class="cmpn">'+gico('stat-'+k,22)+'<span>'+l+'</span><b>'+a+'</b><small class="dim">du '+b+'</small></div><div class="bar"><i style="width:'+Math.min(100,a/mx*100)+'%"></i><u style="left:'+Math.min(99,b/mx*100)+'%"></u></div></div>'}).join('')+'</section>';
-  h+='<section class="win"><div class="sub"><div class="lbl">Schatten</div></div><div class="kv"><div><span class="lbl">Schatten-Kraft</span><span class="num">'+c.sh+'</span></div></div>'+
-    (c.tm.length?'<div class="steam" style="margin-top:10px">'+c.tm.map((s,i)=>cardHtml(miniShadow(s,i))).join('')+'</div>':'<p class="dim" style="font-size:13px;margin-top:8px">Kein Schatten-Team sichtbar.</p>')+'</section>';
+  h+='<section class="win"><div class="sub"><div class="lbl">Gefährten</div></div><div class="kv"><div><span class="lbl">Gefährten-Kraft</span><span class="num">'+c.sh+'</span></div></div>'+
+    (c.tm.length?'<div class="steam" style="margin-top:10px">'+c.tm.map((s,i)=>cardHtml(miniShadow(s,i))).join('')+'</div>':'<p class="dim" style="font-size:13px;margin-top:8px">Kein Gefährten-Team sichtbar.</p>')+'</section>';
   const rr=REC.filter(r=>c.rc[r.k]>0),chm=champs()[p.id]||[];
   if(rr.length)h+='<section class="win"><div class="sub"><div class="lbl">Rekorde</div></div>'+(chm.length?'<div class="chips" style="margin-bottom:8px">'+chm.map(n=>'<span class="chip gold">Champion: '+esc(n)+'</span>').join('')+'</div>':'')+rr.map(r=>{const mine=S.pr&&S.pr[r.k]&&S.pr[r.k].v;return '<div class="rtrow"><span>'+esc(r.n)+'</span><b>'+fmtRec(r,c.rc[r.k])+' '+esc(r.u)+(mine>0?' <small class="dim">du '+fmtRec(r,mine)+'</small>':'')+'</b></div>'}).join('')+'</section>';
   return h;
@@ -3403,7 +3403,7 @@ function viewProfile(p){
 const HEALTH='Höre auf, wenn es wehtut. Bei Vorerkrankungen oder Beschwerden sprich vorher mit einer Ärztin oder einem Arzt. Das System ersetzt keine medizinische Beratung.';
 const healthNote=()=>'<section class="win"><div class="sub"><div class="lbl">Wichtig</div></div><p class="dim" style="font-size:13.5px">'+HEALTH+'</p></section>';
 const GROUPS={fight:['dungeon','shadows','shop'],hero:['status','verlauf']};
-const GLAB={dungeon:'Dungeon',shadows:'Schatten',shop:'Shop',status:'Status',verlauf:'Verlauf'};
+const GLAB={dungeon:'Dungeon',shadows:'Gefährten',shop:'Shop',status:'Status',verlauf:'Verlauf'};
 const lastSub={fight:'dungeon',hero:'status'};
 const grpOf=t=>Object.keys(GROUPS).find(g=>GROUPS[g].includes(t))||null;
 const navId=k=>GROUPS[k]?(GROUPS[k].find(t=>tabDot(t))||lastSub[k]):k;
@@ -3418,23 +3418,23 @@ function subSeg(){
 }
 /* Erklärungen */
 const HELP={
- dungeon:['Dungeon-Lauf','Ein Lauf hat 5 Räume. Vor jedem Raum wählst du zwischen zwei Türen. Deine Lebenspunkte bleiben erhalten, bis du rastest, einen Trank nimmst oder der Lauf endet. Am Ende wartet ein Wächter. Rückzug sichert deine Beute, bei Niederlage bleibt die Hälfte. Im Kampf zeigt der Gegner seinen nächsten Zug an (rot: Schaden, blau: Abwehr oder Heilung, orange: lädt einen Vernichtungsschlag auf). Mit Deckung nimmst du viel weniger Schaden. Jeder Gegner hat eine Eigenschaft, zum Beispiel Panzer oder Gift. Deine Schatten greifen nicht von allein ein: Tippe sie an, wenn sie bereit sind. Kraft schlägt zu, Beweglichkeit durchdringt Panzer, Geist heilt, Ausdauer schützt, Disziplin bannt den Gegner eine Runde. Danach brauchen sie 3 Runden Abkühlzeit. Deine Klasse gibt dir außerdem eine Spezialfähigkeit mit eigener Wartezeit. Sie steht als gelber Knopf unten im Kampf.'],
- energie:['Energie','Jede erledigte Quest lädt Energie auf, bis 100. Im Kampf kosten Fähigkeiten Energie. Angriff und Deckung laden etwas nach. Schatten brauchen keine Energie, sie haben Abkühlzeit.'],
+ dungeon:['Dungeon-Lauf','Ein Lauf hat 5 Räume. Vor jedem Raum wählst du zwischen zwei Türen. Deine Lebenspunkte bleiben erhalten, bis du rastest, einen Trank nimmst oder der Lauf endet. Am Ende wartet ein Wächter. Rückzug sichert deine Beute, bei Niederlage bleibt die Hälfte. Im Kampf zeigt der Gegner seinen nächsten Zug an (rot: Schaden, blau: Abwehr oder Heilung, orange: lädt einen Vernichtungsschlag auf). Mit Deckung nimmst du viel weniger Schaden. Jeder Gegner hat eine Eigenschaft, zum Beispiel Panzer oder Gift. Deine Gefährten greifen nicht von allein ein: Tippe sie an, wenn sie bereit sind. Kraft schlägt zu, Beweglichkeit durchdringt Panzer, Geist heilt, Ausdauer schützt, Disziplin bannt den Gegner eine Runde. Danach brauchen sie 3 Runden Abkühlzeit. Deine Klasse gibt dir außerdem eine Spezialfähigkeit mit eigener Wartezeit. Sie steht als gelber Knopf unten im Kampf.'],
+ energie:['Energie','Jede erledigte Quest lädt Energie auf, bis 100. Im Kampf kosten Fähigkeiten Energie. Angriff und Deckung laden etwas nach. Gefährten brauchen keine Energie, sie haben Abkühlzeit.'],
  system:['System-Quest','Eine freiwillige Zusatzaufgabe für heute. Ablehnen kostet nichts.'],
  wochenziel:['Wochenziel','Ein großes Ziel für die ganze Woche. Du trägst deinen Fortschritt nach und nach ein.'],
  schluessel:['Schlüssel','Mit einem Schlüssel startest du einen Dungeon-Lauf im Kampf-Tab. Du findest Schlüssel bei Quests, bei System-Quests, bei Wächtern, auf Expeditionen und wenn du alle Tagesquests schaffst.'],
  strafzone:['Strafzone','Verpasste Tage ergeben Strafquests. Leiste sie ab oder streiche sie mit einem Erlass aus dem Shop.'],
  serie:['Serie','Anzahl Tage in Folge, an denen du alle Tagesquests geschafft hast. Freie Tage unterbrechen sie nicht. An geplanten Ruhetagen entfallen nur die Sport-Quests, alle anderen bleiben Pflicht.'],
  konstanz:['Konstanz','Wie viel du in den letzten 30 Tagen geschafft hast, in Prozent. Es zählen nur Tage, seit du dabei bist. Im Duell wirkt sie als Bonus oder Abzug von bis zu 25 %.'],
- fairness:['Fairness im Duell','Gewonnen wird nicht nach dem Level, sondern nach Werten, Schatten und Konstanz. Wer den letzten Monat dranbleibt, bekommt bis zu +25 %, wer schludert bis zu −25 %. Neueinsteiger zählen nur ab ihrem ersten Tag. Das Ergebnis ist festgelegt: dieselben Werte ergeben immer dasselbe Duell.'],
- haltung:['Haltung','So kämpft dein Hunter, wenn Freunde dich herausfordern, auch wenn du offline bist. Angriff schlägt Ausgleich, Ausgleich schlägt Verteidigung, Verteidigung schlägt Angriff (+15 % Schaden). Wer dich herausfordert, kennt deine Haltung nicht.'],
- sichtbar:['Was Freunde sehen','Freunde sehen Name, Level, Rang, Werte, Konstanz, dein Schatten-Team, Erfolge, Rekorde und dein kleines Profilbild. Das Duell-Ergebnis siehst du im Postfach, sobald du die App öffnest.'],
- kampfkraft:['Kampfkraft','Eine Zahl aus Lebenspunkten, Angriff und Verteidigung. Sie zeigt grob, wie stark ein Hunter im Duell ist.'],
+ fairness:['Fairness im Duell','Gewonnen wird nicht nach dem Level, sondern nach Werten, Gefährten und Konstanz. Wer den letzten Monat dranbleibt, bekommt bis zu +25 %, wer schludert bis zu −25 %. Neueinsteiger zählen nur ab ihrem ersten Tag. Das Ergebnis ist festgelegt: dieselben Werte ergeben immer dasselbe Duell.'],
+ haltung:['Haltung','So kämpfst du, wenn Freunde dich herausfordern, auch wenn du offline bist. Angriff schlägt Ausgleich, Ausgleich schlägt Verteidigung, Verteidigung schlägt Angriff (+15 % Schaden). Wer dich herausfordert, kennt deine Haltung nicht.'],
+ sichtbar:['Was Freunde sehen','Freunde sehen Name, Level, Rang, Werte, Konstanz, dein Gefährten-Team, Erfolge, Rekorde und dein kleines Profilbild. Das Duell-Ergebnis siehst du im Postfach, sobald du die App öffnest.'],
+ kampfkraft:['Kampfkraft','Eine Zahl aus Lebenspunkten, Angriff und Verteidigung. Sie zeigt grob, wie stark ein Spieler im Duell ist.'],
  gold:['Gold','Gold gibt es für Quests. Im Shop kaufst du damit Schilde, Erlasse und mehr.'],
  xp:['Erfahrung','Erfahrung füllt deine Level-Leiste. Pro Tag zählen nur begrenzt viele XP aus Quests.'],
  schild:['Straf-Schild','Fängt die nächste Strafe von selbst ab und rettet deine Serie. Es wird dabei verbraucht.'],
  skill:['Fähigkeiten','Jede Quest stärkt eine Fähigkeit: Stärke, Ausdauer, Agilität, Intelligenz oder Disziplin. Sie wachsen nur durch passende Quests.'],
- schatten:['Schatten','Quests und besiegte Gegner bringen Schatten. Bis zu drei kämpfen in deinem Team mit und werden stärker.'],
+ schatten:['Gefährten','Quests und besiegte Gegner bringen Gefährten. Bis zu drei kämpfen in deinem Team mit und werden stärker.'],
  tageslimit:['Tageslimit','Aus Quests zählen pro Tag nur begrenzt viele XP, pro Fähigkeit noch weniger. So kann niemand mit einer einzigen Übung aufsteigen.']
 };
 const helpBtn=k=>HELP[k]?'<button type="button" class="hq" data-act="help" data-id="'+k+'" aria-label="Erklärung: '+esc(HELP[k][0])+'">?</button>':'';
@@ -3461,8 +3461,8 @@ function guideSection(){
   return '<details class="win guide"><summary>Spielanleitung</summary><div class="ob-feat" style="margin:10px 0 0">'+
     row(gico('stat-dis',40),'Heute','Hier stehen deine täglichen Quests. Erledige sie jeden Tag, sonst gibt es eine Strafe. Wer alles schafft, baut eine Serie auf.')+
     row(gico('ico-setdone',40),'Training','Hier steht dein Wochenplan. An Trainingstagen wartet bei Heute die GYM-Quest. An Ruhetagen entfallen die Sport-Quests, alle anderen bleiben.')+
-    row(gico('item-key',40),'Kampf','Schlüssel öffnen Türen mit Gegnern. Dazu gehören Dungeons, deine Schatten und der Shop.')+
-    row(gico('seal-gold',40),'Hunter','Dein Status mit Fähigkeiten, Erfolgen und Titeln und der Verlauf.')+
+    row(gico('item-key',40),'Kampf','Schlüssel öffnen Türen mit Gegnern. Dazu gehören Dungeons, deine Gefährten und der Shop.')+
+    row(gico('seal-gold',40),'Spieler','Dein Status mit Fähigkeiten, Erfolgen und Titeln und der Verlauf.')+
     row(gico('stat-str',40),'Arena','Füge Freunde per Code hinzu, vergleiche Rekorde und fordere sie zum Duell heraus.')+
     '</div></details>';
 }
@@ -3481,13 +3481,13 @@ function planIntro(){
   const d=tpDefaults(),P=S.prof;
   const chips=[d.place==='gym'?'Studio':'Zu Hause',d.days+' Tage pro Woche',d.time+' Min. pro Einheit',({anf:'Anfänger',mid:'Fortgeschritten',adv:'Erfahren'})[d.level]||''].filter(Boolean);
   return '<section class="win"><div class="banner" style="height:150px"><img alt="" src="img/ui-plan.webp" onerror="this.parentNode.remove()"></div><div class="sub"><div><div class="lbl">Trainingsplan</div><h2>Dein Wochenplan</h2></div></div>'+
-   '<p style="margin-bottom:8px">'+(P?'Das System baut den Plan aus deinen Angaben aus dem Fragebogen. Danach kannst du jede Übung tauschen und Tage verschieben.':'Du hast den Fragebogen noch nicht beantwortet. Das System nimmt deshalb Standardwerte. Mit dem Fragebogen im Hunter-Tab wird der Plan genauer.')+'</p>'+
+   '<p style="margin-bottom:8px">'+(P?'Das System baut den Plan aus deinen Angaben aus dem Fragebogen. Danach kannst du jede Übung tauschen und Tage verschieben.':'Du hast den Fragebogen noch nicht beantwortet. Das System nimmt deshalb Standardwerte. Mit dem Fragebogen im Spieler-Tab wird der Plan genauer.')+'</p>'+
    '<div class="chips" style="margin-bottom:12px">'+chips.map(c=>'<span class="chip">'+esc(c)+'</span>').join('')+'</div>'+
    '<div class="acts"><button class="btn ok" data-act="tp-quick">Plan erstellen</button><button class="btn ghost" data-act="tp-setopen">'+(tpSetOpen?'Schließen':'Anpassen')+'</button></div>'+
    (tpSetOpen?setForm()+'<div class="acts" style="margin-top:16px"><button class="btn ok" data-act="tp-gen" style="width:100%">Mit diesen Angaben erstellen</button></div>':'')+'</section>'+healthNote();
 }
 
-/* ---------- v23: Dungeon-Lauf, Energie, Schatten-Extras ---------- */
+/* ---------- v23: Dungeon-Lauf, Energie, Gefährten-Extras ---------- */
 const EN_MAX=100,ROOMS=5,BURST_EN=30;
 let runSum=null,outArm=false,fuseArm=null,frArm=null;
 const addEn=n=>{S.en=Math.max(0,Math.min(EN_MAX,Math.round((S.en||0)+n)))};
@@ -3548,7 +3548,7 @@ function lootRow(r){
   return h+'</div>';
 }
 const BOSSN=['Goblinkönig','Orkhäuptling','Knochenfürst','Schwarzer Ritter','Dämonenfürst','Drachenfürst'];
-/* ----- Kampf v2: Absichten, Eigenschaften, Schatten als Einheiten ----- */
+/* ----- Kampf v2: Absichten, Eigenschaften, Gefährten als Einheiten ----- */
 const INT={
  atk:{n:'Angriff',m:1,h:'',c:'r'},
  heavy:{n:'Schwerer Schlag',m:1.8,h:'Deckung hilft',c:'r'},
@@ -3591,7 +3591,7 @@ const CLS_FX={
  'Assassine':{st:'agi',xp:.06,crit:.08,sp:{id:'kill',n:'Meuchelstoß',mp:22,cd:3,d:'1,7x Schaden, trifft immer kritisch und durchdringt Panzer'}},
  'Paladin':{st:'vit',xp:.06,hp:.08,def:.08,sp:{id:'holy',n:'Heiliges Licht',mp:28,cd:4,d:'Heilt 25 % und das Gift, schlägt mit 1,2x durch'}},
  'Berserker':{st:'str',xp:.06,atk:.08,sp:{id:'rage',n:'Raserei',mp:20,cd:3,d:'3,4x Schaden, du verlierst dafür 12 % deiner Lebenspunkte'}},
- 'Schattenmonarch':{st:'*',xp:.05,hp:.05,atk:.05,shcd:1,shp:.15,sp:{id:'cmd',n:'Schattenbefehl',mp:14,cd:4,d:'Alle bereiten Schatten greifen sofort an, mit +50 % Wirkung'}}
+ 'Monarch':{st:'*',xp:.05,hp:.05,atk:.05,shcd:1,shp:.15,sp:{id:'cmd',n:'Befehl',mp:14,cd:4,d:'Alle bereiten Gefährten greifen sofort an, mit +50 % Wirkung'}}
 };
 const cfx=()=>CLS_FX[getProfile().klasse]||{};
 const clsXpMul=st=>{const f=cfx();return 1+((f.st==='*'||f.st===st)&&f.xp?f.xp:0)};
@@ -3607,8 +3607,8 @@ function clsLines(n){
   if(f.dodge)o.push('+'+Math.round(f.dodge*100)+' % Ausweichen');
   if(f.crit)o.push('+'+Math.round(f.crit*100)+' % Chance auf kritische Treffer');
   if(f.mpc)o.push('Fähigkeiten kosten '+Math.round(f.mpc*100)+' % weniger Energie');
-  if(f.shp)o.push('+'+Math.round(f.shp*100)+' % Schaden deiner Schatten');
-  if(f.shcd)o.push('Schatten sind '+f.shcd+' Runde früher wieder bereit');
+  if(f.shp)o.push('+'+Math.round(f.shp*100)+' % Schaden deiner Gefährten');
+  if(f.shcd)o.push('Gefährten sind '+f.shcd+' Runde früher wieder bereit');
   return o;
 }
 const dAtk0=()=>4+S.stats.str*0.9;
@@ -3685,9 +3685,9 @@ const EVENTS=[
  {id:'trap',t:'Druckplatten',x:'Der Boden ist mit Platten übersät. Zwischen ihnen glitzert Gold.',o:[
   ['Springen','Beweglichkeit entscheidet',()=>{const ok=Math.random()<Math.min(.9,.3+S.stats.agi*.012);if(ok){const g=Math.round(15+S.run.ri*10);S.run.g+=g;return 'Du tanzt über die Platten. +'+g+' G.'}hurtPct(.2);return 'Eine Platte klickt. Pfeile treffen dich: −20 % LP.'}],
   ['Vorsichtig umgehen','−8 % LP',()=>{hurtPct(.08);return 'Der Umweg kostet Kraft: −8 % LP.'}]]},
- {id:'soul',t:'Verwundeter Schatten',x:'Ein geschwächter Schatten liegt am Boden. Du kannst ihm die Seele nehmen oder ihn verschonen.',o:[
-  ['Seele nehmen','Neuer Schatten',()=>{const s=mkShadow(STK[Math.floor(Math.random()*5)],Math.max(0,S.run.ri-1));addShadow(s);S.run.sh++;extractModal(s,'Schatten extrahiert','Der verwundete Schatten dient dir jetzt.');return 'Du nimmst dem Schatten die Seele. Er dient dir jetzt.'}],
-  ['Verschonen','+25 % LP, +20 Energie',()=>{healPct(.25);addEn(20);return 'Der Schatten verneigt sich und lässt dir seine Kraft. +25 % LP, +20 Energie.'}]]}
+ {id:'soul',t:'Verwundeter Kämpfer',x:'Ein geschwächter Kämpfer liegt am Boden. Du kannst ihn für dich gewinnen oder verschonen.',o:[
+  ['Anwerben','Neuer Gefährte',()=>{const s=mkShadow(STK[Math.floor(Math.random()*5)],Math.max(0,S.run.ri-1));addShadow(s);S.run.sh++;extractModal(s,'Gefährte rekrutiert','Der Kämpfer dient dir jetzt.');return 'Du wirbst den Kämpfer an. Er dient dir jetzt.'}],
+  ['Verschonen','+25 % LP, +20 Energie',()=>{healPct(.25);addEn(20);return 'Der Kämpfer verneigt sich und lässt dir seine Kraft. +25 % LP, +20 Energie.'}]]}
 ];
 function enterRoom(i){
   const r=S.run;if(!r||!r.doors||B)return;
@@ -3734,7 +3734,7 @@ function endFight(win){
     vib([40,30,40]);sfx('win');
     if(k==='boss')finishRun('win');else advance();
     save();
-    if(ext)extractModal(ext,'Schatten extrahiert','Du nimmst dem besiegten Gegner seine Seele. Er dient jetzt dir.');
+    if(ext)extractModal(ext,'Gefährte rekrutiert','Du gewinnst den besiegten Gegner für dich. Er dient jetzt dir.');
   }else{
     B.res={win:false};
     B.log.push({t:'Du bist gefallen.',c:'took'});
@@ -3915,14 +3915,14 @@ function sumCard(){
   return '<section class="win '+(w?'gold':'')+'"><div class="sub"><div><div class="lbl" style="color:'+(w?'var(--warn)':'var(--dim)')+'">Lauf beendet</div><h2>'+(w?'Dungeon geschafft':o?'Rückzug':'Niederlage')+'</h2></div></div>'+
    '<div class="kv"><div><span class="lbl">Räume</span><span class="num">'+s.rooms+' / '+ROOMS+'</span></div><div><span class="lbl">Erfahrung</span><span class="num">+'+s.xp+'</span></div><div><span class="lbl">Gold</span><span class="num">+'+s.g+'</span></div></div>'+
    ((s.pot||s.key)?'<p style="margin-top:8px">Dazu: '+[s.pot?s.pot+' Trank':'',s.key?s.key+' Schlüssel':''].filter(Boolean).join(', ')+'</p>':'')+
-   (s.sh?'<p style="margin-top:8px;color:var(--violet)">'+s.sh+' Schatten extrahiert.</p>':'')+
+   (s.sh?'<p style="margin-top:8px;color:var(--violet)">'+s.sh+' Gefährten rekrutiert.</p>':'')+
    (!w&&!o?'<p class="dim" style="margin-top:8px">Bei einer Niederlage bleibt die Hälfte von Erfahrung und Gold. Rückzug sichert alles.</p>':'')+
    '<div class="acts" style="margin-top:12px"><button class="btn" data-act="sum-ok">Fertig</button></div></section>';
 }
 function startCard(){
   const n=S.keys;
   return '<section id="doors" class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Dungeon</div><h2>Kurzer Lauf'+helpBtn('dungeon')+'</h2></div><span class="lbl ic" style="color:var(--warn)"><img class="mi" alt="" src="img/item-key.webp" onerror="this.remove()">Schlüssel: '+n+helpBtn('schluessel')+'</span></div>'+
-   '<p class="dim" style="font-size:13.5px;margin-bottom:10px">'+ROOMS+' Räume. Vor jedem Raum wählst du zwischen zwei Türen: Kampf, Elite, Schatzraum, Rast oder Ereignis. Am Ende wartet ein Wächter. Gegner zeigen ihren nächsten Zug an. Deine Schatten kämpfen mit: Tippe sie an, sobald sie bereit sind.</p>'+enBar()+
+   '<p class="dim" style="font-size:13.5px;margin-bottom:10px">'+ROOMS+' Räume. Vor jedem Raum wählst du zwischen zwei Türen: Kampf, Elite, Schatzraum, Rast oder Ereignis. Am Ende wartet ein Wächter. Gegner zeigen ihren nächsten Zug an. Deine Gefährten kämpfen mit: Tippe sie an, sobald sie bereit sind.</p>'+enBar()+
    '<p class="dim" style="font-size:13px;margin:8px 0 12px">Energie lädst du mit echten Quests: Jede erledigte Quest bringt Energie. Im Kampf zünden Fähigkeiten damit.</p>'+
    (n>0?'<button class="btn lg" data-act="run-start">Lauf starten (1 Schlüssel)</button>'
     :'<div class="empty">Kein Schlüssel. Du findest sie bei Quests (15 %), bei System-Quests und garantiert an jedem Tag mit allen Tagesquests. Auch Wächter und Expeditionen bringen manchmal einen mit.</div>')+
@@ -3975,7 +3975,7 @@ function viewDungeon(){
   else h+=startCard();
   return h;
 }
-/* ----- Schatten: Fusion + Expeditionen ----- */
+/* ----- Gefährten: Fusion + Expeditionen ----- */
 const FUSE_N=3,EXP_H=[4,8];
 function fuseGroups(){
   const busy=new Set((S.exp||[]).map(e=>e.id)),g={};
@@ -3991,13 +3991,13 @@ function doFuse(k){
   S.team=(S.team||[]).filter(id=>!ids.has(id));
   const ns=mkShadow(grp.t,0);ns.r=grp.r+1;ns.lv=Math.max(1,Math.floor(best/2));ns.xp=0;
   addShadow(ns);save();
-  extractModal(ns,'Verschmelzung','Drei '+STYPE[grp.t].n+'-Schatten ('+SRAR[grp.r].n+') wurden zu einem '+SRAR[ns.r].n+'-Schatten.');
+  extractModal(ns,'Verschmelzung','Drei '+STYPE[grp.t].n+'-Gefährten ('+SRAR[grp.r].n+') wurden zu einem '+SRAR[ns.r].n+'-Gefährten.');
   return ns;
 }
 function fuseSection(){
   const gs=fuseGroups();
   if(!gs.length)return '';
-  return '<section id="fuse" class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Fusion</div><h2>Verschmelzen</h2></div></div><p class="dim" style="font-size:13px;margin-bottom:8px">Drei Schatten gleichen Typs und gleicher Seltenheit werden zu einem Schatten der nächsten Seltenheit. Die schwächsten werden verbraucht.</p>'+
+  return '<section id="fuse" class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Fusion</div><h2>Verschmelzen</h2></div></div><p class="dim" style="font-size:13px;margin-bottom:8px">Drei Gefährten gleichen Typs und gleicher Seltenheit werden zu einem Gefährten der nächsten Seltenheit. Die schwächsten werden verbraucht.</p>'+
    gs.map(g=>'<div class="item"><span class="nm">'+g.n+' × '+STYPE[g.t].n+' '+SRAR[g.r].n+'</span><span class="chip">→ '+SRAR[g.r+1].n+'</span><button class="btn '+(fuseArm===g.k?'bad':'vio')+' sm" data-act="fuse" data-id="'+g.k+'">'+(fuseArm===g.k?'Sicher?':'Verschmelzen')+'</button></div>').join('')+'</section>';
 }
 const expSlots=()=>Math.min(3,1+Math.floor((S.shadows||[]).length/6));
@@ -4034,11 +4034,11 @@ function expSection(){
   const slots=expSlots(),ex=(S.exp||[]).filter(e=>S.shadows.some(s=>s.id===e.id)),busy=new Set(ex.map(e=>e.id)),tm=new Set(S.team||[]);
   const free=S.shadows.filter(s=>!busy.has(s.id)&&!tm.has(s.id)).sort((a,b)=>b.r-a.r||b.lv-a.lv);
   let h='<section id="exp" class="win"><div class="sub"><div><div class="lbl">Expeditionen</div><h2>'+ex.length+' / '+slots+' unterwegs</h2></div></div>'+
-   '<p class="dim" style="font-size:13px;margin-bottom:8px">Schicke Schatten aus der Reserve los. Sie bringen Gold und Erfahrung, manchmal auch einen Trank oder Schlüssel. Weitere Plätze ab 6 und 12 Schatten.</p>';
+   '<p class="dim" style="font-size:13px;margin-bottom:8px">Schicke Gefährten aus der Reserve los. Sie bringen Gold und Erfahrung, manchmal auch einen Trank oder Schlüssel. Weitere Plätze ab 6 und 12 Gefährten.</p>';
   h+=ex.map(e=>{const s=S.shadows.find(x=>x.id===e.id),left=expLeft(e);return '<div class="item"><span class="nm">'+esc(s.name)+' <span class="dim">'+STYPE[s.t].n+'</span></span><span class="chip'+(left>0?'':' sys')+'">'+(left>0?'noch '+fmtLeft(left):'zurück')+'</span>'+(left>0?'':'<button class="btn ok sm" data-act="exp-get" data-id="'+s.id+'">Abholen</button>')+'</div>'}).join('');
   if(ex.length<slots){
-    h+=free.length?'<div class="acts" style="margin-top:10px"><select id="expSh" aria-label="Schatten wählen" style="flex:1 1 150px">'+free.map(s=>'<option value="'+s.id+'">'+esc(s.name)+' · '+SRAR[s.r].n+' Lv '+s.lv+'</option>').join('')+'</select>'+EXP_H.map(x=>'<button class="btn sm" data-act="exp-go" data-id="'+x+'">'+x+' Std.</button>').join('')+'</div>'
-      :'<div class="empty" style="margin-top:8px">Alle Schatten sind im Team oder unterwegs. Nur Schatten außerhalb des Teams können losziehen.</div>';
+    h+=free.length?'<div class="acts" style="margin-top:10px"><select id="expSh" aria-label="Gefährten wählen" style="flex:1 1 150px">'+free.map(s=>'<option value="'+s.id+'">'+esc(s.name)+' · '+SRAR[s.r].n+' Lv '+s.lv+'</option>').join('')+'</select>'+EXP_H.map(x=>'<button class="btn sm" data-act="exp-go" data-id="'+x+'">'+x+' Std.</button>').join('')+'</div>'
+      :'<div class="empty" style="margin-top:8px">Alle Gefährten sind im Team oder unterwegs. Nur Gefährten außerhalb des Teams können losziehen.</div>';
   }
   return h+'</section>';
 }
@@ -4058,7 +4058,7 @@ const stnOf=c=>c&&STN[c.stn]?c.stn:'b';
 function stanceSection(){
   const cur=stnOf({stn:S.stance});
   return '<section id="stance" class="win"><div class="sub"><div><div class="lbl">Verteidigung</div><h2>Deine Haltung'+helpBtn('haltung')+'</h2></div></div>'+
-   '<p class="dim" style="font-size:13px;margin-bottom:8px">So kämpft dein Hunter, wenn dich Freunde herausfordern.</p>'+
+   '<p class="dim" style="font-size:13px;margin-bottom:8px">So kämpfst du, wenn dich Freunde herausfordern.</p>'+
    '<div class="stnr">'+['a','b','d'].map(k=>'<button class="stnb'+(cur===k?' on':'')+'" data-act="stance" data-id="'+k+'" aria-pressed="'+(cur===k)+'"><b>'+STN[k].n+'</b><small>'+STN[k].t+'</small></button>').join('')+'</div></section>';
 }
 /* ----- Wiederholung ----- */
@@ -4206,9 +4206,9 @@ async function duelSend(me,other,r,peerId){
       const r2=await sb.from('duels').upsert({id:did,from_id:myId,to_id:peerId,data:{fromName:me.name,toName:other.name,fromWin:r.win,rounds:r.rounds,t:Date.now()},updated_at:new Date().toISOString()});
       if(r2.error)throw r2.error;
       return 'Dein Freund sieht das Ergebnis in seiner Arena, sobald er die App öffnet.';
-    }catch(e){return 'An den Freund senden hat nicht geklappt. Schick ihm stattdessen deinen Hunter-Code.'}
+    }catch(e){return 'An den Freund senden hat nicht geklappt. Schick ihm stattdessen deinen Spieler-Code.'}
   }
-  if(!peerId)return 'Dein Freund sieht dasselbe Ergebnis, wenn er deinen Hunter-Code bei sich einfügt.';
+  if(!peerId)return 'Dein Freund sieht dasselbe Ergebnis, wenn er deinen Spieler-Code bei sich einfügt.';
   return '';
 }
 async function doDuel(other,peerId,stn){
@@ -4294,7 +4294,7 @@ function chalHtml(){
   const rows=[];
   chal.forEach(c=>{
     const i=chInfo(c),r=recOf(c.k);if(!r)return;
-    const nm=esc(i.other||'Hunter'),what=esc(r.n)+(c.stake?' · Einsatz '+c.stake+' G':'');
+    const nm=esc(i.other||'Spieler'),what=esc(r.n)+(c.stake?' · Einsatz '+c.stake+' G':'');
     const row=(t,sub,btns,cls)=>rows.push('<div class="chc'+(cls||'')+'"><div><b>'+t+'</b><div class="dim chs">'+sub+'</div></div><div class="acts">'+btns+'</div></div>');
     if(i.st==='open'&&i.me==='to'){
       const poor=c.stake>S.gold;
@@ -4582,7 +4582,7 @@ async function initRemote(){
   }catch(e){
     online=false;
     onlineErr=step+': '+String((e&&(e.message||e.code))||e).slice(0,220);
-    try{console.error('Hunter online',e)}catch(x){}
+    try{console.error('Spieler online',e)}catch(x){}
     render();showIntro();
   }
 }
@@ -4599,7 +4599,7 @@ async function refreshOnline(first){
         lastDuelMax=Math.max(0,...duelsIn.map(x=>x.t));
         if(fresh.length&&tab!=='arena'){
           const lost=fresh.filter(x=>x.fw).length,won=fresh.length-lost;
-          modal({kind:lost?'bad':'',title:'Herausforderungen',body:'<p>Während du weg warst, haben dich '+fresh.length+' Hunter herausgefordert.</p><p class="dim">Du hast '+won+' verteidigt und '+lost+' verloren.</p><p class="dim">Details findest du in der Arena.</p>'});
+          modal({kind:lost?'bad':'',title:'Herausforderungen',body:'<p>Während du weg warst, haben dich '+fresh.length+' Spieler herausgefordert.</p><p class="dim">Du hast '+won+' verteidigt und '+lost+' verloren.</p><p class="dim">Details findest du in der Arena.</p>'});
         }
       }else{
         duelsIn.filter(x=>x.t>Math.max(seen,lastDuelMax)).forEach(x=>{if(tab!=='arena')toast(x.fn+' hat dich herausgefordert: '+(x.fw?'Du hast verloren':'Du hast gewonnen'))});
@@ -4632,9 +4632,9 @@ async function addFriendByCode(code,silent){
     const r=await sb.from('hunters').select('user_id,card').eq('card->>fc',code).limit(1);
     if(r.error)throw r.error;
     const row=r.data&&r.data[0];
-    if(!row){if(!silent)toast('Kein Hunter mit diesem Code gefunden');return}
+    if(!row){if(!silent)toast('Kein Spieler mit diesem Code gefunden');return}
     if(S.friends.some(f=>f.id===row.user_id)){if(!silent)toast('Schon in deiner Liste');return}
-    const nm=String(row.card&&row.card.name||'Hunter').slice(0,30);
+    const nm=String(row.card&&row.card.name||'Spieler').slice(0,30);
     S.friends.push({id:row.user_id,name:nm});
     save();toast('Freund hinzugefügt: '+nm);
     await refreshOnline(false);render();
@@ -4730,7 +4730,7 @@ function completeQuest(q){
     if(S.totalDone%SHADOW_EVERY===0){
       const ty=STAT2T[q.stat]||STK[Math.floor(Math.random()*5)],sh=mkShadow(ty,rankIdx(S.level));
       addShadow(sh);
-      extractModal(sh,'Extraktion','Aus deinen Quests ist ein neuer Schatten entstanden, '+STYPE[ty].n+'-Typ.');
+      extractModal(sh,'Rekrutierung','Aus deinen Quests ist ein neuer Gefährte entstanden, '+STYPE[ty].n+'-Typ.');
     }
   }else toast(q.type==='dungeon'?'Heute war schon ein Dungeon dran: keine Belohnung mehr.':capWhy?'Tageslimit für '+statName(capWhy)+' erreicht. Trainiere auch andere Fähigkeiten.':'Tageslimit erreicht: Diese Quest bringt heute keine Belohnung mehr.');
   if(q.type==='daily'){
@@ -4875,17 +4875,17 @@ function fighter(c,m,opp){
 }
 function cleanCard(c){
   const st={};STATS.forEach(([k])=>{st[k]=clampN(c.stats&&c.stats[k],1,999,10)});
-  return {name:String(c.name||'Hunter').slice(0,30),level:clampN(c.level,1,999,1),rank:RANKS.includes(c.rank)?c.rank:'E',stats:st,cons:clampN(c.cons,0,100,50),days:clampN(c.days,0,30,0),
+  return {name:String(c.name||'Spieler').slice(0,30),level:clampN(c.level,1,999,1),rank:RANKS.includes(c.rank)?c.rank:'E',stats:st,cons:clampN(c.cons,0,100,50),days:clampN(c.days,0,30,0),
     gw:0,ga:0,sh:clampN(c.sh,0,999,0),thumb:typeof c.thumb==='string'&&c.thumb.startsWith('data:image/')&&c.thumb.length<20000?c.thumb:null,cls:String(c.cls||'').slice(0,40),ti:(ACH.some(a=>a[4]===c.ti)?String(c.ti):''),au:null,sp:clampN(c.sp,0,2,0),pr:clampN(c.pr,0,PRESTIGE.length,0),fc:String(c.fc||'').replace(/[^A-Za-z0-9]/g,'').slice(0,8),fl:Array.isArray(c.fl)?c.fl.slice(0,100).map(x=>String(x).slice(0,40)):[],
     stn:STN[c.stn]?c.stn:'b',
     ac:Array.isArray(c.ac)?c.ac.filter(id=>ACH.some(a=>a[0]===id)).slice(0,60):[],
-    tm:Array.isArray(c.tm)?c.tm.slice(0,3).map(x=>({n:String(x&&x.n||'Schatten').slice(0,20),t:STK.includes(x&&x.t)?x.t:'kraft',r:clampN(x&&x.r,0,3,0),l:clampN(x&&x.l,1,SMAXLV,1)})):[],
+    tm:Array.isArray(c.tm)?c.tm.slice(0,3).map(x=>({n:String(x&&x.n||'Gefährte').slice(0,20),t:STK.includes(x&&x.t)?x.t:'kraft',r:clampN(x&&x.r,0,3,0),l:clampN(x&&x.l,1,SMAXLV,1)})):[],
     wk:wkOk(c.wk),wxp:clampN(c.wxp,0,1e6,0),pk:wkOk(c.pk),pxp:clampN(c.pxp,0,1e6,0),
     rc:(()=>{const o={};if(c.rc&&typeof c.rc==='object')REC.forEach(r=>{const v=Number(c.rc[r.k]);if(v>0&&v<=r.max)o[r.k]=r.dec?Math.round(v*10)/10:Math.round(v)});return o})()};
 }
 function cleanDuel(o){
   if(!o)return null;
-  return {fn:String(o.fromName||'Hunter').slice(0,30),fw:!!o.fromWin,rounds:clampN(o.rounds,1,99,1),t:clampN(o.t,0,9e15,0)};
+  return {fn:String(o.fromName||'Spieler').slice(0,30),fw:!!o.fromWin,rounds:clampN(o.rounds,1,99,1),t:clampN(o.t,0,9e15,0)};
 }
 function markSeen(){
   const m=Math.max(S.duelSeen||0,...duelsIn.map(d=>d.t));
@@ -5038,7 +5038,7 @@ function renderWarn(){
 }
 function renderTabs(){
   const IC={"plan": "<path d=\"M3 9.500v5M6.500 6.500v11M17.500 6.500v11M21 9.500v5M6.500 12h11\"/>", "quests": "<path d=\"M6 3h10a3 3 0 0 1 3 3v15H9a3 3 0 0 1-3-3z\"/><path d=\"M10 8h5M10 12h5M10 16h3\"/>", "dungeon": "<path d=\"M5 21V10a7 7 0 0 1 14 0v11\"/><path d=\"M3 21h18M9 21v-7a3 3 0 0 1 6 0v7\"/>", "status": "<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21c1.2-4.2 4-6 8-6s6.8 1.8 8 6\"/>", "arena": "<path d=\"M4 20 18 6M14 5h5v5\"/><path d=\"M20 20 6 6M5 10V5h5\"/>", "shop": "<circle cx=\"5.5\" cy=\"12\" r=\"1.6\"/><circle cx=\"12\" cy=\"12\" r=\"1.6\"/><circle cx=\"18.5\" cy=\"12\" r=\"1.6\"/>"};
-  const T=[['quests','Heute'],['plan','Training'],['fight','Kampf'],['hero','Hunter'],['arena','Arena']],IK={fight:'dungeon',hero:'status'};
+  const T=[['quests','Heute'],['plan','Training'],['fight','Kampf'],['hero','Spieler'],['arena','Arena']],IK={fight:'dungeon',hero:'status'};
   document.getElementById('tabs').innerHTML=T.map(([k,l])=>{
     const dot=navDot(k)?'<span class="dot"></span>':'';
     return '<button role="tab" aria-selected="'+navSel(k)+'" data-act="tab" data-id="'+navId(k)+'"><svg viewBox="0 0 24 24" aria-hidden="true">'+IC[IK[k]||k]+'</svg>'+l+dot+'</button>';
@@ -5123,7 +5123,7 @@ function viewQuests(){
   }
   h+=stepsCard();
   h+=chalHtml();
-  h+='<section class="win"><div class="sub"><div><div class="lbl">Tägliche Quest</div><h2>Training des Hunters</h2></div><div style="text-align:right"><div class="lbl">Zeitlimit</div><div class="cd" id="cd">--:--:--</div></div></div>'+
+  h+='<section class="win"><div class="sub"><div><div class="lbl">Tägliche Quest</div><h2>Training des Spielers</h2></div><div style="text-align:right"><div class="lbl">Zeitlimit</div><div class="cd" id="cd">--:--:--</div></div></div>'+
     '<div class="row" style="margin-bottom:8px"><span class="qp">Abgeschlossen '+dn+' / '+rq.length+'</span><span class="sp"></span><span class="dim" style="font-size:13px">Tageslimit: '+capState().xp+' / '+dayCap()+' XP'+helpBtn('tageslimit')+'</span></div>'+(hasIt('shield')||(hasIt('decree')&&d.some(x=>!x.done))?'<div class="acts" style="margin-bottom:8px">'+(hasIt('shield')?'<span class="chip sys">Straf-Schild ×'+hasIt('shield')+'</span>'+helpBtn('schild'):'')+(hasIt('decree')&&d.some(x=>!x.done)?'<button class="btn vio sm" data-act="decree">Tages-Erlass einsetzen ('+hasIt('decree')+')</button>':'')+'</div>':'')+
     (d.length?(()=>{const f=d.find(x=>!x.done);return d.map(x=>qRow(x,x===f)).join('')})():'<div class="empty">'+(off.length?'Heute ist ein freier Tag. Es steht nichts an.':'Keine täglichen Quests. Lege unten eine an.')+'</div>')+offHtml(off)+'</section>';
   if(S.auto)h+=autoCard();
@@ -5182,7 +5182,7 @@ function viewArena(){
   let h='<section class="win">'+scene('arena')+'<div class="sub"><div><div class="lbl">Arena</div><h2>Duelle gegen Freunde'+helpBtn('fairness')+'</h2></div></div>'+
     '<div class="peer me">'+avatarHtml('sm',S.thumb||S.avatar,me.rank,me.name,S.aura)+'<div class="mid"><div class="pn">'+esc(me.name)+' '+stars(prestigeOf())+plBadge(pl.me,'me')+'</div><div class="qp">'+lvChip(me.level,rkOf())+'</div><div class="qp cons2">Konstanz '+me.cons+' %'+helpBtn('konstanz')+'</div></div><div class="wlr"><div><b>'+S.arena.w+'</b>Siege</div><div><b>'+S.arena.l+'</b>Niederlagen</div></div></div></section>';
   if(online){
-    h+='<section class="win"><div class="sub"><h2>'+(showAll?'Hunter in der Arena':'Freunde in der Arena')+'</h2></div>'+
+    h+='<section class="win"><div class="sub"><h2>'+(showAll?'Spieler in der Arena':'Freunde in der Arena')+'</h2></div>'+
       (shown.length?shown.map(p=>{const c=cleanCard(p);
         return '<div class="peer pr">'+avatarHtml('sm',c.thumb,c.rank,c.name,c.au)+'<div class="mid tap" data-act="peer-open" data-id="'+esc(p.id)+'"><div class="pn'+auCls(c.au)+'"'+auAttr(c.au)+'>'+esc(c.name)+' '+stars(c.pr)+plBadge(pl[p.id],p.id)+'</div><div class="qp">'+lvChip(c.level,rkLab(c.rank,c.sp))+'</div></div><div class="pact"><button class="btn ghost sm" data-act="peer-open" data-id="'+esc(p.id)+'">Profil</button><button class="btn bad sm" data-act="duel" data-id="'+esc(p.id)+'">Duell</button><button class="btn vio sm" data-act="ch-new" data-id="'+esc(p.id)+'">Herausfordern</button></div></div>'}).join('')
       :'<div class="empty">'+(peersLoaded?'Noch keine Freunde in der Liste. Schick deinen Einladungs-Link oder füge oben einen Freundescode hinzu.':'Lade ...')+'</div>')+
@@ -5199,11 +5199,11 @@ function viewArena(){
       '<div class="acts"><button class="btn" data-act="invite">Einladungs-Link kopieren</button></div>'+
       '<p class="dim" style="font-size:13px;margin:8px 0 12px">Wer deinen Link öffnet, ist sofort mit dir befreundet. Ihr seht euch dann gegenseitig in der Liste und könnt euch herausfordern.</p>'+
       '<div class="acts"><input type="text" id="friendIn" maxlength="8" placeholder="Freundescode eingeben" style="flex:1 1 160px;text-transform:uppercase"><button class="btn ok" data-act="addfriend">Hinzufügen</button></div>'+
-      '<label class="item" style="cursor:pointer;margin-top:10px"><input type="checkbox" data-act="toggleall" style="width:20px;height:20px"'+(showAll?' checked':'')+'><span class="nm dim" style="font-weight:400">Alle Hunter anzeigen, nicht nur Freunde</span></label></section>';
+      '<label class="item" style="cursor:pointer;margin-top:10px"><input type="checkbox" data-act="toggleall" style="width:20px;height:20px"'+(showAll?' checked':'')+'><span class="nm dim" style="font-weight:400">Alle Spieler anzeigen, nicht nur Freunde</span></label></section>';
   }else{
-    h+='<section class="win"><div class="empty">Die Online-Arena ist nicht verbunden. Prüfe deine Internetverbindung oder nutze den Hunter-Code weiter unten.'+(onlineErr?'<p class="dim" style="font-size:13px;margin-top:8px;overflow-wrap:anywhere">Technische Meldung: '+esc(onlineErr)+'</p>':'')+'</div></section>';
+    h+='<section class="win"><div class="empty">Die Online-Arena ist nicht verbunden. Prüfe deine Internetverbindung oder nutze den Spieler-Code weiter unten.'+(onlineErr?'<p class="dim" style="font-size:13px;margin-top:8px;overflow-wrap:anywhere">Technische Meldung: '+esc(onlineErr)+'</p>':'')+'</div></section>';
   }
-  h+='<section class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Ohne Freigabe</div><h2>Hunter-Code</h2></div></div>'+
+  h+='<section class="win vio"><div class="sub"><div><div class="lbl" style="color:var(--violet)">Ohne Freigabe</div><h2>Spieler-Code</h2></div></div>'+
     '<p class="dim" style="font-size:13px;margin-bottom:8px">Schick deinen Code per Nachricht und füge den Code deines Freundes ein. Beide sehen dasselbe Ergebnis, solange die Werte gleich bleiben.</p>'+
     '<label class="f">Dein Code<textarea id="myCode" readonly rows="3">'+esc(encodeCode(me))+'</textarea></label>'+
     '<div class="acts" style="margin:8px 0 14px"><button class="btn sm" data-act="copycode">Kopieren</button></div>'+
@@ -5664,9 +5664,9 @@ document.addEventListener('click',e=>{
     case 'sh-team':{
       if(!Array.isArray(S.team))S.team=[];
       if(!S.shadows.some(x=>x.id===id))return;
-      if((S.exp||[]).some(e=>e.id===id)){toast('Dieser Schatten ist auf Expedition');return}
+      if((S.exp||[]).some(e=>e.id===id)){toast('Dieser Gefährte ist auf Expedition');return}
       if(S.team.includes(id))S.team=S.team.filter(x=>x!==id);
-      else if(teamList().length>=TEAM_MAX){toast('Dein Team ist voll. Entlasse zuerst einen Schatten.');return}
+      else if(teamList().length>=TEAM_MAX){toast('Dein Team ist voll. Entlasse zuerst einen Gefährten.');return}
       else S.team.push(id);
       save();break;
     }
@@ -5716,7 +5716,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Hunter > Status)</li><li><b>Quests vom System</b> als Schalter (Hunter > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Hunter > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Hunter > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Hunter > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
+  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
