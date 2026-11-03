@@ -1,6 +1,6 @@
 {
- "name": "Hunter System",
- "short_name": "Hunter",
+ "name": "Step Up: SOLO",
+ "short_name": "Step Up",
  "start_url": ".",
  "scope": ".",
  "display": "standalone",
@@ -26,5 +26,6 @@
    "type": "image/png",
    "purpose": "maskable"
   }
- ]
+ ],
+ "description": "The System for your daily Quests"
 }
