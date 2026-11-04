@@ -925,6 +925,8 @@ input[type=time]{color-scheme:dark;font-size:16px}
 .crown b{font-size:13px;font-family:var(--f-d)}
 .chip.gold{color:#ffd36b;border-color:#ffd36b77}
 .peer.me .wl{flex-basis:100%;margin-left:58px}
+a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:inherit}
+.ob-note a{color:#8fd8ff;text-decoration:underline}
 .lvr{gap:6px;margin-top:2px}
 .lvr .lvbox{text-align:left;display:flex;align-items:baseline;gap:5px}
 .lvr .lvbox small{display:inline;font-size:12px}
@@ -1136,7 +1138,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v25c';
+const APP_V='v26';
 const SPR=[{r:'S+',n:'Herrscher',d:100,c:'#ffd36b'},{r:'S★',n:'Monster',d:365,c:'#ff7ad9'}];
 const SP_TXT=['Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an.','Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.'];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -2235,7 +2237,7 @@ function bodySection0(){
   if(c.bmr)h+='<div class="item"><span class="nm">Grundumsatz<small class="dim">Energie, die dein Körper in Ruhe braucht. Richtwert nach Mifflin-St Jeor.</small></span><span class="num rv">'+Math.round(c.bmr/10)*10+'<small>kcal</small></span></div>'+
     '<div class="item"><span class="nm">Tagesbedarf<small class="dim">Mit deiner Alltagsaktivität, ohne Training.</small></span><span class="num rv">'+Math.round(c.tdee/10)*10+'<small>kcal</small></span></div>';
   if(c.bmi<17||c.bmi>=35)h+='<p class="ob-note" style="color:var(--warn)">Dein Wert liegt deutlich außerhalb des Normbereichs. Wenn du dir Sorgen machst, sprich mit einer Ärztin oder einem Arzt.</p>';
-  h+='<p class="dim" style="font-size:12.5px;margin:10px 0">'+(c.age&&c.age<18?'Für unter 18-Jährige gelten Altersperzentile, deshalb gibt es hier keine Einstufung. Eine Ärztin oder ein Arzt kann das einordnen. ':'Der BMI ist ein grober Richtwert für Erwachsene. Er unterscheidet nicht zwischen Muskeln und Fett. ')+'Das ersetzt keine ärztliche Beratung.</p>';
+  h+='<p class="dim" style="font-size:12.5px;margin:10px 0">'+(c.age&&c.age<18?'Für unter 18-Jährige gelten Altersperzentile, deshalb gibt es hier keine Einstufung. Eine Ärztin oder ein Arzt kann das einordnen. ':'Der BMI ist ein grober Richtwert für Erwachsene. Er unterscheidet nicht zwischen Muskeln und Fett. ')+'Das ersetzt keine ärztliche Beratung. Step Up: SOLO ist ein Spiel, kein Medizinprodukt. Bei Vorerkrankungen oder Beschwerden sprich vor dem Training mit einer Ärztin oder einem Arzt.</p>';
   const L=BODY.log;
   h+='<div class="lbl" style="margin-top:12px">Gewicht eintragen</div><div class="bdyq"><input type="number" inputmode="decimal" step="0.1" id="bw-quick" placeholder="'+fmtK(BODY.w,1)+' kg" aria-label="Neues Gewicht in kg"><button class="btn sm" data-act="body-w">Eintragen</button></div>';
   if(L.length>1){const d=Math.round((L[L.length-1].w-L[0].w)*10)/10;h+='<div class="item" style="margin-top:8px"><span class="nm">Verlauf<small class="dim">Seit '+muD(L[0].d)+' ('+L.length+' Einträge)</small></span>'+spark(L.map(x=>({sc:x.w})))+'<span class="num rv">'+(d>0?'+':d<0?'−':'')+fmtK(Math.abs(d),1)+'<small>kg</small></span></div>'}
@@ -2249,7 +2251,7 @@ function bodySection(){
   return bodyForm?h:h.replace(/<\/section>$/,bodyViewSeg()+'</section>');
 }
 const obBodyStep=()=>obHead('Dein Körper','Für eine fachliche Einschätzung mit BMI und Grundumsatz. Alles ist freiwillig. Die Angaben bleiben nur auf diesem Gerät.')+bodyFields(ob.body,'ob')+(ob.err&&!bodyOk(ob.body)?'<p class="ob-note" style="color:var(--bad)">Bitte prüfe die Werte: Größe 120 bis 230 cm, Gewicht 30 bis 300 kg, Geburtsjahr ab 1915, Taille 40 bis 200 cm.</p>':'')+
-  '<p class="ob-note">Die Taille misst du auf Höhe des Bauchnabels. Sie sagt oft mehr über die Gesundheit als der BMI. Mit dem Geschlecht wählt das System auch die passende Körperansicht für die Muskelkarte. Du kannst sie später jederzeit ändern.</p>';
+  '<p class="ob-note">Die Taille misst du auf Höhe des Bauchnabels. Sie sagt oft mehr über die Gesundheit als der BMI. Mit dem Geschlecht wählt das System auch die passende Körperansicht für die Muskelkarte. Du kannst sie später jederzeit ändern.</p><p class="ob-note">Die Werte sind Richtwerte und ersetzen keine ärztliche Beratung. Bei Vorerkrankungen sprich vor dem Training mit einer Ärztin oder einem Arzt.</p>';
 
 /* Fragebogen: Ablauf */
 let ob=null,obLast=-1;
@@ -2290,7 +2292,7 @@ function obStep0(){
       '<div class="of">'+qico('weights',46)+'<span><b>Tägliche Quests</b><small>Übungen, Lernen und Gewohnheiten. Das System stellt sie passend zu dir zusammen.</small></span></div>'+
       '<div class="of">'+gico('skill-blade',44)+'<span><b>Level, Rang und Kämpfe</b><small>Jede Quest bringt Erfahrung. Mit Schlüsseln öffnest du Dungeons und kämpfst gegen Monster.</small></span></div>'+
       '<div class="of">'+gico('class-paladin',44)+'<span><b>Freunde und Rekorde</b><small>Vergleiche deine Bestwerte mit Freunden und fordere sie zum Duell heraus.</small></span></div>'+
-    '</div><p class="ob-note">Die nächsten Fragen dauern etwa zwei Minuten. Danach stellt das System deine ersten Quests zusammen.</p>';
+    '</div><p class="ob-note">Die nächsten Fragen dauern etwa zwei Minuten. Danach stellt das System deine ersten Quests zusammen.</p><p class="ob-note">Step Up: SOLO ist ein Spiel und keine medizinische Beratung. Alle Werte sind grobe Richtwerte. Bei Vorerkrankungen, Beschwerden oder Unsicherheit sprich vor dem Training mit einer Ärztin oder einem Arzt. Trainiere im Rahmen deiner Möglichkeiten und höre bei Schmerzen auf. Mehr dazu in der <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> und im <a href="impressum.html" target="_blank" rel="noopener">Impressum</a>.</p>';
   if(s===1)return obHead('Dein Profil','So sehen dich andere in der Arena.')+
     '<label class="f">Dein Name<input type="text" id="ob-name" maxlength="30" value="'+esc(ob.name)+'" placeholder="Spieler" autocomplete="nickname"></label>'+
     '<label class="f" style="margin-top:12px">Foto für deinen Charakter (optional)<input type="file" id="ob-photo" accept="image/*" class="ob-file">'+(ob.file?'<small style="color:var(--ok)">Gewählt: '+esc(ob.file.name)+'</small>':'')+'</label>'+
@@ -4448,13 +4450,13 @@ const pendingAdd=(()=>{try{return (new URLSearchParams(location.search).get('add
 let dirty=false,writing=false,tmr=null,lastCard='';
 let peers=[],peersLoaded=false,unsubPeers=null;
 let duelsIn=[],unsubDuels=null,firstDuel=true,arenaSince=0;
-function save(){
+function save(){if(window.__wiped)return;
   S.savedAt=Date.now();
   try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
   if(!online)return;
   dirty=true;clearTimeout(tmr);tmr=setTimeout(flush,500);
 }
-async function flush(){
+async function flush(){if(window.__wiped)return;
   if(writing||!online)return;
   writing=true;
   while(dirty){
@@ -4543,6 +4545,28 @@ async function signOutNow(){
   try{clearTimeout(tmr);dirty=true;await flush()}catch(e){}
   try{await sb.auth.signOut()}catch(e){}
   try{localStorage.removeItem(KEY)}catch(e){}
+  location.reload();
+}
+let delBusy=false;
+function accDelModal(){
+  const srv=!!(sb&&myId);
+  modal({title:'Konto löschen?',nobtn:true,body:'<p>Das löscht '+(srv?'dein Konto, ':'')+'deinen Charakter, dein Arena-Profil sowie alle Duelle und Herausforderungen'+(srv?' auf dem Server':'')+' und auf diesem Gerät. Das lässt sich nicht rückgängig machen.</p><p class="dim" style="font-size:13px">Möchtest du eine Kopie behalten? Speichere vorher eine Sicherung.</p><div class="btnrow" style="margin-bottom:8px"><button class="btn ghost sm" data-act="bk-save">Sicherung speichern</button></div><label class="f" style="text-align:left">Tippe LÖSCHEN zur Bestätigung<input type="text" id="delConf" autocomplete="off" autocapitalize="characters"></label><p id="delMsg" style="color:var(--warn);min-height:20px"></p><div class="btnrow"><button class="btn bad" data-act="acc-del-go">Endgültig löschen</button><button class="btn ghost" data-act="modal-ok">Abbrechen</button></div>'});
+}
+async function accDelGo(){
+  if(delBusy)return;
+  const v=((document.getElementById('delConf')||{}).value||'').trim().toUpperCase(),m=t=>{const e=document.getElementById('delMsg');if(e)e.textContent=t};
+  if(!['LÖSCHEN','LOESCHEN','LOSCHEN'].includes(v)){m('Bitte tippe LÖSCHEN, um zu bestätigen.');return}
+  if(sb&&myId){
+    if(!online){m('Du bist offline. Zum Löschen auf dem Server brauchst du Internet.');return}
+    delBusy=true;m('Einen Moment ...');
+    try{const r=await sb.rpc('delete_my_account');if(r&&r.error)throw r.error}
+    catch(e){delBusy=false;m('Das Löschen auf dem Server hat nicht geklappt. Versuche es später noch einmal.');return}
+    try{await sb.auth.signOut()}catch(e){}
+  }
+  window.__wiped=true;
+  try{clearTimeout(tmr)}catch(e){}
+  dirty=false;
+  try{Object.keys(localStorage).filter(k=>/^hunter-/.test(k)).forEach(k=>localStorage.removeItem(k))}catch(e){}
   location.reload();
 }
 function loadScript(src){return new Promise((res,rej)=>{const e=document.createElement('script');e.src=src;e.onload=res;e.onerror=()=>rej(new Error('load'));document.head.appendChild(e)})}
@@ -5173,6 +5197,7 @@ function viewStatus(){
    '\u0005'+(online?(acct.guest
      ?'<section class="win gold"><div class="sub"><div><div class="lbl" style="color:var(--warn)">Konto</div><h2>Charakter sichern</h2></div></div><p class="dim" style="margin-bottom:10px">Du spielst als Gast. Ohne Konto ist dein Charakter weg, wenn du den Browser wechselst oder die Browserdaten löschst. Mit E-Mail und Passwort findest du ihn überall wieder.</p><div class="grid"><label class="f">E-Mail<input type="text" id="accMail" autocomplete="email" inputmode="email" autocapitalize="off"></label><label class="f">Passwort<input type="password" id="accPw" autocomplete="new-password"></label></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="acc-upgrade">Konto anlegen</button></div></section>'
      :'<section class="win"><div class="sub"><div><div class="lbl">Konto</div><h2>Angemeldet</h2></div></div><p class="dim" style="margin-bottom:10px;overflow-wrap:anywhere">'+esc(acct.email)+'</p><div class="acts"><button class="btn ghost" data-act="pw-change">Passwort ändern</button><button class="btn ghost" data-act="acc-out">Abmelden</button></div></section>'):'')+
+   '<section class="win"><div class="sub"><div><div class="lbl">Daten</div><h2>Datenschutz und Konto</h2></div></div><p class="dim" style="font-size:13px;margin-bottom:10px">Deine Körperdaten bleiben nur auf diesem Gerät. Dein Charakter und dein Arena-Profil liegen auf dem Server, wenn du online spielst. Name und Profilbild sehen andere Spieler, nimm am besten einen Spitznamen. Step Up: SOLO ist ein Spiel und keine medizinische Beratung. Alle Werte sind grobe Richtwerte. Bei Vorerkrankungen, Beschwerden oder Unsicherheit sprich vor dem Training mit einer Ärztin oder einem Arzt. Trainiere im Rahmen deiner Möglichkeiten und höre bei Schmerzen auf.</p><div class="acts" style="flex-wrap:wrap"><a class="btn ghost" href="datenschutz.html" target="_blank" rel="noopener">Datenschutz</a><a class="btn ghost" href="impressum.html" target="_blank" rel="noopener">Impressum</a></div><div class="acts" style="margin-top:10px"><button class="btn bad" data-act="acc-del">Konto und alle Daten löschen</button></div></section>'+
    '<section class="win"><div class="sub"><div class="lbl">Einstellungen</div></div><div class="grid"><label class="f">Name<input type="text" id="setName" maxlength="30" value="'+esc(S.name)+'"></label><div class="f wide dim" style="font-size:13px">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class="f wide"><span>Klasse</span><div class="pick">'+CLASSES.map(c=>'<button type="button" class="cl '+(pf.klasse===c[0]?'on':'')+'"'+(c[1]>S.level?' disabled':'')+' data-act="setcls" data-id="'+c[0]+'">'+clsIco(c[0])+'<span>'+c[0]+'</span>'+(c[1]>1?'<small>'+(c[1]>S.level?'ab LV '+c[1]:'freigeschaltet')+'</small>':'')+'</button>').join('')+'</div>'+clsInfo(pf.klasse)+'</div><div class="f wide"><span>Tagesquests</span><label class="item" style="cursor:pointer;border-top:0"><input type="checkbox" data-act="auto-ask" style="width:20px;height:20px"'+(S.auto?' checked':'')+'><span class="nm dim" style="font-weight:400">Quests vom System: abwechslungsreich nach Fragebogen, ohne eigene Quests</span></label></div><div class="f wide"><span>Kampf-Effekte</span><label class="item" style="cursor:pointer;border-top:0"><input type="checkbox" data-act="fx" data-id="vib" style="width:20px;height:20px"'+(S.fx&&S.fx.vib===false?'':' checked')+'><span class="nm dim" style="font-weight:400">Vibration bei Treffern (nur Android)</span></label><label class="item" style="cursor:pointer"><input type="checkbox" data-act="fx" data-id="snd" style="width:20px;height:20px"'+(S.fx&&S.fx.snd===true?' checked':'')+'><span class="nm dim" style="font-weight:400">Kampf-Töne</span></label></div><div class="f wide dim" style="font-size:13px">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class="acts" style="margin-top:12px"><button class="btn ok" data-act="settings">Speichern</button><span class="sp"></span><button class="btn '+(penArmed?'bad':'ghost')+' sm" data-act="reset">'+(penArmed?'Alles löschen. Sicher?':'Neu beginnen')+'</button></div><p class="dim" style="font-size:12px;margin-top:10px">Step Up: SOLO '+APP_V+'</p></section>');
 }
 function viewArena(){
@@ -5415,6 +5440,8 @@ document.addEventListener('click',e=>{
     }
     case 'acc-upgrade':upgradeAccount();return;
     case 'acc-out':signOutNow();return;
+    case 'acc-del':accDelModal();return;
+    case 'acc-del-go':accDelGo();return;
     case 'addfriend':{addFriendByCode((document.getElementById('friendIn')||{}).value||'',false);return}
     case 'delfriend-no':break;
     case 'ch-new':chNewModal(id);break;
@@ -5716,7 +5743,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
+  modal({title:'Neu in '+APP_V,btn:'Los geht\u2019s',body:'<ul style="text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5"><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>'});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
