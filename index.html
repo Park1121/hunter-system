@@ -1208,7 +1208,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v29';
+const APP_V='v30';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -1326,6 +1326,8 @@ function migrate(){
     if(g>0){S.gold=(S.gold||0)+g;S.gearNote=g}
     delete S.gear;delete S.bag;
     S.v=16;ch=true}
+  {const SPFIX={irrlicht:'lilu',pyrax:'pyra',brutus:'',lysandra:''};
+   (S.shadows||[]).forEach(s=>{if(s.sp&&!spOf(s.sp)){const n=SPFIX[s.sp];if(n){const c=spOf(n),m=/ \d+$/.exec(s.name||'');s.sp=n;s.t=c.t;s.name=c.n+(m?m[0]:'')}else delete s.sp;ch=true}})}
   return ch;
 }
 const SHADOW_EVERY=20;
@@ -2009,9 +2011,9 @@ const MON=[
 /* v29: 20 neue Gegner. Eigenes Bild: img/en-<id>.webp (sonst Platzhalter fb mit Farbfilter) */
 const ENX=[
  {id:'gslime',n:Tx("Giftschleim"),fb:'mon-slime',fx:'hue-rotate(250deg) saturate(1.4)',tr:'poison',rk:0,rx:1,kind:'n'},
- {id:'kobold',n:Tx("Grubenkobold"),fb:'mon-goblin',fx:'hue-rotate(150deg) saturate(1.2)',tr:'thief',rk:0,rx:1,kind:'n'},
+ {id:'diebin',n:Tx("Diebin"),fb:'shadow-assassin',fx:'hue-rotate(30deg) saturate(1.2)',tr:'thief',rk:0,rx:1,kind:'n'},
  {id:'wegelagerer',n:Tx("Wegelagerer"),fb:'shadow-assassin',fx:'hue-rotate(80deg) saturate(.8) brightness(.95)',tr:'thief',rk:0,rx:2,kind:'n'},
- {id:'glutspinne',n:Tx("Glutspinne"),fb:'mon-spider',fx:'hue-rotate(300deg) saturate(1.6)',tr:'poison',rk:1,rx:2,kind:'n'},
+ {id:'flammentaenzerin',n:Tx("Flammentänzerin"),fb:'shadow-assassin',fx:'hue-rotate(320deg) saturate(1.8) brightness(1.1)',tr:'caster',rk:1,rx:2,kind:'n'},
  {id:'soeldner',n:Tx("Söldner"),fb:'mon-knight',fx:'sepia(.8) saturate(1.4) hue-rotate(-10deg)',tr:'armor',rk:1,rx:3,kind:'n'},
  {id:'knochenbrecher',n:Tx("Knochenbrecher"),fb:'mon-skeleton',fx:'hue-rotate(190deg) brightness(1.1)',tr:'brute',rk:2,rx:3,kind:'n'},
  {id:'nachtmagier',n:Tx("Nachtmagier"),fb:'mon-mage',fx:'hue-rotate(250deg) saturate(1.3)',tr:'caster',rk:3,rx:4,kind:'n'},
@@ -2020,7 +2022,7 @@ const ENX=[
  {id:'abtruennig',n:Tx("Abtrünniger Ritter"),fb:'shadow-knight',fx:'hue-rotate(160deg) saturate(1.2)',tr:'shield',rk:2,rx:4,kind:'sp'},
  {id:'blutmagierin',n:Tx("Blutmagierin"),fb:'mon-mage',fx:'hue-rotate(300deg) saturate(1.5)',tr:'caster',rk:3,rx:5,kind:'sp'},
  {id:'jaegerin',n:Tx("Schattenjägerin"),fb:'shadow-assassin',fx:'hue-rotate(200deg) saturate(1.3)',tr:'swift',rk:3,rx:5,kind:'sp'},
- {id:'kristallgolem',n:Tx("Kristallgolem"),fb:'mon-golem',fx:'hue-rotate(190deg) saturate(1.4) brightness(1.3)',tr:'armor',rk:2,rx:4,kind:'sp'},
+ {id:'kristallhexe',n:Tx("Kristallhexe"),fb:'mon-mage',fx:'hue-rotate(150deg) saturate(1.3) brightness(1.3)',tr:'shield',rk:2,rx:4,kind:'sp'},
  {id:'phantomwolf',n:Tx("Phantomwolf"),fb:'mon-wolf',fx:'invert(.8) hue-rotate(180deg)',tr:'swift',rk:3,rx:5,kind:'sp'},
  {id:'lavatitan',n:Tx("Lavatitan"),fb:'mon-titan',fx:'hue-rotate(340deg) saturate(2) brightness(1.1)',tr:'brute',rk:4,rx:5,kind:'sp'},
  {id:'sturmdrache',n:Tx("Sturmdrache"),fb:'mon-dragon',fx:'hue-rotate(170deg) saturate(1.2)',tr:'caster',rk:5,rx:5,kind:'sp'},
@@ -3105,16 +3107,16 @@ const SRAR=[{n:Tx("Bronze"),c:'#cd8a4a',b:1.5,seal:'seal-bronze'},{n:Tx("Silber"
 const SPC=[
  {id:'ghulrak',n:'Ghulrak',ti:Tx("Grubenbrecher"),t:'kraft',rk:0,w:3,fm:'beast',fb:'mon-orc',fx:'hue-rotate(20deg) saturate(1.3)'},
  {id:'grauzahn',n:'Grauzahn',ti:Tx("Rudeljäger"),t:'ausdauer',rk:0,w:3,fm:'beast',fb:'mon-wolf',fx:'grayscale(.6) brightness(1.1)'},
- {id:'mira',n:'Mira',ti:Tx("Waldläuferin"),t:'ausdauer',rk:2,w:3,fm:'human',fb:'sh-ausdauer',fx:'hue-rotate(-30deg)'},
+ {id:'mira',n:'Mira',ti:Tx("Waldläuferin"),t:'ausdauer',rk:2,w:3,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(80deg) saturate(1.1) brightness(1.1)'},
  {id:'skorn',n:'Skorn',ti:Tx("Netzläufer"),t:'beweglichkeit',rk:1,w:3,fm:'beast',fb:'mon-spider',fx:'hue-rotate(120deg) saturate(1.3)'},
  {id:'kira',n:'Kira',ti:Tx("Schattenschritt"),t:'beweglichkeit',rk:2,w:3,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(110deg) saturate(1.3)'},
- {id:'irrlicht',n:'Irrlicht',ti:Tx("Wandelndes Licht"),t:'geist',rk:0,w:3,fm:'beast',fb:'mon-slime',fx:'hue-rotate(60deg) saturate(1.4)'},
+ {id:'lilu',n:'Lilu',ti:Tx("Schattentänzerin"),t:'geist',rk:1,w:3,fm:'human',fb:'sh-geist',fx:'hue-rotate(-40deg) saturate(1.4) brightness(1.1)'},
  {id:'nocturne',n:'Nocturne',ti:Tx("Mondweberin"),t:'geist',rk:3,w:3,fm:'human',fb:'mon-mage',fx:'hue-rotate(260deg) saturate(1.3)'},
  {id:'steinwaechter',n:'Bastogar',ti:Tx("Hüter der Tore"),t:'disziplin',rk:1,w:3,fm:'beast',fb:'mon-golem',fx:'grayscale(.5) brightness(1.2)'},
  {id:'valen',n:'Valen',ti:Tx("Schildwache"),t:'disziplin',rk:2,w:3,fm:'human',fb:'shadow-knight',fx:'hue-rotate(160deg) saturate(1.2)'},
  {id:'vargoth',n:'Vargoth',ti:Tx("Henker"),t:'kraft',rk:4,w:2,fm:'human',fb:'sh-kraft',fx:'hue-rotate(330deg) saturate(1.5) brightness(1.1)',src:'elite',mr:2},
- {id:'pyrax',n:'Pyrax',ti:Tx("Drachenbrut"),t:'kraft',rk:4,w:2,fm:'beast',fb:'mon-dragon',fx:'hue-rotate(20deg) saturate(1.3)',src:'boss',mr:2},
- {id:'selene',n:'Selene',ti:Tx("Mondwolf"),t:'ausdauer',rk:3,w:2,fm:'beast',fb:'mon-wolf',fx:'invert(.85) hue-rotate(180deg)',src:'elite',mr:1},
+ {id:'pyra',n:'Pyra',ti:Tx("Drachenreiterin"),t:'kraft',rk:4,w:2,fm:'human',fb:'sh-kraft',fx:'hue-rotate(15deg) saturate(1.3) brightness(1.15)',src:'boss',mr:2},
+ {id:'selene',n:'Selene',ti:Tx("Mondjägerin"),t:'ausdauer',rk:3,w:2,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(70deg) saturate(1.2) brightness(1.3)',src:'elite',mr:1},
  {id:'cassia',n:'Cassia',ti:Tx("Ritter-Assassine"),t:'beweglichkeit',rk:3,w:2,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(300deg) saturate(1.4)',src:'elite',mr:2},
  {id:'noxia',n:'Noxia',ti:Tx("Todesklinge"),t:'beweglichkeit',rk:4,w:2,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(180deg) saturate(1.5) brightness(1.1)',src:'boss',mr:2},
  {id:'morwen',n:'Morwen',ti:Tx("Erzmagierin"),t:'geist',rk:5,w:2,fm:'human',fb:'sh-geist',fx:'hue-rotate(300deg) saturate(1.5) brightness(1.15)',src:'boss',mr:3},
