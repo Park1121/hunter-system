@@ -1208,7 +1208,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v30';
+const APP_V='v31';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -1217,11 +1217,24 @@ const ttlOf=()=>S.sp>0&&SPR[S.sp-1]?SPR[S.sp-1].n:TITLES[rankOf(S.level)];
 const rkLab=(r,sp)=>sp>0&&SPR[sp-1]?SPR[sp-1].r:r;
 const sealFx=n=>'<div class="sealfx" style="--sc:'+SEAL_C[Math.max(0,Math.min(3,n-1))]+'">'+gico('seal-'+['bronze','silver','gold','diamond'][Math.max(0,Math.min(3,n-1))])+'</div>';
 function spWarn(){return Tx("<p class=\"dim spw\">Dieser Rang gehört dir nur, solange deine Serie hält. Reißt sie, fällst du zurück auf S und beginnst von vorn. Straf-Schilde schützen deine Serie.</p>")}
+const SP_RW=[['herrscherin',1,'S+'],['monarchin',2,'S★']];
+function spReward(){
+  if(!S.spGot||typeof S.spGot!=='object')S.spGot={};
+  let got=false;
+  SP_RW.forEach(([id,lv,lab])=>{
+    if((S.spSeen||0)<lv||S.spGot[id])return;
+    S.spGot[id]=1;
+    if(S.shadows.some(x=>x.sp===id))return;
+    const s=mkSp(spOf(id),5);s.lv=6;addShadow(s);got=true;
+    extractModal(s,Tx("Belohnung für Rang {0}",lab),Tx("Für diesen Rang bekommst du eine Gefährtin. Sie bleibt dir dauerhaft, auch wenn du den Rang wieder verlierst."));
+  });
+  if(got)save();
+}
 function spCheck(){
   if(!S.started)return;
   const isS=rankOf(S.level)==='S',st=S.streak||0;
   const t=!isS?0:st>=SPR[1].d?2:st>=SPR[0].d?1:0,cur=S.sp||0;
-  if(t===cur)return;
+  if(t===cur){spReward();return}
   S.sp=t;
   if(t>cur){
     const first=t>(S.spSeen||0);
@@ -1235,6 +1248,7 @@ function spCheck(){
     modal({pic:'verlust',kind:'bad',title:Tx("Rang verloren"),body:
       Tx("<div class=\"rankup sphand lost\">{0}</div><p class=\"sph\">{1} → {2}</p><p>Deine Serie ist gerissen. Du fällst zurück auf {3}.</p><p class=\"dim\">Starte eine neue Serie: Nach {4} Tagen am Stück gehört dir {5} wieder.</p>",emblem(t>0?SPR[t-1].r:'S',160),p.r,t>0?SPR[t-1].r:'S',t>0?SPR[t-1].r:Tx("Rang S"),p.d,p.r),btn:Tx("Verstanden")});
   }
+  spReward();
   save();
 }
 function spSection(){
@@ -2680,7 +2694,7 @@ function checkAch(){
   const fresh=ACH.filter(a=>!S.ach[a[0]]&&a[5]()>=a[6]);
   if(!fresh.length)return false;
   fresh.forEach(a=>{S.ach[a[0]]=dayKey()});
-  if(!S.title)S.title=fresh[fresh.length-1][0];
+  {const spa=fresh.find(a=>a[0]==='sp2')||fresh.find(a=>a[0]==='sp1');if(spa)S.title=spa[0];else if(!S.title)S.title=fresh[fresh.length-1][0]}
   const show=fresh.slice(-4);
   modal({pic:'rankup',kind:'vio',title:fresh.length>1?Tx("Erfolge freigeschaltet"):Tx("Erfolg freigeschaltet"),body:Tx("{0}<p class=\"dim\">Wähle deinen Titel im Status-Fenster unter Erfolge.</p>",(show.map(a=>'<div class="ach on" style="text-align:left">'+achBadge(a,52)+'<div class="am"><b>'+esc(a[2])+'</b><small>'+esc(a[3])+'</small>'+(a[4]!==a[2]?Tx("<small style=\"color:var(--warn)\">Titel: {0}</small>",esc(a[4])):'')+'</div></div>').join('')+(fresh.length>4?Tx("<p class=\"dim\">und {0} weitere</p>",fresh.length-4):''))),btn:Tx("Weiter")});
   return true;
@@ -3124,6 +3138,9 @@ const SPC=[
  {id:'yoruha',n:'Yoruha',ti:Tx("Klinge der Nacht"),t:'beweglichkeit',rk:0,w:0,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(50deg) saturate(1.5) brightness(1.2)',r:4},
  {id:'lunara',n:'Lunara',ti:Tx("Herrin des Mondes"),t:'geist',rk:0,w:0,fm:'human',fb:'sh-geist',fx:'hue-rotate(-60deg) saturate(1.1) brightness(1.3)',r:4},
  {id:'kagari',n:'Kagari',ti:Tx("Flammenritterin"),t:'kraft',rk:0,w:0,fm:'human',fb:'sh-kraft',fx:'saturate(1.3) brightness(1.2)',r:4},
+ {id:'herrscherin',n:'Ravenna',ti:Tx("Herrscherin"),t:'disziplin',rk:0,w:0,fm:'human',fb:'sh-disziplin',fx:'hue-rotate(40deg) saturate(1.4) brightness(1.35)',r:4,rw:1},
+ {id:'monarchin',n:'Nyxara',ti:Tx("Königin der Ewigkeit"),t:'kraft',rk:0,w:0,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(260deg) saturate(1.6) brightness(1.3)',r:5,rw:1},
+ {id:'lyraxia',n:'Lyraxia',ti:Tx("Schattenkönigin"),t:'geist',rk:0,w:0,fm:'human',fb:'sh-geist',fx:'hue-rotate(-100deg) saturate(1.7) brightness(1.3)',r:5,ex:1},
  {id:'aurelion',n:'Aurelion',ti:Tx("Der letzte Monarch"),t:'disziplin',rk:0,w:0,fm:'human',fb:'shadow-knight',fx:'hue-rotate(110deg) saturate(1.5) brightness(1.25)',r:5}
 ];
 const spOf=id=>SPC.find(x=>x.id===id)||null;
@@ -3131,8 +3148,9 @@ function rollSpecial(t,ri,ctx){
   if(ctx==='fuse')return null;
   ri=Math.max(0,Math.min(5,ri));
   const x=Math.random();
-  if(x<0.0001)return spOf('aurelion');
-  if(x<0.0101){const L=SPC.filter(c=>c.r===4);return L[Math.floor(Math.random()*L.length)]}
+  if(x<0.00001)return spOf('lyraxia');
+  if(x<0.00011)return spOf('aurelion');
+  if(x<0.01011){const L=SPC.filter(c=>c.r===4&&!c.rw&&!c.ex);return L[Math.floor(Math.random()*L.length)]}
   const pS=[.06,.08,.11,.15,.19,.24][ri]+(ctx==='boss'?.15:ctx==='elite'?.08:0);
   if(Math.random()>=pS)return null;
   const pool=SPC.filter(c=>c.t===t&&!c.r&&c.rk<=ri&&(!c.src||c.src===ctx||(c.src==='elite'&&ctx==='boss')));
@@ -5686,7 +5704,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
