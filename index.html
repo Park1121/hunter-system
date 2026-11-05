@@ -1030,7 +1030,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .stage{height:252px}
 .stage .bg{filter:brightness(.5) saturate(.85)}
 .stage::before{left:0;right:0;bottom:0;height:100%;background:radial-gradient(46% 52% at 50% 56%,color-mix(in srgb,var(--bc) 62%,#fff0),transparent 72%)}
-.stage .mimg{height:64%;bottom:48px;filter:brightness(1.3) contrast(1.06) drop-shadow(0 0 16px rgba(170,200,255,.55)) drop-shadow(0 10px 10px #000b)}
+.stage .mimg{height:64%;bottom:48px;filter:var(--mf,) brightness(1.3) contrast(1.06) drop-shadow(0 0 16px rgba(170,200,255,.55)) drop-shadow(0 10px 10px #000b)}
 .stage .top{left:0;right:0;top:0;padding:10px 12px 18px;gap:3px;background:linear-gradient(#04060ff0 52%,#04060f00)}
 .stage .top .who{flex-direction:row;align-items:baseline;justify-content:flex-start;flex-wrap:wrap;gap:2px 8px;font-size:19px;line-height:1.1}
 .stage .top .who small{font-size:12.5px}
@@ -1044,9 +1044,23 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .fightp .intent.b{background:#2c5fc9e6}
 .fightp .intent.w{background:#c9801fe6}
 .fightp .intent.x{background:#b3122eee;box-shadow:0 0 14px #ff1a3a}
-@media (max-height:700px){.stage{height:180px}.stage .top{padding:7px 12px 14px}.stage .bot{padding:16px 12px 6px}.fightp .intent{font-size:12px;padding:3px 9px;margin:0 0 5px}}
+@media (max-height:700px){.stage{height:166px}.stage .top{padding:7px 12px 14px}.stage .bot{padding:16px 12px 6px}.fightp .intent{font-size:12px;padding:3px 9px;margin:0 0 5px}.stage .top .who{font-size:16px}.stage .top .who small{font-size:11px}.fightp .log{max-height:78px}}
 .door.gold .sil.ico{filter:drop-shadow(0 0 12px #ffc34a) drop-shadow(0 4px 6px #000a)}
 .door.grn .sil.ico{filter:drop-shadow(0 0 12px #4fd6a8) drop-shadow(0 4px 6px #000a)}
+/* v29: Sonder-Gefährten, Glow, Auflösen */
+.scp img{filter:var(--mf,)}
+.sti{display:block;font-size:11.5px;color:var(--dim);margin-top:1px;line-height:1.15;font-weight:500}
+.steam .sti{font-size:10.5px}
+.scard.r4{border-color:#ff62d0;box-shadow:0 0 16px #ff62d0aa,0 0 34px #ff62d055;animation:rg4 2.6s ease-in-out infinite}
+@keyframes rg4{50%{box-shadow:0 0 24px #ff62d0,0 0 50px #ff62d077}}
+@property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+.scard.r5{border-color:transparent;background:linear-gradient(#150c34,#0a0818) padding-box,conic-gradient(from var(--ang),#ffd95a,#ff7ad9,#7fe3ff,#8aff9a,#ffd95a) border-box;box-shadow:0 0 22px #ffd95acc,0 0 50px #ffd95a66;animation:rg5 4s linear infinite}
+@keyframes rg5{to{--ang:360deg}}
+.scard.r4 .scp,.scard.r5 .scp{position:relative;overflow:hidden}
+.scard.r4 .scp::after,.scard.r5 .scp::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 40%,#ffffff55 50%,transparent 60%);transform:translateX(-130%);animation:shn 3.6s ease-in-out infinite}
+@keyframes shn{55%,100%{transform:translateX(130%)}}
+.scard.r4 .scp img,.scard.r5 .scp img{filter:var(--mf,) drop-shadow(0 0 10px var(--rc))}
+@media (prefers-reduced-motion:reduce){.scard.r4,.scard.r5,.scard.r4 .scp::after,.scard.r5 .scp::after{animation:none}}
 </style>
 </head>
 <body>
@@ -1194,7 +1208,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v28';
+const APP_V='v29';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -1992,6 +2006,38 @@ const MON=[
   [[Tx("Dämon"),'demon',''],[Tx("Dämonenritter"),'knight','hue-rotate(110deg) saturate(1.3)'],[Tx("Dämonenfürst"),'demon','hue-rotate(25deg)']],
   [[Tx("Drache"),'dragon',''],[Tx("Titan-Wächter"),'titan',''],[Tx("Fürst der Tiefe"),'demon','hue-rotate(210deg) brightness(.9)']]
 ];
+/* v29: 20 neue Gegner. Eigenes Bild: img/en-<id>.webp (sonst Platzhalter fb mit Farbfilter) */
+const ENX=[
+ {id:'gslime',n:Tx("Giftschleim"),fb:'mon-slime',fx:'hue-rotate(250deg) saturate(1.4)',tr:'poison',rk:0,rx:1,kind:'n'},
+ {id:'kobold',n:Tx("Grubenkobold"),fb:'mon-goblin',fx:'hue-rotate(150deg) saturate(1.2)',tr:'thief',rk:0,rx:1,kind:'n'},
+ {id:'wegelagerer',n:Tx("Wegelagerer"),fb:'shadow-assassin',fx:'hue-rotate(80deg) saturate(.8) brightness(.95)',tr:'thief',rk:0,rx:2,kind:'n'},
+ {id:'glutspinne',n:Tx("Glutspinne"),fb:'mon-spider',fx:'hue-rotate(300deg) saturate(1.6)',tr:'poison',rk:1,rx:2,kind:'n'},
+ {id:'soeldner',n:Tx("Söldner"),fb:'mon-knight',fx:'sepia(.8) saturate(1.4) hue-rotate(-10deg)',tr:'armor',rk:1,rx:3,kind:'n'},
+ {id:'knochenbrecher',n:Tx("Knochenbrecher"),fb:'mon-skeleton',fx:'hue-rotate(190deg) brightness(1.1)',tr:'brute',rk:2,rx:3,kind:'n'},
+ {id:'nachtmagier',n:Tx("Nachtmagier"),fb:'mon-mage',fx:'hue-rotate(250deg) saturate(1.3)',tr:'caster',rk:3,rx:4,kind:'n'},
+ {id:'hoellenhund',n:Tx("Höllenhund"),fb:'mon-wolf',fx:'hue-rotate(310deg) saturate(1.8) brightness(.95)',tr:'swift',rk:4,rx:5,kind:'n'},
+ {id:'blutritter',n:Tx("Blutritter"),fb:'mon-knight',fx:'hue-rotate(300deg) saturate(1.6)',tr:'armor',rk:4,rx:5,kind:'n'},
+ {id:'abtruennig',n:Tx("Abtrünniger Ritter"),fb:'shadow-knight',fx:'hue-rotate(160deg) saturate(1.2)',tr:'shield',rk:2,rx:4,kind:'sp'},
+ {id:'blutmagierin',n:Tx("Blutmagierin"),fb:'mon-mage',fx:'hue-rotate(300deg) saturate(1.5)',tr:'caster',rk:3,rx:5,kind:'sp'},
+ {id:'jaegerin',n:Tx("Schattenjägerin"),fb:'shadow-assassin',fx:'hue-rotate(200deg) saturate(1.3)',tr:'swift',rk:3,rx:5,kind:'sp'},
+ {id:'kristallgolem',n:Tx("Kristallgolem"),fb:'mon-golem',fx:'hue-rotate(190deg) saturate(1.4) brightness(1.3)',tr:'armor',rk:2,rx:4,kind:'sp'},
+ {id:'phantomwolf',n:Tx("Phantomwolf"),fb:'mon-wolf',fx:'invert(.8) hue-rotate(180deg)',tr:'swift',rk:3,rx:5,kind:'sp'},
+ {id:'lavatitan',n:Tx("Lavatitan"),fb:'mon-titan',fx:'hue-rotate(340deg) saturate(2) brightness(1.1)',tr:'brute',rk:4,rx:5,kind:'sp'},
+ {id:'sturmdrache',n:Tx("Sturmdrache"),fb:'mon-dragon',fx:'hue-rotate(170deg) saturate(1.2)',tr:'caster',rk:5,rx:5,kind:'sp'},
+ {id:'yoruha',n:Tx("Yoruha, Klinge der Nacht"),fb:'shadow-assassin',fx:'hue-rotate(50deg) saturate(1.5) brightness(1.2)',tr:'swift',rk:3,rx:5,kind:'sup',p:.006,hpm:1.8,atm:1.4,rec:{id:'yoruha',p:.6}},
+ {id:'lunara',n:Tx("Lunara, Herrin des Mondes"),fb:'mon-mage',fx:'hue-rotate(20deg) saturate(1.2) brightness(1.4)',tr:'caster',rk:3,rx:5,kind:'sup',p:.006,hpm:1.7,atm:1.3,rec:{id:'lunara',p:.6}},
+ {id:'kagari',n:Tx("Kagari, Flammenritterin"),fb:'mon-knight',fx:'hue-rotate(300deg) saturate(1.8) brightness(1.2)',tr:'armor',rk:4,rx:5,kind:'sup',p:.006,hpm:1.9,atm:1.4,rec:{id:'kagari',p:.6}},
+ {id:'aurelion',n:Tx("Aurelion, der letzte Monarch"),fb:'shadow-knight',fx:'hue-rotate(110deg) saturate(1.5) brightness(1.25)',tr:'armor',rk:4,rx:5,kind:'sup',p:.004,hpm:2.4,atm:1.6,rec:{id:'aurelion',p:.4}}
+];
+function pickMon(k,ri){
+  const row=MON[ri].map(m=>({n:m[0],img:m[1],fx:m[2],w:1}));
+  if(k!=='fight'&&k!=='elite')return row[Math.floor(Math.random()*row.length)];
+  for(const e of ENX){if(e.kind==='sup'&&ri>=e.rk&&Math.random()<e.p)return e}
+  const pool=row.concat(ENX.filter(e=>e.kind!=='sup'&&ri>=e.rk&&ri<=e.rx).map(e=>Object.assign({},e,{w:e.kind==='sp'?.45:.8})));
+  let y=Math.random()*pool.reduce((a,b)=>a+b.w,0);
+  for(const m of pool){y-=m.w;if(y<0)return m}
+  return pool[0];
+}
 const RK_COL=['#2a7bd8','#1fa88a','#7a4be0','#e0a020','#d81f3c','#8a2be2'];
 const RK_BG=['cave','ice','hall','lava','void','void'];
 const RK_MON=['goblin','orc','skeleton','knight','demon','dragon'];
@@ -3054,7 +3100,77 @@ const STYPE={
 };
 const STK=['kraft','beweglichkeit','geist','disziplin','ausdauer'];
 const STAT2T={str:'kraft',vit:'ausdauer',agi:'beweglichkeit',int:'geist',dis:'disziplin'};
-const SRAR=[{n:Tx("Bronze"),c:'#cd8a4a',b:1.5,seal:'seal-bronze'},{n:Tx("Silber"),c:'#d6dcec',b:3,seal:'seal-silver'},{n:Tx("Gold"),c:'#ffd36b',b:5,seal:'seal-gold'},{n:Tx("Diamant"),c:'#7fe3ff',b:8,seal:'seal-diamond'}];
+const SRAR=[{n:Tx("Bronze"),c:'#cd8a4a',b:1.5,seal:'seal-bronze'},{n:Tx("Silber"),c:'#d6dcec',b:3,seal:'seal-silver'},{n:Tx("Gold"),c:'#ffd36b',b:5,seal:'seal-gold'},{n:Tx("Diamant"),c:'#7fe3ff',b:8,seal:'seal-diamond'},{n:Tx("Legendär"),c:'#ff62d0',b:14,seal:'seal-diamond'},{n:Tx("Mythisch"),c:'#ffd95a',b:22,seal:'seal-diamond'}];
+/* v29: Sonder-Gefaehrten. fm: Gestalt (human/beast), fb: Platzhalterbild, eigenes Bild: img/sp-<id>.webp */
+const SPC=[
+ {id:'ghulrak',n:'Ghulrak',ti:Tx("Grubenbrecher"),t:'kraft',rk:0,w:3,fm:'beast',fb:'mon-orc',fx:'hue-rotate(20deg) saturate(1.3)'},
+ {id:'grauzahn',n:'Grauzahn',ti:Tx("Rudeljäger"),t:'ausdauer',rk:0,w:3,fm:'beast',fb:'mon-wolf',fx:'grayscale(.6) brightness(1.1)'},
+ {id:'mira',n:'Mira',ti:Tx("Waldläuferin"),t:'ausdauer',rk:2,w:3,fm:'human',fb:'sh-ausdauer',fx:'hue-rotate(-30deg)'},
+ {id:'skorn',n:'Skorn',ti:Tx("Netzläufer"),t:'beweglichkeit',rk:1,w:3,fm:'beast',fb:'mon-spider',fx:'hue-rotate(120deg) saturate(1.3)'},
+ {id:'kira',n:'Kira',ti:Tx("Schattenschritt"),t:'beweglichkeit',rk:2,w:3,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(110deg) saturate(1.3)'},
+ {id:'irrlicht',n:'Irrlicht',ti:Tx("Wandelndes Licht"),t:'geist',rk:0,w:3,fm:'beast',fb:'mon-slime',fx:'hue-rotate(60deg) saturate(1.4)'},
+ {id:'nocturne',n:'Nocturne',ti:Tx("Mondweberin"),t:'geist',rk:3,w:3,fm:'human',fb:'mon-mage',fx:'hue-rotate(260deg) saturate(1.3)'},
+ {id:'steinwaechter',n:'Bastogar',ti:Tx("Hüter der Tore"),t:'disziplin',rk:1,w:3,fm:'beast',fb:'mon-golem',fx:'grayscale(.5) brightness(1.2)'},
+ {id:'valen',n:'Valen',ti:Tx("Schildwache"),t:'disziplin',rk:2,w:3,fm:'human',fb:'shadow-knight',fx:'hue-rotate(160deg) saturate(1.2)'},
+ {id:'vargoth',n:'Vargoth',ti:Tx("Henker"),t:'kraft',rk:4,w:2,fm:'human',fb:'sh-kraft',fx:'hue-rotate(330deg) saturate(1.5) brightness(1.1)',src:'elite',mr:2},
+ {id:'pyrax',n:'Pyrax',ti:Tx("Drachenbrut"),t:'kraft',rk:4,w:2,fm:'beast',fb:'mon-dragon',fx:'hue-rotate(20deg) saturate(1.3)',src:'boss',mr:2},
+ {id:'selene',n:'Selene',ti:Tx("Mondwolf"),t:'ausdauer',rk:3,w:2,fm:'beast',fb:'mon-wolf',fx:'invert(.85) hue-rotate(180deg)',src:'elite',mr:1},
+ {id:'cassia',n:'Cassia',ti:Tx("Ritter-Assassine"),t:'beweglichkeit',rk:3,w:2,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(300deg) saturate(1.4)',src:'elite',mr:2},
+ {id:'noxia',n:'Noxia',ti:Tx("Todesklinge"),t:'beweglichkeit',rk:4,w:2,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(180deg) saturate(1.5) brightness(1.1)',src:'boss',mr:2},
+ {id:'morwen',n:'Morwen',ti:Tx("Erzmagierin"),t:'geist',rk:5,w:2,fm:'human',fb:'sh-geist',fx:'hue-rotate(300deg) saturate(1.5) brightness(1.15)',src:'boss',mr:3},
+ {id:'eir',n:'Eir',ti:Tx("Schattenwächterin"),t:'disziplin',rk:3,w:2,fm:'human',fb:'sh-disziplin',fx:'hue-rotate(200deg) saturate(1.3) brightness(1.15)',src:'elite',mr:1},
+ {id:'yoruha',n:'Yoruha',ti:Tx("Klinge der Nacht"),t:'beweglichkeit',rk:0,w:0,fm:'human',fb:'shadow-assassin',fx:'hue-rotate(50deg) saturate(1.5) brightness(1.2)',r:4},
+ {id:'lunara',n:'Lunara',ti:Tx("Herrin des Mondes"),t:'geist',rk:0,w:0,fm:'human',fb:'sh-geist',fx:'hue-rotate(-60deg) saturate(1.1) brightness(1.3)',r:4},
+ {id:'kagari',n:'Kagari',ti:Tx("Flammenritterin"),t:'kraft',rk:0,w:0,fm:'human',fb:'sh-kraft',fx:'saturate(1.3) brightness(1.2)',r:4},
+ {id:'aurelion',n:'Aurelion',ti:Tx("Der letzte Monarch"),t:'disziplin',rk:0,w:0,fm:'human',fb:'shadow-knight',fx:'hue-rotate(110deg) saturate(1.5) brightness(1.25)',r:5}
+];
+const spOf=id=>SPC.find(x=>x.id===id)||null;
+function rollSpecial(t,ri,ctx){
+  if(ctx==='fuse')return null;
+  ri=Math.max(0,Math.min(5,ri));
+  const x=Math.random();
+  if(x<0.0001)return spOf('aurelion');
+  if(x<0.0101){const L=SPC.filter(c=>c.r===4);return L[Math.floor(Math.random()*L.length)]}
+  const pS=[.06,.08,.11,.15,.19,.24][ri]+(ctx==='boss'?.15:ctx==='elite'?.08:0);
+  if(Math.random()>=pS)return null;
+  const pool=SPC.filter(c=>c.t===t&&!c.r&&c.rk<=ri&&(!c.src||c.src===ctx||(c.src==='elite'&&ctx==='boss')));
+  if(!pool.length)return null;
+  const wt=pool.map(c=>c.w*(c.fm==='human'?.35+.3*ri:Math.max(.25,1.6-.28*ri)));
+  let y=Math.random()*wt.reduce((a,b)=>a+b,0);
+  for(let i=0;i<pool.length;i++){y-=wt[i];if(y<0)return pool[i]}
+  return pool[0];
+}
+function mkSp(c,ri){
+  const k=S.shadows.filter(s=>s.sp===c.id).length;
+  return {id:uid(),name:k?c.n+' '+(k+1):c.n,t:c.t,r:c.r||Math.max(c.mr||0,rollRar(ri)),lv:1,xp:0,rank:rankOf(S.level),sp:c.id};
+}
+window.imgFb=imgFb;
+function imgFb(e){e.onerror=function(){e.remove()};const f=e.getAttribute('data-fb');if(!f){e.remove();return}e.style.setProperty('--mf',e.getAttribute('data-fx')||'');e.src=f}
+/* Aufloesen gegen wenig Gold */
+const DIS_V=[4,8,16,30,45,60],DIS_CAP=100;
+const disVal=s=>DIS_V[s.r]+Math.min(10,s.lv-1);
+function disLeft(){const d=dayKey();if(!S.dis||S.dis.day!==d)S.dis={day:d,g:0};return Math.max(0,DIS_CAP-S.dis.g)}
+function disBusy(){return new Set((S.exp||[]).map(e=>e.id))}
+function bulkList(r){const tm=new Set(S.team||[]),bz=disBusy();return S.shadows.filter(s=>s.r===r&&!s.sp&&!tm.has(s.id)&&!bz.has(s.id))}
+function disDo(ids){
+  const bz=disBusy(),keep=new Set(S.shadows.filter(x=>x.r>=4).map(x=>x.id)),set=new Set(ids.filter(id=>!bz.has(id)&&!keep.has(id)));
+  let n=0,tot=0;
+  S.shadows.forEach(s=>{if(set.has(s.id)){n++;tot+=disVal(s)}});
+  const g=Math.min(tot,disLeft());
+  S.shadows=S.shadows.filter(s=>!set.has(s.id));
+  S.team=(S.team||[]).filter(id=>!set.has(id));
+  S.exp=(S.exp||[]).filter(e=>!set.has(e.id));
+  S.gold+=g;S.dis.g+=g;
+  save();
+  return {n,g,tot};
+}
+function disMsg(r){return (r.n===1?Tx("Gefährte aufgelöst"):Tx("{0} Gefährten aufgelöst",r.n))+': +'+r.g+' G'+(r.g<r.tot?Tx(" (Tageslimit erreicht)"):'')}
+function cleanSection(){
+  const rows=[0,1].map(r=>({r,list:bulkList(r)})).filter(x=>x.list.length>1);
+  if(!rows.length)return '';
+  const left=disLeft();
+  return Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Aufräumen</div><h2>Gefährten auflösen</h2></div></div><p class=\"dim\" style=\"font-size:13px;margin-bottom:8px\">Gefährten außerhalb des Teams kannst du auflösen. Das bringt ein paar Gold, höchstens {0} G pro Tag. Heute noch möglich: {1} G. Sie zählen sonst zu 40 % zu deiner Stärke.</p>{2}</section>",DIS_CAP,left,rows.map(x=>{const g=Math.min(x.list.reduce((a,s)=>a+disVal(s),0),left),key='b'+x.r;return '<div class="item"><span class="nm">'+x.list.length+' × '+SRAR[x.r].n+'</span><span class="chip">+'+g+' G</span><button class="btn '+(disArm===key?'bad':'ghost')+' sm" data-act="sh-bulk" data-id="'+x.r+'">'+(disArm===key?Tx("Sicher?"):Tx("Alle auflösen"))+'</button></div>'}).join(''));
+}
 const SR_W=[[80,18,2,0],[60,32,7,1],[40,40,17,3],[25,40,28,7],[10,35,40,15],[0,25,45,30]];
 const SMAXLV=20,TEAM_MAX=3;
 const sNeed=lv=>30+lv*15;
@@ -3066,7 +3182,9 @@ function shadowPow(){
   return tm.reduce((a,s)=>a+sPow(s),0)+0.4*S.shadows.filter(s=>!ids.has(s.id)).reduce((a,s)=>a+sPow(s),0);
 }
 function rollRar(ri){const w=SR_W[Math.max(0,Math.min(5,ri))],x=Math.random()*100;let a=0;for(let i=0;i<4;i++){a+=w[i];if(x<a)return i}return 0}
-function mkShadow(t,ri){
+function mkShadow(t,ri,ctx){
+  const sp=rollSpecial(t,ri,ctx);
+  if(sp)return mkSp(sp,ri);
   const T=STYPE[t],base=T.nm[Math.floor(Math.random()*T.nm.length)],k=S.shadows.filter(s=>s.name===base||s.name.startsWith(base+' ')).length;
   return {id:uid(),name:k?base+' '+(k+1):base,t,r:rollRar(ri),lv:1,xp:0,rank:rankOf(S.level)};
 }
@@ -3076,10 +3194,10 @@ function addShadow(s){
   if(teamList().length<TEAM_MAX)S.team.push(s.id);
 }
 function cardHtml(s,o){
-  o=o||{};const T=STYPE[s.t],R=SRAR[s.r],need=sNeed(s.lv);
-  return '<div class="scard r'+s.r+(o.big?' big':'')+'" style="--rc:'+R.c+';--tc:'+T.c+';--tg:'+T.c+'44'+'"><div class="sch"><span class="sct">'+T.n+'</span><span class="scl">Lv '+s.lv+'</span></div>'+
-   '<div class="scp"><img alt="" loading="lazy" src="img/sh-'+s.t+'.webp" onerror="this.remove()"></div>'+
-   '<b>'+esc(s.name)+'</b><div class="scf">'+gico(R.seal,18)+'<span>'+R.n+' · '+fmtN(sPow(s))+'</span></div>'+
+  o=o||{};const T=STYPE[s.t],R=SRAR[s.r],need=sNeed(s.lv),SPc=s.sp?spOf(s.sp):null;
+  return '<div class="scard r'+s.r+(SPc?' sp':'')+(o.big?' big':'')+'" style="--rc:'+R.c+';--tc:'+T.c+';--tg:'+T.c+'44'+'"><div class="sch"><span class="sct">'+T.n+'</span><span class="scl">Lv '+s.lv+'</span></div>'+
+   '<div class="scp">'+(SPc?'<img alt="" loading="lazy" src="img/sp-'+SPc.id+'.webp" data-fb="img/'+SPc.fb+'.webp" data-fx="'+SPc.fx+'" onerror="imgFb(this)">':'<img alt="" loading="lazy" src="img/sh-'+s.t+'.webp" onerror="this.remove()">')+'</div>'+
+   '<b>'+esc(s.name)+'</b>'+(SPc?'<small class="sti">'+SPc.ti+'</small>':'')+'<div class="scf">'+gico(R.seal,18)+'<span>'+R.n+' · '+fmtN(sPow(s))+'</span></div>'+
    (s.lv<SMAXLV?'<div class="bar vio"><i style="width:'+Math.min(100,(s.xp||0)/need*100)+'%"></i></div>':Tx("<div class=\"scx\">Maximal</div>"))+(o.extra||'')+'</div>';
 }
 function shadowXp(n,stat){
@@ -3228,6 +3346,7 @@ function viewShadows(){
   h+=Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Dein Team</div><h2>{0} / {1}</h2></div></div>{2}<p class=\"dim\" style=\"font-size:13px;margin-top:10px\">Gefährten außerhalb des Teams helfen mit 40 % ihrer Stärke.</p></section>",tm.length,TEAM_MAX,tm.length?'<div class="steam">'+tm.map(s=>cardHtml(s,{extra:Tx("<button class=\"btn ghost sm\" data-act=\"sh-team\" data-id=\"{0}\">Entlassen</button>",s.id)})).join('')+'</div>':Tx("<div class=\"empty\">Dein Team ist leer. Wähle unten bis zu {0} Gefährten. Sie kämpfen im Dungeon mit und sammeln Erfahrung, wenn du Quests schaffst.</div>",TEAM_MAX));
   h+=Tx("<section class=\"win\"><div class=\"sub\"><div class=\"lbl\">Typen</div></div><div class=\"tychart\">{0}<span class=\"tyc\" style=\"--tc:{1}\">Kraft</span></div><p class=\"dim\" style=\"font-size:13px;margin-top:8px\">Jeder Typ schlägt den nächsten: 1,5× Schaden. Gegen den vorherigen sind es 0,7×. Das zählt gegen Gegner im Dungeon.</p></section>",STK.map((t,i)=>'<span class="tyc" style="--tc:'+STYPE[t].c+'">'+STYPE[t].n+'</span><i>›</i>').join(''),STYPE.kraft.c);
   h+=expSection()+fuseSection();
+  h+=cleanSection();
   h+=Tx("<section class=\"win\"><div class=\"sub\"><div class=\"lbl\">Sammlung</div><span class=\"qp\">sortiert nach Seltenheit</span></div>{0}</section>",all.length?'<div class="sgrid2">'+all.map(s=>cardHtml(s,{extra:shBtn(s,ids)})).join('')+'</div>':Tx("<div class=\"empty\">Noch keine Gefährten. Schließe Quests ab oder besiege Gegner im Dungeon.</div>"));
   return h;
 }
@@ -3411,7 +3530,7 @@ function planIntro(){
 
 /* ---------- v23: Dungeon-Lauf, Energie, Gefährten-Extras ---------- */
 const EN_MAX=100,ROOMS=5,BURST_EN=30;
-let runSum=null,outArm=false,fuseArm=null,frArm=null;
+let runSum=null,outArm=false,fuseArm=null,frArm=null,disArm=null;
 const addEn=n=>{S.en=Math.max(0,Math.min(EN_MAX,Math.round((S.en||0)+n)))};
 function vib(p){if(S.fx&&S.fx.vib===false)return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 let sfxCtx=null;
@@ -3561,20 +3680,21 @@ function mkMon(k){
   const r=S.run;
   const ri=Math.min(5,r.ri+((k==='elite')?1:0));
   const row=MON[ri];
-  let mo=row[Math.floor(Math.random()*3)],name=mo[0],img=mo[1],fx=mo[2],shadow=null,src=null;
+  let mo=pickMon(k,ri),name=mo.n,img=mo.img||'goblin',fx=mo.fx,shadow=null,src=null,fb=null,rec=null,hpm=1,atm=1,xtr=null;
+  if(mo.id){fb='img/'+mo.fb+'.webp';src='img/en-'+mo.id+'.webp';xtr=mo.tr;rec=mo.rec||null;hpm=mo.hpm||1;atm=mo.atm||1}
   let hits=4.6,df=0.052;
   if(k==='elite'){hits=7.2;df=0.07}
   if(k==='boss'){name=BOSSN[ri];img=RK_MON[ri];fx='';hits=10.5;df=0.078}
   if(k==='mimic'){name=Tx("Truhen-Mimik");img='golem';fx='hue-rotate(35deg) saturate(1.5)';hits=5.6;df=.06}
-  let trait=MTRAIT[img]||null;
+  let trait=xtr||MTRAIT[img]||null;
   if(k==='mimic')trait='brute';
-  if((k==='fight'&&Math.random()<.3)||(k==='elite'&&Math.random()<.5)){shadow=STK[Math.floor(Math.random()*5)];name=STYPE[shadow].e;src='img/sh-'+shadow+'.webp';fx='';trait=STRAIT[shadow]}
+  if(!rec&&((k==='fight'&&Math.random()<.3)||(k==='elite'&&Math.random()<.5))){shadow=STK[Math.floor(Math.random()*5)];name=STYPE[shadow].e;src='img/sh-'+shadow+'.webp';fx='';trait=STRAIT[shadow];fb=null;rec=null;hpm=1;atm=1}
   const roomF=1+0.06*r.n,easy=(S.runs||0)<2?0.85:1;
   const tp=teamList().reduce((a,x)=>a+sPow(x),0),cap=CAP0+Math.min(.55,.03*tp)+.07*SKILLS.filter(x=>S.level>=x.lv).length;
   const hpf=(1+.07*ri)*roomF*cap,dmf=(1+.05*ri)*(1+.04*r.n)*(1+(cap-1)*0.6)*easy;
-  const mhp=Math.max(20,Math.round(dAtk0()*hits*hpf));
-  const atk=(50+S.stats.vit*5)*df*dmf;
-  return {name,img,fx,src,shadow,hp:mhp,max:mhp,atk,trait,tier:k,ri,int:'atk',last:'',nextF:null,shield:false,rage:false};
+  const mhp=Math.max(20,Math.round(dAtk0()*hits*hpf*hpm));
+  const atk=(50+S.stats.vit*5)*df*dmf*atm;
+  return {name,img,fx,src,fb,rec,shadow,hp:mhp,max:mhp,atk,trait,tier:k,ri,int:'atk',last:'',nextF:null,shield:false,rage:false};
 }
 function startFight(k){
   const r=S.run,p=pStats(),m=mkMon(k);
@@ -3608,7 +3728,7 @@ const EVENTS=[
   [Tx("Springen"),Tx("Beweglichkeit entscheidet"),()=>{const ok=Math.random()<Math.min(.9,.3+S.stats.agi*.012);if(ok){const g=Math.round(15+S.run.ri*10);S.run.g+=g;return Tx("Du tanzt über die Platten. +{0} G.",g)}hurtPct(.2);return Tx("Eine Platte klickt. Pfeile treffen dich: −20 % LP.")}],
   [Tx("Vorsichtig umgehen"),Tx("−8 % LP"),()=>{hurtPct(.08);return Tx("Der Umweg kostet Kraft: −8 % LP.")}]]},
  {id:'soul',t:Tx("Verwundeter Kämpfer"),x:Tx("Ein geschwächter Kämpfer liegt am Boden. Du kannst ihn für dich gewinnen oder verschonen."),o:[
-  [Tx("Anwerben"),Tx("Neuer Gefährte"),()=>{const s=mkShadow(STK[Math.floor(Math.random()*5)],Math.max(0,S.run.ri-1));addShadow(s);S.run.sh++;extractModal(s,Tx("Gefährte rekrutiert"),Tx("Der Kämpfer dient dir jetzt."));return Tx("Du wirbst den Kämpfer an. Er dient dir jetzt.")}],
+  [Tx("Anwerben"),Tx("Neuer Gefährte"),()=>{const s=mkShadow(STK[Math.floor(Math.random()*5)],Math.max(0,S.run.ri-1),'event');addShadow(s);S.run.sh++;extractModal(s,Tx("Gefährte rekrutiert"),Tx("Der Kämpfer dient dir jetzt."));return Tx("Du wirbst den Kämpfer an. Er dient dir jetzt.")}],
   [Tx("Verschonen"),Tx("+25 % LP, +20 Energie"),()=>{healPct(.25);addEn(20);return Tx("Der Kämpfer verneigt sich und lässt dir seine Kraft. +25 % LP, +20 Energie.")}]]}
 ];
 function enterRoom(i){
@@ -3650,8 +3770,8 @@ function endFight(win){
     if(l.key){S.keys+=l.key;r.key+=l.key}
     B.res={win:true,xp,g,pot:l.pot,key:l.key,boss:k==='boss'};
     let ext=null;
-    const pr=B.mon.shadow?(k==='elite'?.7:.45):(k==='boss'?.5:.05);
-    if(Math.random()<pr){const ty=B.mon.shadow||STK[Math.floor(Math.random()*5)];ext=mkShadow(ty,ri+((k==='elite'||k==='boss')?1:0));addShadow(ext);r.sh++}
+    const pr=B.mon.rec?B.mon.rec.p:B.mon.shadow?(k==='elite'?.7:.45):(k==='boss'?.5:.05);
+    if(Math.random()<pr){const ty=B.mon.shadow||STK[Math.floor(Math.random()*5)];ext=(B.mon.rec&&spOf(B.mon.rec.id))?mkSp(spOf(B.mon.rec.id),ri):mkShadow(ty,ri+((k==='elite'||k==='boss')?1:0),k);addShadow(ext);r.sh++}
     B.log.push({t:Tx("{0} ist besiegt!",B.mon.name),c:'good'});
     vib([40,30,40]);sfx('win');
     if(k==='boss')finishRun('win');else advance();
@@ -3861,13 +3981,7 @@ function monBlock(){
   const intent=!B.over?Tx("<div class=\"intent {0}\" role=\"status\"><b>Plant: {1}</b>{2}</div>{3}",it.c,it.n,it.h?' · '+it.h:'',m.shield?Tx("<div class=\"intent b\">Abwehr aktiv: Angriffe −60 %</div>"):''):'';
   const fx=fls.map((f,i)=>'<span class="flt '+f.w+' '+f.c+'" style="--o:'+(i*26)+'px">'+esc(String(f.t))+'</span>').join('');
   const st=(B.pois?Tx(" · Gift {0}",B.pois.t):'')+(B.ward<1?Tx(" · Schutz"):'');
-  return '<div id="stg" class="stage'+(B.door==='red'?' red':'')+(pain?' pain':'')+(B.over==='win'?' won':'')+'" style="--bc:'+(B.door==='red'?'#d81f3c':RK_COL[B.ri])+'">'+
-    '<img class="bg" alt="" src="img/dungeon-'+(B.door==='red'?'lava':RK_BG[B.ri])+'.webp" onerror="this.remove()">'+
-    '<div class="top"><div class="who"><span>'+esc(m.name)+'</span><small>'+(B.k==='boss'?Tx("Wächter · "):B.k==='elite'?Tx("Elite · "):'')+'Rang '+RANKS[B.ri]+(m.trait?' · '+TRAIT[m.trait].n:'')+(m.rage?Tx(" · Rage"):'')+'</small></div><div class="bar red"><i style="width:'+(m.hp/m.max*100)+'%"></i></div><div class="qp">'+m.hp+' / '+m.max+' LP</div>'+intent.slice(0,0)+'</div>'+
-    '<img class="mimg'+(hurt?' hurt':'')+(B.over==='win'?' dead':'')+'" alt="'+esc(m.name)+'" src="'+(m.src||'img/mon-'+m.img+'.webp')+'" style="'+(m.fx?'filter:'+m.fx+' ':'')+'" onerror="this.remove()">'+fx+
-    '<div class="bot"><div><div class="who">'+esc(S.name)+'</div><div class="bar ok"><i style="width:'+(p.hp/p.max*100)+'%"></i></div><div class="qp">'+p.hp+' / '+p.max+HPL+st+'</div></div>'+
-    '<div><div class="who dim">Energie</div><div class="bar en"><i style="width:'+Math.min(100,(S.en||0)/EN_MAX*100)+'%"></i></div><div class="qp">'+Math.round(S.en||0)+' / '+EN_MAX+'</div></div></div></div>'+
-    '<section class="win fightp">'+(B.over?'':intent+'<div class="log" aria-live="polite">'+log+'</div>')+'<div class="acts">'+acts+'</div></section>';
+  return Tx("<div id=\"stg\" class=\"stage{0}{1}{2}\" style=\"--bc:{3}\"><img class=\"bg\" alt=\"\" src=\"img/dungeon-{4}.webp\" onerror=\"this.remove()\"><div class=\"top\"><div class=\"who\"><span>{5}</span><small>{6}Rang {7}{8}{9}</small></div><div class=\"bar red\"><i style=\"width:{10}%\"></i></div><div class=\"qp\">{11} / {12} LP</div>{13}</div><img class=\"mimg{14}{15}\" alt=\"{16}\" src=\"{17}\"{18}>{19}<div class=\"bot\"><div><div class=\"who\">{20}</div><div class=\"bar ok\"><i style=\"width:{21}%\"></i></div><div class=\"qp\">{22} / {23}{24}{25}</div></div><div><div class=\"who dim\">Energie</div><div class=\"bar en\"><i style=\"width:{26}%\"></i></div><div class=\"qp\">{27} / {28}</div></div></div></div><section class=\"win fightp\">{29}<div class=\"acts\">{30}</div></section>",B.door==='red'?' red':'',pain?' pain':'',B.over==='win'?' won':'',B.door==='red'?'#d81f3c':RK_COL[B.ri],B.door==='red'?'lava':RK_BG[B.ri],esc(m.name),B.k==='boss'?Tx("Wächter · "):B.k==='elite'?Tx("Elite · "):'',RANKS[B.ri],m.trait?' · '+TRAIT[m.trait].n:'',m.rage?Tx(" · Rage"):'',m.hp/m.max*100,m.hp,m.max,intent.slice(0,0),hurt?' hurt':'',B.over==='win'?' dead':'',esc(m.name),m.src||'img/mon-'+m.img+'.webp',m.fb?' data-fb="'+m.fb+'" data-fx="'+esc(m.fx||'')+'" onerror="imgFb(this)"':' style="--mf:'+(m.fx||'')+'" onerror="this.remove()"',fx,esc(S.name),p.hp/p.max*100,p.hp,p.max,HPL,st,Math.min(100,(S.en||0)/EN_MAX*100),Math.round(S.en||0),EN_MAX,B.over?'':intent+'<div class="log" aria-live="polite">'+log+'</div>',acts);
 }
 function viewDungeon(){
   let h='';
@@ -3886,7 +4000,7 @@ function viewDungeon(){
 const FUSE_N=3,EXP_H=[4,8];
 function fuseGroups(){
   const busy=new Set((S.exp||[]).map(e=>e.id)),g={};
-  S.shadows.forEach(s=>{if(busy.has(s.id)||s.r>=3)return;const k=s.t+'|'+s.r;(g[k]=g[k]||[]).push(s)});
+  S.shadows.forEach(s=>{if(busy.has(s.id)||s.r>=3||s.sp)return;const k=s.t+'|'+s.r;(g[k]=g[k]||[]).push(s)});
   return Object.keys(g).filter(k=>g[k].length>=FUSE_N).map(k=>({k,t:k.split('|')[0],r:+k.split('|')[1],n:g[k].length,list:g[k]}));
 }
 function doFuse(k){
@@ -3896,7 +4010,7 @@ function doFuse(k){
   const ids=new Set(pick.map(s=>s.id)),best=Math.max(...pick.map(s=>s.lv));
   S.shadows=S.shadows.filter(s=>!ids.has(s.id));
   S.team=(S.team||[]).filter(id=>!ids.has(id));
-  const ns=mkShadow(grp.t,0);ns.r=grp.r+1;ns.lv=Math.max(1,Math.floor(best/2));ns.xp=0;
+  const ns=mkShadow(grp.t,0,'fuse');ns.r=grp.r+1;ns.lv=Math.max(1,Math.floor(best/2));ns.xp=0;
   addShadow(ns);save();
   extractModal(ns,Tx("Verschmelzung"),Tx("Drei {0}-Gefährten ({1}) wurden zu einem {2}-Gefährten.",STYPE[grp.t].n,SRAR[grp.r].n,SRAR[ns.r].n));
   return ns;
@@ -3949,7 +4063,9 @@ function expSection(){
 }
 function shBtn(s,ids){
   if((S.exp||[]).some(e=>e.id===s.id))return Tx("<button class=\"btn ghost sm\" disabled>Unterwegs</button>");
-  return '<button class="btn '+(ids.has(s.id)?'ghost':'ok')+' sm" data-act="sh-team" data-id="'+s.id+'">'+(ids.has(s.id)?Tx("Im Team"):Tx("Ins Team"))+'</button>';
+  const dg=Math.min(disVal(s),disLeft());
+  return '<button class="btn '+(ids.has(s.id)?'ghost':'ok')+' sm" data-act="sh-team" data-id="'+s.id+'">'+(ids.has(s.id)?Tx("Im Team"):Tx("Ins Team"))+'</button>'+
+   (s.r>=4?'':'<button class="btn '+(disArm===s.id?'bad':'ghost')+' sm" data-act="sh-dis" data-id="'+s.id+'">'+(disArm===s.id?Tx("Sicher? +{0} G",dg):Tx("Auflösen"))+'</button>');
 }
 
 /* ---------- v23: Duell mit Haltung und Wiederholung ---------- */
@@ -4626,7 +4742,7 @@ function completeQuest(q){
     if(Math.random()<kc)giveKey(q.type==='dungeon'?Tx("Dungeon"):'');
     shadowXp(Math.max(1,Math.round(gx/10)),q.stat);
     if(S.totalDone%SHADOW_EVERY===0){
-      const ty=STAT2T[q.stat]||STK[Math.floor(Math.random()*5)],sh=mkShadow(ty,rankIdx(S.level));
+      const ty=STAT2T[q.stat]||STK[Math.floor(Math.random()*5)],sh=mkShadow(ty,rankIdx(S.level),'quest');
       addShadow(sh);
       extractModal(sh,Tx("Rekrutierung"),Tx("Aus deinen Quests ist ein neuer Gefährte entstanden, {0}-Typ.",STYPE[ty].n));
     }
@@ -5108,6 +5224,7 @@ document.addEventListener('click',e=>{
   if(a!=='run-out')outArm=false;
   if(a!=='delfriend')frArm=null;
   if(a!=='fuse')fuseArm=null;
+  if(a!=='sh-dis'&&a!=='sh-bulk')disArm=null;
   const q=S.quests.find(x=>x.id===id);
   switch(a){
     case 'modal-ok':nextModal();render();return;
@@ -5219,6 +5336,8 @@ document.addEventListener('click',e=>{
     case 'run-out':if(S.run&&S.run.doors&&!B){if(outArm)finishRun('out');else outArm=true}break;
     case 'sum-ok':runSum=null;break;
     case 'fuse':if(fuseArm===id){fuseArm=null;doFuse(id)}else fuseArm=id;break;
+    case 'sh-dis':{if(disArm===id){disArm=null;if(S.shadows.some(x=>x.id===id)){const r=disDo([id]);if(r.n)toast(disMsg(r))}}else disArm=id;break}
+    case 'sh-bulk':{const key='b'+id;if(disArm===key){disArm=null;const r=disDo(bulkList(+id).map(x=>x.id));if(r.n)toast(disMsg(r))}else disArm=key;break}
     case 'exp-go':{const el=document.getElementById('expSh');if(el&&expStart(el.value,+id)){save();toast(Tx("Expedition gestartet"))}break}
     case 'exp-get':expCollect(id);break;
     case 'stance':if(STN[id]){S.stance=id;save();toast(Tx("Haltung: {0}",STN[id].n))}break;
@@ -5565,7 +5684,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
