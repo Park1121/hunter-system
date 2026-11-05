@@ -1026,6 +1026,27 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .stnb{padding:10px 4px;overflow:hidden}
 .stnb b{font-size:11.5px;letter-spacing:0;max-width:100%;overflow-wrap:normal;white-space:nowrap}
 .stnb{padding:10px 3px}
+/* v28: Kampfbühne lesbar, Türen mit Farbsymbol */
+.stage{height:252px}
+.stage .bg{filter:brightness(.5) saturate(.85)}
+.stage::before{left:0;right:0;bottom:0;height:100%;background:radial-gradient(46% 52% at 50% 56%,color-mix(in srgb,var(--bc) 62%,#fff0),transparent 72%)}
+.stage .mimg{height:64%;bottom:48px;filter:brightness(1.3) contrast(1.06) drop-shadow(0 0 16px rgba(170,200,255,.55)) drop-shadow(0 10px 10px #000b)}
+.stage .top{left:0;right:0;top:0;padding:10px 12px 18px;gap:3px;background:linear-gradient(#04060ff0 52%,#04060f00)}
+.stage .top .who{flex-direction:row;align-items:baseline;justify-content:flex-start;flex-wrap:wrap;gap:2px 8px;font-size:19px;line-height:1.1}
+.stage .top .who small{font-size:12.5px}
+.stage .top .qp{font-size:12px;color:#e3e9ff;text-shadow:0 1px 4px #000}
+.stage .top .bar{height:9px}
+.stage .bot{left:0;right:0;bottom:0;padding:22px 12px 9px;background:linear-gradient(#04060f00,#04060ff0 52%)}
+.stage .bot .who{font-size:14px}
+.stage .bot .qp{font-size:12px}
+.fightp .intent{display:block;font-size:12.5px;font-weight:600;color:#fff;background:#d81f3ce6;border-radius:8px;padding:4px 10px;margin:0 0 8px;line-height:1.25}
+.fightp .intent b{font-weight:800}
+.fightp .intent.b{background:#2c5fc9e6}
+.fightp .intent.w{background:#c9801fe6}
+.fightp .intent.x{background:#b3122eee;box-shadow:0 0 14px #ff1a3a}
+@media (max-height:700px){.stage{height:180px}.stage .top{padding:7px 12px 14px}.stage .bot{padding:16px 12px 6px}.fightp .intent{font-size:12px;padding:3px 9px;margin:0 0 5px}}
+.door.gold .sil.ico{filter:drop-shadow(0 0 12px #ffc34a) drop-shadow(0 4px 6px #000a)}
+.door.grn .sil.ico{filter:drop-shadow(0 0 12px #4fd6a8) drop-shadow(0 4px 6px #000a)}
 </style>
 </head>
 <body>
@@ -1173,7 +1194,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v27';
+const APP_V='v28';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -3842,11 +3863,11 @@ function monBlock(){
   const st=(B.pois?Tx(" · Gift {0}",B.pois.t):'')+(B.ward<1?Tx(" · Schutz"):'');
   return '<div id="stg" class="stage'+(B.door==='red'?' red':'')+(pain?' pain':'')+(B.over==='win'?' won':'')+'" style="--bc:'+(B.door==='red'?'#d81f3c':RK_COL[B.ri])+'">'+
     '<img class="bg" alt="" src="img/dungeon-'+(B.door==='red'?'lava':RK_BG[B.ri])+'.webp" onerror="this.remove()">'+
-    '<div class="top"><div class="who"><span>'+esc(m.name)+'</span><small>'+(B.k==='boss'?Tx("Wächter · "):B.k==='elite'?Tx("Elite · "):'')+'Rang '+RANKS[B.ri]+(m.trait?' · '+TRAIT[m.trait].n:'')+(m.rage?Tx(" · Rage"):'')+'</small></div><div class="bar red"><i style="width:'+(m.hp/m.max*100)+'%"></i></div><div class="qp">'+m.hp+' / '+m.max+' LP</div>'+intent+'</div>'+
+    '<div class="top"><div class="who"><span>'+esc(m.name)+'</span><small>'+(B.k==='boss'?Tx("Wächter · "):B.k==='elite'?Tx("Elite · "):'')+'Rang '+RANKS[B.ri]+(m.trait?' · '+TRAIT[m.trait].n:'')+(m.rage?Tx(" · Rage"):'')+'</small></div><div class="bar red"><i style="width:'+(m.hp/m.max*100)+'%"></i></div><div class="qp">'+m.hp+' / '+m.max+' LP</div>'+intent.slice(0,0)+'</div>'+
     '<img class="mimg'+(hurt?' hurt':'')+(B.over==='win'?' dead':'')+'" alt="'+esc(m.name)+'" src="'+(m.src||'img/mon-'+m.img+'.webp')+'" style="'+(m.fx?'filter:'+m.fx+' ':'')+'" onerror="this.remove()">'+fx+
     '<div class="bot"><div><div class="who">'+esc(S.name)+'</div><div class="bar ok"><i style="width:'+(p.hp/p.max*100)+'%"></i></div><div class="qp">'+p.hp+' / '+p.max+HPL+st+'</div></div>'+
     '<div><div class="who dim">Energie</div><div class="bar en"><i style="width:'+Math.min(100,(S.en||0)/EN_MAX*100)+'%"></i></div><div class="qp">'+Math.round(S.en||0)+' / '+EN_MAX+'</div></div></div></div>'+
-    '<section class="win fightp">'+(B.over?'':'<div class="log" aria-live="polite">'+log+'</div>')+'<div class="acts">'+acts+'</div></section>';
+    '<section class="win fightp">'+(B.over?'':intent+'<div class="log" aria-live="polite">'+log+'</div>')+'<div class="acts">'+acts+'</div></section>';
 }
 function viewDungeon(){
   let h='';
