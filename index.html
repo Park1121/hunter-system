@@ -1066,6 +1066,9 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 .swb.on{border-color:var(--ok);color:var(--ok);background:rgba(79,214,168,.12)}
 .swb.cn{min-width:48px;font-weight:700}
 .sr .swb{padding:3px 8px;flex:0 0 auto}
+/* v34: Stoppuhr in der Satzzeile */
+.sr.hs{grid-template-columns:24px 1fr 92px 54px}
+.sr .swb{height:50px;width:100%;min-width:0;padding:0 4px;font-size:15px;border-radius:12px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1213,7 +1216,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v33';
+const APP_V='v34';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -1472,6 +1475,12 @@ X('dehnen',Tx("Ganzkörper dehnen"),'beweglichkeit','bw','min',1,10,'o','',Tx("J
 X('yoga',Tx("Yoga-Flow"),'beweglichkeit','bw','min',1,20,'o','',Tx("Fließende Abfolge, tief und ruhig atmen."));
 X('mobility',Tx("Mobility-Routine"),'beweglichkeit','bw','min',1,12,'o','',Tx("Gelenke kreisen: Hüfte, Schultern, Brustwirbelsäule."));
 X('huefte',Tx("Hüftbeuger dehnen"),'beweglichkeit','bw','sec',2,45,'o','knee',Tx("Ausfallschritt, Hüfte nach vorn schieben, pro Seite."));
+X('handgelenk',Tx("Handgelenkcurls"),'arme','db','kg',3,15,'i','wrist',Tx("Unterarm auf dem Oberschenkel, nur das Handgelenk beugt und streckt."));
+X('hang',Tx("Hängen an der Stange"),'arme','bar','sec',3,30,'o','shoulder',Tx("Aktiv hängen, Schultern leicht nach unten, Griff fest."));
+X('farmer',Tx("Farmer Walk"),'arme','db','sec',3,40,'c','',Tx("Aufrecht gehen, Schultern unten, Hanteln fest greifen."));
+X('yraise',Tx("Y-Heben liegend"),'ruecken','bw','bw',3,12,'i','',Tx("Bauchlage, Arme im Y nach oben heben, Daumen zeigen zur Decke."));
+X('tischrudern',Tx("Rudern unter dem Tisch"),'ruecken','bw','bw',3,10,'c','',Tx("Unter einen stabilen Tisch legen, Brust zur Tischkante ziehen, Körper gerade."));
+X('rdl_ein',Tx("Einbeiniges Kreuzheben"),'beine','bw','bw',3,10,'c','back',Tx("Hüfte nach hinten schieben, Standbein leicht gebeugt, Rücken gerade."));
 X('katze',Tx("Katze-Kuh"),'beweglichkeit','bw','bw',2,10,'o','',Tx("Auf allen vieren, Rücken abwechselnd rund und hohl."));
 X('schulter_mob',Tx("Schulter-Mobility"),'beweglichkeit','bd','min',1,6,'o','',Tx("Mit Band oder Handtuch die Arme über den Kopf führen."));
 
@@ -1830,7 +1839,7 @@ function sesOpen(){
   const q=S.quests.find(x=>x.type==='gym'&&x.day===dayKey());
   if(q&&q.done){toast(Tx("Das Training für heute ist schon erledigt"));return}
   if(S.ses&&(S.ses.day!==dayKey()||Date.now()-S.ses.t0>10*3600e3))S.ses=null;
-  if(S.ses&&S.ses.kind){toast(Tx("Beende zuerst das Defizit-Training"));return}
+  if(S.ses&&S.ses.kind){toast(Tx("Beende zuerst die Schwächen-Quest"));return}
   if(!S.ses){S.ses=sesBuild(d);save()}
   sesOn=true;sesArm=false;sesRender();sesWake();
 }
@@ -1868,10 +1877,7 @@ function sesExHtml(x,i){
     const L=(S.exl||{})[x.e];
     h+='<div class="sx-b">'+(e.cue?'<p class="cue">'+esc(e.cue)+'</p>':'');
     if(L&&L.s&&L.s.length)h+=Tx("<p class=\"last\">Letztes Mal: {0}{1}</p>",e.m==='kg'?L.s.map(a=>fmtW(a[0])+' kg × '+a[1]).join(', '):L.s.map(a=>a[1]).join(', ')+' '+unit,L.up?Tx(" · <b>Diesmal etwas mehr</b>"):'');
-    h+=x.sets.map((t,j)=>'<div class="sr'+(t.d?' d':'')+(e.m==='kg'?'':' nk')+'"><span class="n">'+(j+1)+'</span>'+
-      (e.m==='kg'?Tx("<label><input type=\"number\" inputmode=\"decimal\" step=\"0.5\" min=\"0\" data-si=\"{0}:{1}:w\" value=\"{2}\" placeholder=\"0\" aria-label=\"Gewicht Satz {3}\"><i>kg</i></label>",i,j,t.w===''?'':t.w,j+1):'')+
-      '<label><input type="number" inputmode="'+(e.m==='km'?'decimal':'numeric')+'" step="'+(e.m==='km'?'0.1':'1')+'" min="0" data-si="'+i+':'+j+':r" value="'+t.r+'" placeholder="0" aria-label="'+unit+' Satz '+(j+1)+'"><i>'+unit+'</i></label>'+(t.d?'':swBtn('s:'+i+':'+j,MODE[e.m].u))+
-      '<button type="button" class="sc" data-act="ses-set" data-id="'+i+':'+j+'" aria-pressed="'+!!t.d+'" aria-label="Satz '+(j+1)+(t.d?Tx(" zurücknehmen"):Tx(" abhaken"))+'">'+(t.d?'<img alt="" src="img/ico-setdone.webp">':'✓')+'</button></div>').join('');
+    h+=x.sets.map((t,j)=>Tx("<div class=\"sr{0}{1}{2}\"><span class=\"n\">{3}</span>{4}<label><input type=\"number\" inputmode=\"{5}\" step=\"{6}\" min=\"0\" data-si=\"{7}:{8}:r\" value=\"{9}\" placeholder=\"0\" aria-label=\"{10} Satz {11}\"><i>{12}</i></label>{13}<button type=\"button\" class=\"sc\" data-act=\"ses-set\" data-id=\"{14}:{15}\" aria-pressed=\"{16}\" aria-label=\"Satz {17}{18}\">{19}</button></div>",t.d?' d':'',e.m==='kg'?'':' nk',!t.d&&(e.m==='sec'||e.m==='min')?' hs':'',j+1,e.m==='kg'?Tx("<label><input type=\"number\" inputmode=\"decimal\" step=\"0.5\" min=\"0\" data-si=\"{0}:{1}:w\" value=\"{2}\" placeholder=\"0\" aria-label=\"Gewicht Satz {3}\"><i>kg</i></label>",i,j,t.w===''?'':t.w,j+1):'',e.m==='km'?'decimal':'numeric',e.m==='km'?'0.1':'1',i,j,t.r,unit,j+1,unit,t.d?'':swBtn('s:'+i+':'+j,MODE[e.m].u),i,j,!!t.d,j+1,t.d?Tx(" zurücknehmen"):Tx(" abhaken"),t.d?'<img alt="" src="img/ico-setdone.webp">':'✓')).join('');
     h+=Tx("<div class=\"tp-acts\">{0}<button type=\"button\" class=\"btn ghost sm\" data-act=\"ses-skip\" data-id=\"{1}\">Überspringen</button></div></div>",(e.m==='kg'||e.m==='bw'||e.m==='sec')?Tx("<button type=\"button\" class=\"btn ghost sm\" data-act=\"ses-add\" data-id=\"{0}\">+ Satz</button>",i):'',i);
   }
   if(x.sk)h+=Tx("<div class=\"sx-b\" style=\"padding-top:0\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"ses-skip\" data-id=\"{0}\">Wieder aufnehmen</button></div>",i);
@@ -1889,7 +1895,7 @@ function sesRender(){
   const old=el&&el.querySelector('.ov-body'),keep=old?old.scrollTop:0;
   if(!el){el=document.createElement('div');el.id='ses';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label',Tx("Training"));document.body.appendChild(el)}
   const left=c.tt-c.dn;
-  el.innerHTML=Tx("<div class=\"ov-top\"><div class=\"ov-brand\"><span>{0} · {1}</span><span><span class=\"num\" id=\"ses-el\">{2}</span> <button type=\"button\" class=\"btn ghost sm\" data-act=\"ses-min\" style=\"margin-left:8px\">Minimieren</button></span></div><div class=\"ob-bar\"><i style=\"width:{3}%\"></i></div><div class=\"qp\">{4} von {5} Sätzen</div></div><div class=\"ov-body\"><div class=\"ov-in\">{6}</div></div>{7}<div class=\"ov-foot\"><div class=\"ov-in\"><button type=\"button\" class=\"btn ghost\" data-act=\"ses-cancel\">{8}</button><button type=\"button\" class=\"btn ok\" data-act=\"ses-end\" {9}>{10}</button></div></div>",s.kind?Tx("DEFIZIT"):'GYM',esc(s.n),fmtT((Date.now()-s.t0)/1000),c.tt?c.dn/c.tt*100:0,c.dn,c.tt,s.ex.map(sesExHtml).join(''),sesRestHtml(),sesArm==='cancel'?Tx("Sicher?"):Tx("Verwerfen"),c.dn?'':'disabled',sesArm==='end'?Tx("Sicher? {0} Sätze offen",left):Tx("Beenden · +{0} XP",cal.xp));
+  el.innerHTML=Tx("<div class=\"ov-top\"><div class=\"ov-brand\"><span>{0} · {1}</span><span><span class=\"num\" id=\"ses-el\">{2}</span> <button type=\"button\" class=\"btn ghost sm\" data-act=\"ses-min\" style=\"margin-left:8px\">Minimieren</button></span></div><div class=\"ob-bar\"><i style=\"width:{3}%\"></i></div><div class=\"qp\">{4} von {5} Sätzen</div></div><div class=\"ov-body\"><div class=\"ov-in\">{6}</div></div>{7}<div class=\"ov-foot\"><div class=\"ov-in\"><button type=\"button\" class=\"btn ghost\" data-act=\"ses-cancel\">{8}</button><button type=\"button\" class=\"btn ok\" data-act=\"ses-end\" {9}>{10}</button></div></div>",s.kind?'QUEST':'GYM',esc(s.n),fmtT((Date.now()-s.t0)/1000),c.tt?c.dn/c.tt*100:0,c.dn,c.tt,s.ex.map(sesExHtml).join(''),sesRestHtml(),sesArm==='cancel'?Tx("Sicher?"):Tx("Verwerfen"),c.dn?'':'disabled',sesArm==='end'?Tx("Sicher? {0} Sätze offen",left):Tx("Beenden · +{0} XP",cal.xp));
   const b=el.querySelector('.ov-body');if(b)b.scrollTop=keep;
 }
 function sesInput(t){
@@ -1907,7 +1913,7 @@ function swTgt(key){
 }
 function swBtn(key,u){
   const k=swKind(u);if(!k)return '';
-  if(k==='c')return Tx("<button type=\"button\" class=\"btn ghost sm swb cn\" data-act=\"cnt\" data-id=\"{0}\" aria-label=\"Zähler plus eins\">+1</button>",key);
+  if(k==='c')return '';
   const on=!!(sw&&sw.key===key);
   return '<button type="button" class="btn ghost sm swb'+(on?' on':'')+'" data-act="sw" data-id="'+key+'" data-u="'+k+'" aria-label="'+(on?Tx("Stoppuhr anhalten"):Tx("Stoppuhr starten"))+'">'+swLbl(on)+'</button>';
 }
@@ -1980,7 +1986,7 @@ function sesFinish(direct){
   if(dfi){
     xp=Math.round(xp*.8);
     const dq=S.dq;if(dq)dq.done=1;
-    completeQuest({id:uid(),type:'gym',name:Tx("Defizit-Training"),target:1,cur:0,done:false,xp,gold:Math.round(xp/2),stat:gymStat({ex:(dq&&dq.ex)||[]}),rank:'E',day:dayKey()});
+    completeQuest({id:uid(),type:'gym',name:Tx("Schwächen-Quest"),target:1,cur:0,done:false,xp,gold:Math.round(xp/2),stat:gymStat({ex:(dq&&dq.ex)||[]}),rank:'E',day:dayKey()});
   }else if(q){q.xp=xp;q.gold=Math.round(xp/2);completeQuest(q)}
   else{S.gold+=Math.round(xp/2);grantXP(xp);toast(Tx("Training: +{0} XP",xp))}
   if(!direct){
@@ -2592,6 +2598,7 @@ function spawnGate(force){
 function ensureLive(){
   if(!S.started)return;
   const t=dayKey();
+  try{wqAuto()}catch(e){}
   S.quests=S.quests.filter(q=>q.type!=='dungeon');
   const wk=weekKey();
   if(S.week!==wk){S.quests=S.quests.filter(q=>q.type!=='weekly');S.quests.push(mkWeekly(wk));S.week=wk}
@@ -3002,7 +3009,7 @@ const MUX={};
  'bankdruecken,kh_bankdruecken,brustpresse|brust:1,trizeps:.5,schulter:.5','schraegbank|brust:1,schulter:.6,trizeps:.5','fliegende,butterfly|brust:1,schulter:.3',
  'liegestuetze,knie_liegestuetze|brust:1,trizeps:.5,schulter:.5,bauch:.3','dips|trizeps:1,brust:.8,schulter:.5','band_brust|brust:1,trizeps:.4',
  'klimmzuege|lat:1,bizeps:.6,trap:.4,unterarm:.4','latzug,band_latzug|lat:1,bizeps:.5','rudern_lh|lat:.8,trap:.7,uruecken:.5,bizeps:.4','rudern_kh,rudern_kabel,band_rudern|lat:.8,trap:.6,bizeps:.4',
- 'kreuzheben|uruecken:1,gesaess:.8,hamstring:.8,trap:.6,unterarm:.4,quad:.4','australian|lat:.8,trap:.6,bizeps:.5','superman|uruecken:1,gesaess:.5','shrugs|trap:1,unterarm:.3',
+ 'kreuzheben|uruecken:1,gesaess:.8,hamstring:.8,trap:.6,unterarm:.4,quad:.4','australian|lat:1,trap:.6,bizeps:.5','superman|uruecken:1,gesaess:.5','shrugs|trap:1,unterarm:.3',
  'kniebeuge_lh|quad:1,gesaess:.8,uruecken:.4,bauch:.3','kniebeuge,goblet|quad:1,gesaess:.6,bauch:.3','beinpresse|quad:1,gesaess:.6','ausfallschritte,ausfall_kh|quad:1,gesaess:.7,hamstring:.3','bulgarian|quad:1,gesaess:.8',
  'rdl,rdl_kh|hamstring:1,gesaess:.8,uruecken:.6','beinbeuger|hamstring:1,wade:.3','beinstrecker,wandsitzen|quad:1','hip_thrust|gesaess:1,hamstring:.5','glute_bridge|gesaess:1,hamstring:.4','wadenheben|wade:1','step_up|quad:.9,gesaess:.8',
  'schulter_kh,schulter_lh,schulterpresse,band_schulter|schulter:1,trizeps:.5,trap:.3','seitheben,band_seitheben|schulter:1','reverse_fly|schulter:.8,trap:.5','face_pull|schulter:.7,trap:.6','pike|schulter:1,trizeps:.5',
@@ -3011,6 +3018,8 @@ const MUX={};
  'laufen,intervalle,laufband|quad:.6,wade:.7,hamstring:.4,gesaess:.4','rudergeraet|lat:.5,quad:.5,uruecken:.3,bizeps:.3','crosstrainer|quad:.5,gesaess:.4,wade:.4','radfahren|quad:.7,wade:.4,gesaess:.3','seilspringen|wade:1,quad:.4',
  'burpees|quad:.5,brust:.4,schulter:.4,bauch:.4','hampel|wade:.4,schulter:.3','schwimmen|lat:.7,schulter:.6,trizeps:.4,brust:.3','gehen|wade:.4,quad:.3,gesaess:.3','treppen|quad:.6,gesaess:.6,wade:.5'
 ].forEach(l=>{const [ids,sp]=l.split('|');ids.split(',').forEach(i=>{MUX[i]=sp})});
+MUX.handgelenk='unterarm:1';MUX.hang='unterarm:1,lat:.4,schulter:.2';MUX.farmer='unterarm:1,trap:.7,bauch:.3';
+MUX.yraise='trap:1,schulter:.5,uruecken:.5';MUX.tischrudern='lat:1,trap:.6,bizeps:.5';MUX.rdl_ein='hamstring:1,gesaess:.7,uruecken:.3';
 const MUC={brust:'brust:1,trizeps:.4',ruecken:'lat:1,bizeps:.4',beine:'quad:1,gesaess:.6',schultern:'schulter:1',arme:'bizeps:1,trizeps:.6',rumpf:'bauch:1',ausdauer:'quad:.5,wade:.5',beweglichkeit:''};
 function muW(e){
   const s=e?(MUX[e.id]!=null?MUX[e.id]:MUC[e.c]):'',o={};
@@ -3018,8 +3027,8 @@ function muW(e){
   return o;
 }
 let mPer='w',mSel='';
-function muStats(){
-  const from=mPer==='w'?weekStart():addDays(dayKey(),-27),pts={},det={};
+function muStats(per){
+  const from=(per||mPer)==='w'?weekStart():addDays(dayKey(),-27),pts={},det={};
   (S.tlog||[]).forEach(t=>{
     if(!t.ex||t.d<from)return;
     t.ex.forEach(x=>{
@@ -3059,7 +3068,7 @@ function muDetail(st){
   const per=mPer==='w'?Tx("diese Woche"):Tx("in 4 Wochen");
   if(!mSel){
     const weak=Object.keys(MU).map(k=>({k,p:st.pts[k]||0})).filter(x=>muLv(x.p)<=1).sort((a,b)=>a.p-b.p);
-    return Tx("<section class=\"win\" id=\"mm-det\"><div class=\"lbl\">Schwachstellen</div>{0}</section>",weak.length?Tx("<p class=\"dim\" style=\"font-size:13.5px;margin:6px 0 10px\">Diese Muskeln hast du {0} kaum oder gar nicht trainiert. Tippe auf einen, um passende Übungen zu sehen.</p><div class=\"mmw\">{1}</div><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn vio\" data-act=\"mu-defw\">Defizit-Training aus Schwachstellen bauen</button></div>{2}",per,weak.map(x=>'<button class="mmc l'+muLv(x.p)+'" data-act="mu-sel" data-id="'+x.k+'">'+MU[x.k]+'</button>').join(''),dqToday()&&!dqToday().done?Tx("<p class=\"dim\" style=\"font-size:13px;margin:10px 0 0\">Bereit unter Heute: <b style=\"color:var(--fg)\">{0}</b>. <button class=\"lnk\" data-act=\"def-go\">Zu Heute</button></p>",esc(dqToday().n)):''):Tx("<p class=\"dim\" style=\"margin-top:8px\">Stark. Alle Muskelgruppen sind {0} gut abgedeckt.</p>",per));
+    return Tx("<section class=\"win\" id=\"mm-det\"><div class=\"lbl\">Schwachstellen</div>{0}</section>",weak.length?Tx("<p class=\"dim\" style=\"font-size:13.5px;margin:6px 0 10px\">Diese Muskeln hast du {0} kaum oder gar nicht trainiert. Tippe auf einen, um passende Übungen zu sehen.</p><div class=\"mmw\">{1}</div><p class=\"dim\" style=\"font-size:13px;margin:10px 0 0\">Am Samstag erstellt das System automatisch eine Schwächen-Quest für die Muskeln, die diese Woche zu kurz kamen.</p>{2}",per,weak.map(x=>'<button class="mmc l'+muLv(x.p)+'" data-act="mu-sel" data-id="'+x.k+'">'+MU[x.k]+'</button>').join(''),dqToday()&&!dqToday().done?Tx("<p class=\"dim\" style=\"font-size:13px;margin:10px 0 0\">Deine Schwächen-Quest unter Heute: <b style=\"color:var(--fg)\">{0}</b>. <button class=\"lnk\" data-act=\"def-go\">Zu Heute</button></p>",esc(dqToday().n)):''):Tx("<p class=\"dim\" style=\"margin-top:8px\">Stark. Alle Muskelgruppen sind {0} gut abgedeckt.</p>",per));
   }
   const k=mSel,p=st.pts[k]||0,lv=muLv(p),dl=Object.keys(st.det[k]||{}).map(i=>st.det[k][i]).sort((a,b)=>b.pw-a.pw||b.n-a.n);
   const sets=Math.round(muAvg(p)*10)/10;
@@ -3067,14 +3076,14 @@ function muDetail(st){
   h+=Tx("<div class=\"lbl\">Trainiert mit</div>{0}",dl.length?'<div class="mml">'+dl.map(r=>Tx("<div><span>{0}{1}</span><b>{2} Sätze</b><small>zuletzt {3}</small></div>",esc(r.e.n),r.pw<1?' <small>(nebenbei)</small>':'',r.n,muD(r.last))).join('')+'</div>':Tx("<p class=\"dim\" style=\"margin:6px 0 10px\">{0} noch keine Übung für diesen Muskel.</p>",mPer==='w'?Tx("Diese Woche"):Tx("In den letzten 4 Wochen")));
   const sg=muSug(k,st.det),dq=dqToday(),dd=S.tp&&S.tp.days[wdToday()],tr=isTrain(dd);
   if(sg.length){
-    h+=Tx("<div class=\"lbl\" style=\"margin-top:12px\">Übungen für {0}</div><div class=\"mms\">{1}</div><p class=\"dim\" style=\"font-size:12.5px;margin:8px 0 0\">{2}Defizit: ein eigenes Zusatztraining unter Heute.</p><div class=\"acts\" style=\"margin-top:10px\"><button class=\"btn vio\" data-act=\"mu-defk\" data-id=\"{3}\">Defizit-Training für {4} bauen</button></div>",MU[k],sg.map(e=>{
-      const inD=!!(dq&&dq.ex.some(x=>x.e===e.id)),inT=!!(tr&&dd.ex.some(x=>x.e===e.id));
+    h+=Tx("<div class=\"lbl\" style=\"margin-top:12px\">Übungen für {0}</div><div class=\"mms\">{1}</div>{2}",MU[k],sg.map(e=>{
+      const inT=!!(tr&&dd.ex.some(x=>x.e===e.id));
       return '<div class="mmx"><button class="mmn" data-act="mu-ex" data-id="'+e.id+'"><b>'+esc(e.n)+'</b><small>'+((EQN[e.q]||['',''])[0])+'</small></button><div class="mmy">'+
         (tr?'<button class="btn sm'+(inT?' on':'')+'" data-act="mu-today" data-id="'+e.id+'"'+(inT?' aria-pressed="true"':'')+'>'+(inT?Tx("Im Training"):Tx("+ Heute"))+'</button>':'')+
-        '<button class="btn sm vio'+(inD?' on':'')+'" data-act="mu-def" data-id="'+e.id+'"'+(inD?' aria-pressed="true"':'')+'>'+(inD?Tx("Im Defizit"):Tx("+ Defizit"))+'</button></div></div>';
-    }).join(''),tr?Tx("Heute: nur für heute ins geplante Training. "):Tx("Heute ist Ruhetag. "),k,MU[k]);
+        '</div></div>';
+    }).join(''),tr?Tx("<p class=\"dim\" style=\"font-size:12.5px;margin:8px 0 0\">Heute: nur für heute ins geplante Training.</p>"):'');
   }
-  if(dq&&!dq.done)h+=Tx("<p class=\"dim\" style=\"font-size:13px;margin:10px 0 0\">Dein Defizit-Training heute: <b style=\"color:var(--fg)\">{0}</b> ({1} Übungen). <button class=\"lnk\" data-act=\"def-go\">Zu Heute</button></p>",esc(dq.n),dq.ex.length);
+  if(dq&&!dq.done)h+=Tx("<p class=\"dim\" style=\"font-size:13px;margin:10px 0 0\">Deine Schwächen-Quest: <b style=\"color:var(--fg)\">{0}</b> ({1} Übungen). <button class=\"lnk\" data-act=\"def-go\">Zu Heute</button></p>",esc(dq.n),dq.ex.length);
   return Tx("{0}<div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn\" data-act=\"mu-sel\" data-id=\"{1}\">Auswahl aufheben</button></div></section>",h,k);
 }
 function viewMuskel(){
@@ -3085,24 +3094,31 @@ function viewMuskel(){
 }
 
 /* ---------- Defizit-Training ---------- */
-function dqToday(){return S.dq&&S.dq.day===dayKey()?S.dq:null}
-function dqAdd(ids,ks){
-  const t=dayKey();
-  if(S.dq&&S.dq.day===t&&S.dq.done)return Tx("Das Defizit-Training für heute ist schon erledigt.");
-  if(S.ses&&S.ses.kind)return Tx("Beende zuerst das laufende Defizit-Training.");
-  if(!S.dq||S.dq.day!==t)S.dq={day:t,n:'',ks:[],ex:[],done:0};
-  const q=S.dq;let n=0;
-  ids.forEach(id=>{const e=exOf(id);if(!e||q.ex.length>=6||q.ex.some(x=>x.e===id))return;q.ex.push({id:uid(),e:id,s:scaleSets(e,S.tp&&S.tp.set),r:e.r});n++});
-  ks.forEach(k=>{if(k&&MU[k]&&!q.ks.includes(k))q.ks.push(k)});
-  q.n=q.ks.slice(0,3).map(k=>MU[k]).join(', ')+(q.ks.length>3?' u. a.':'');
-  if(!q.ex.length){S.dq=null;save();return Tx("Keine passende Übung gefunden.")}
-  save();
-  return n?Tx("Im Defizit-Training: {0}{1}. Du findest es unter Heute.",n,n>1?Tx(" Übungen"):Tx(" Übung")):(q.ex.length>=6?Tx("Das Defizit-Training ist voll (6 Übungen)."):Tx("Die Übung ist schon im Defizit-Training."));
+function dqToday(){const t=dayKey();return S.dq&&S.dq.day<=t&&t<=(S.dq.until||S.dq.day)?S.dq:null}
+function wqAuto(){
+  if(!S.started||!S.tp||wdToday()<5)return;
+  const wk=weekStart();
+  if(S.wqWk===wk)return;
+  S.wqWk=wk;
+  const st=muStats('w'),p4=muStats('m').pts,last=S.wqLast||[];
+  const key=x=>x.p+(last.includes(x.k)?.5:0);
+  const weak=Object.keys(MU).map(k=>({k,p:st.pts[k]||0})).filter(x=>x.p<4).sort((a,b)=>key(a)-key(b)||(p4[a.k]||0)-(p4[b.k]||0));
+  const ids=[],ks=[];
+  for(const w of weak){
+    if(ks.length>=2)break;
+    const sg=muSug(w.k,st.det).filter(e=>!ids.includes(e.id)).slice(0,ks.length?1:2);
+    if(!sg.length)continue;
+    sg.forEach(e=>ids.push(e.id));ks.push(w.k);
+  }
+  if(!ids.length)return;
+  S.wqLast=ks;
+  S.dq={day:dayKey(),until:addDays(wk,6),wk,auto:1,n:ks.map(k=>MU[k]).join(', '),ks,done:0,
+    ex:ids.map(id=>{const e=exOf(id);return {id:uid(),e:id,s:scaleSets(e,S.tp.set),r:e.r}})};
 }
 function sesOpenDef(){
   const q=dqToday();
-  if(!q||!q.ex.length){toast(Tx("Kein Defizit-Training für heute"));return}
-  if(q.done){toast(Tx("Das Defizit-Training für heute ist schon erledigt"));return}
+  if(!q||!q.ex.length){toast(Tx("Keine Schwächen-Quest aktiv"));return}
+  if(q.done){toast(Tx("Die Schwächen-Quest ist schon erledigt"));return}
   if(S.ses&&(S.ses.day!==dayKey()||Date.now()-S.ses.t0>10*3600e3))S.ses=null;
   if(S.ses&&!S.ses.kind){toast(Tx("Beende zuerst dein Training von heute"));return}
   if(!S.ses){S.ses=sesBuild({n:q.n,f:'defi',kind:'defi',ex:q.ex});save()}
@@ -3111,11 +3127,11 @@ function sesOpenDef(){
 function defCard(){
   const q=dqToday();if(!q||!q.ex.length)return '';
   const names=q.ex.map(x=>{const e=exOf(x.e);return e?esc(e.n):''}).filter(Boolean);
-  let h=Tx("<section id=\"defc\" class=\"win gym def{0}\"><div class=\"gbanner\"><img alt=\"\" src=\"img/ui-defizit.webp\" onerror=\"this.remove()\"><span class=\"gtag\">DEFIZIT</span><div class=\"gcap\"><div class=\"gt\">Defizit-Training</div><div class=\"gs\">{1}</div></div></div>",q.done?' done':'',esc(q.n));
+  let h=Tx("<section id=\"defc\" class=\"win gym def{0}\"><div class=\"gbanner\"><img alt=\"\" src=\"img/ui-defizit.webp\" onerror=\"this.remove()\"><span class=\"gtag\">SYSTEM</span><div class=\"gcap\"><div class=\"gt\">Schwächen-Quest</div><div class=\"gs\">{1}</div></div></div>",q.done?' done':'',esc(q.n));
   if(q.done)return Tx("{0}<div class=\"gdone\">{1}<div><b>Erledigt</b><small>Schwachstelle trainiert</small></div></div></section>",h,gico('ico-setdone',44));
   const st=dayStats({ex:q.ex}),S0=S.ses&&S.ses.kind&&S.ses.day===dayKey()?S.ses:null;
   const dn=S0?S0.ex.reduce((a,x)=>a+x.sets.filter(s=>s.d).length,0):0,tt=S0?S0.ex.reduce((a,x)=>a+(x.sk?0:x.sets.length),0):0;
-  h+=Tx("<div class=\"chips\" style=\"margin:6px 0 8px\"><span class=\"chip xp\">bis +{0} XP</span><span class=\"chip\">{1}{2} · ca. {3} Min.</span></div><p class=\"gx\">{4}</p><div class=\"acts\"><button class=\"btn ok\" data-act=\"def-open\">{5}</button><button class=\"btn ghost\" data-act=\"def-drop\">{6}</button></div></section>",Math.round(st.xp*.8),st.n,st.n===1?Tx(" Übung"):Tx(" Übungen"),st.min,names.join(', '),S0?Tx("Fortsetzen ({0} / {1} Sätze)",dn,tt):Tx("Defizit-Training starten"),defArm?Tx("Sicher?"):Tx("Verwerfen"));
+  h+=Tx("<div class=\"chips\" style=\"margin:6px 0 8px\"><span class=\"chip xp\">bis +{0} XP</span><span class=\"chip\">{1}{2} · ca. {3} Min.</span></div><p class=\"gx\">{4}</p><div class=\"acts\"><button class=\"btn ok\" data-act=\"def-open\">{5}</button></div></section>",Math.round(st.xp*.8),st.n,st.n===1?Tx(" Übung"):Tx(" Übungen"),st.min,names.join(', '),S0?Tx("Fortsetzen ({0} / {1} Sätze)",dn,tt):Tx("Quest starten"));
   return h;
 }
 let defArm=false;
@@ -5114,7 +5130,7 @@ function qRow(q,big){
   if(!q.done){
     if(q.test)acts+=Tx("<input class=\"amt\" type=\"number\" min=\"0\" step=\"{0}\" id=\"tv-{1}\" aria-label=\"Ergebnis\" placeholder=\"Wert\" style=\"width:88px\">{2}<button class=\"btn ok\" data-act=\"test-submit\" data-id=\"{3}\">Ergebnis eintragen</button>",recOf(q.test)&&recOf(q.test).dec?'0.1':'1',q.id,recOf(q.test)&&recOf(q.test).u?'<span class="amu">'+esc(recOf(q.test).u)+'</span>':'',q.id);
     else if(q.type!=='boss'){
-    if(q.target>1)acts+='<span class="amw"><input class="amt" type="number" min="0" step="any" value="'+bestStep(q.target)+'" id="amt-'+q.id+'" aria-label="Menge'+(q.unit?' in '+esc(q.unit):'')+'">'+(q.unit?'<span class="amu">'+esc(q.unit)+'</span>':'')+'</span>'+swBtn('q:'+q.id,q.unit)+'<button class="btn" data-act="add" data-id="'+q.id+'">+ Eintragen</button>';
+    if(q.target>1)acts+=Tx("<span class=\"amw\"><input class=\"amt\" type=\"number\" min=\"0\" step=\"any\" value=\"{0}\" id=\"amt-{1}\" aria-label=\"Menge{2}\">{3}</span>{4}<button class=\"btn\" data-act=\"add\" data-id=\"{5}\">+ Eintragen</button>",bestStep(q.target),q.id,q.unit?' in '+esc(q.unit):'',q.unit?'<span class="amu">'+esc(q.unit)+'</span>':'',swBtn('q:'+q.id,q.unit),q.id);
     acts+=Tx("<button class=\"btn ok\" data-act=\"done\" data-id=\"{0}\">Fertig</button>",q.id);
     }
   }
@@ -5564,32 +5580,17 @@ document.addEventListener('click',e=>{
     case 'tp-quick':{S.tp=genPlan(tpDefaults());S.tpHide=false;tpd=null;tpArm=null;tpSetOpen=false;tpOpenEx=null;tpFocus=false;tpDay=wdToday();syncTraining();save();toast(Tx("Plan erstellt. Du kannst ihn im Tab Training ändern."));break}
     case 'ses-open':sesOpen();return;
     case 'def-open':sesOpenDef();return;
-    case 'def-drop':{
-      if(!defArm){defArm=true;break}
-      defArm=false;if(S.ses&&S.ses.kind){S.ses=null;sesOn=false;sesRender()}
-      S.dq=null;save();toast(Tx("Defizit-Training verworfen"));break;
-    }
     case 'def-go':tab='quests';jump='defc';form=null;break;
     case 'mu-today':{
       const e=exOf(id);if(!e)return;
       const d=S.tp&&S.tp.days[wdToday()],gq=S.quests.find(x=>x.type==='gym'&&x.day===dayKey());
-      if(!isTrain(d)){toast(Tx("Heute ist Ruhetag. Nimm das Defizit-Training."));return}
-      if(gq&&gq.done){toast(Tx("Das Training von heute ist schon erledigt. Nimm das Defizit-Training."));return}
-      if(S.ses&&S.ses.kind){toast(Tx("Beende zuerst das Defizit-Training"));return}
+      if(!isTrain(d)){toast(Tx("Heute ist Ruhetag."));return}
+      if(gq&&gq.done){toast(Tx("Das Training von heute ist schon erledigt."));return}
+      if(S.ses&&S.ses.kind){toast(Tx("Beende zuerst die Schwächen-Quest"));return}
       if(d.ex.some(x=>x.e===id)){toast(Tx("Die Übung steht heute schon im Training"));return}
       const x={id:uid(),e:id,s:scaleSets(e,S.tp.set),r:e.r,once:dayKey()};d.ex.push(x);
       if(S.ses&&S.ses.day===dayKey()){const b=sesBuild({ex:[x]});if(b.ex[0])S.ses.ex.push(b.ex[0])}
       syncTraining();save();toast(Tx("{0} steht heute im Training",e.n));break;
-    }
-    case 'mu-def':{toast(dqAdd([id],[mSel]));break}
-    case 'mu-defk':{
-      if(!MU[id])return;
-      toast(dqAdd(muSug(id,muStats().det).slice(0,3).map(e=>e.id),[id]));break;
-    }
-    case 'mu-defw':{
-      const st=muStats(),weak=Object.keys(MU).map(k=>({k,p:st.pts[k]||0})).filter(x=>muLv(x.p)<=1).sort((a,b)=>a.p-b.p).slice(0,4),ids=[];
-      weak.forEach(w=>{const e=muSug(w.k,st.det).find(x=>!ids.includes(x.id));if(e)ids.push(e.id)});
-      toast(dqAdd(ids,weak.map(w=>w.k)));break;
     }
     case 'ses-min':sesOn=false;sesRender();render();return;
     case 'ses-cur':{if(!S.ses)return;const i=Number(id);S.ses.cur=S.ses.cur===i?-1:i;sesRender();return}
@@ -5751,7 +5752,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Stoppuhr und Zähler:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr, bei Wiederholungen zählst du mit +1. Der Wert wird automatisch eingetragen</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
