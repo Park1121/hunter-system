@@ -1623,11 +1623,11 @@ const PREM_F={
  muskel:[Tx("Muskelanalyse"),Tx("Sieh, welche Muskeln du trainierst und welche zu kurz kommen. Am Samstag bekommst du eine Schwächen-Quest.")],
  arena:[Tx("Arena"),Tx("Duelle gegen Freunde, Rangliste und Bestwerte vergleichen.")]
 };
-function premOn(){const p=S.prem;if(!p)return false;if(p.m==='pro')return true;return p.m==='trial'&&dayKey()<=p.until}
+function premOn(){if(BETA&&!S.betaLock)return true;const p=S.prem;if(!p)return false;if(p.m==='pro')return true;return p.m==='trial'&&dayKey()<=p.until}
 function premLeft(){const p=S.prem;if(!p||p.m!=='trial')return 0;const a=dayKey().split('-'),b=p.until.split('-');return Math.max(0,Math.round((Date.UTC(+b[0],+b[1]-1,+b[2])-Date.UTC(+a[0],+a[1]-1,+a[2]))/864e5)+1)}
-function premMode(){const p=S.prem;if(!p)return 'free';if(p.m==='pro')return 'pro';if(p.m==='trial')return dayKey()<=p.until?'trial':'expired';return 'free'}
+function premMode(){if(BETA&&!S.betaLock)return 'beta';const p=S.prem;if(!p)return 'free';if(p.m==='pro')return 'pro';if(p.m==='trial')return dayKey()<=p.until?'trial':'expired';return 'free'}
 const premTrialOk=()=>!(S.prem&&S.prem.used);
-function premSet(p){S.prem=p;try{syncTraining()}catch(e){}save()}
+function premSet(p){S.prem=p;S.betaLock=0;try{syncTraining()}catch(e){}save()}
 function premTrial(){if(!premTrialOk())return;premSet({m:'trial',t0:dayKey(),until:addDays(dayKey(),PREM_DAYS-1),used:1})}
 function premBuy(){premSet({m:'pro',t0:dayKey(),used:1})}
 function lockView(f){
@@ -1645,7 +1645,7 @@ function premModalBody(f){
 }
 function premSection(){
   const md=premMode(),n=premLeft();
-  const st={pro:Tx("Premium aktiv"),trial:Tx("Testzeitraum: noch {0}{1}",n,n===1?Tx(" Tag"):Tx(" Tage")),expired:Tx("Testzeitraum beendet"),free:Tx("Ohne Kauf")}[md];
+  const st={beta:Tx("Beta: alles freigeschaltet"),pro:Tx("Premium aktiv"),trial:Tx("Testzeitraum: noch {0}{1}",n,n===1?Tx(" Tag"):Tx(" Tage")),expired:Tx("Testzeitraum beendet"),free:Tx("Ohne Kauf")}[md];
   return Tx("<section class=\"win vio\"><div class=\"sub\"><div><div class=\"lbl\" style=\"color:var(--violet)\">Premium</div><h2>{0}</h2></div></div><p class=\"dim\" style=\"font-size:13.5px;margin-bottom:10px\">Premium schaltet Training, Muskelanalyse und Arena frei.</p><div class=\"acts\"><button class=\"btn vio\" data-act=\"prem-open\">Premium ansehen</button></div>{1}</section>",st,BETA?Tx("<div class=\"acts\" style=\"margin-top:10px\"><button class=\"btn ghost sm\" data-act=\"prem-beta\" data-id=\"pro\">Beta: Premium an</button><button class=\"btn ghost sm\" data-act=\"prem-beta\" data-id=\"free\">Beta: Premium aus</button><button class=\"btn ghost sm\" data-act=\"prem-beta\" data-id=\"reset\">Beta: Test zurücksetzen</button></div><p class=\"dim\" style=\"font-size:12px;margin-top:6px\">Diese Beta-Schalter gibt es in der Store-Version nicht. Dort läuft der Kauf über Apple.</p>"):'');
 }
 function pmRender(){
@@ -2496,7 +2496,7 @@ function obFinish(){
   if(redo)S.quests=qs.concat(S.quests.filter(q=>q.type!=='daily'));
   else{
     S.name=(ob.name||'').trim()||Tx("Spieler");S.cls=clsOk(ob.cls,1)?ob.cls:'';
-    S.quests=qs;S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};S.prem=null;S.pmPick=1;
+    S.quests=qs;S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};S.prem=null;S.pmPick=BETA?0:1;
   }
   if(!S.tp&&!S.tpHide){try{S.tp=genPlan(tpDefaults());tpd=null;tpDay=wdToday();syncTraining()}catch(e){}}
   ensureLive();ob=null;obRender();save();render();
@@ -5363,7 +5363,7 @@ document.addEventListener('click',e=>{
     case 'prem-trial':nextModal();premTrial();render();toast(Tx("{0} Tage Test gestartet",PREM_DAYS));return;
     case 'prem-buy':nextModal();premBuy();render();toast(Tx("Beta: Premium freigeschaltet"));return;
     case 'prem-restore':nextModal();toast(Tx("Beta: Es gibt nichts wiederherzustellen"));return;
-    case 'prem-beta':{if(id==='pro')premBuy();else if(id==='free')premSet({m:'free',used:(S.prem&&S.prem.used)||0});else premSet({m:'free',used:0});render();return}
+    case 'prem-beta':{if(id==='pro')premBuy();else if(id==='free'){premSet({m:'free',used:(S.prem&&S.prem.used)||0});S.betaLock=1;try{syncTraining()}catch(e){}save()}else{premSet({m:'free',used:0});S.betaLock=1;try{syncTraining()}catch(e){}save()}render();return}
     case 'onb-start':ob=obNew(true);obRender();return;
     case 'onb-later':S.onbSkip=true;save();break;
     case 'ob-next':{obCollect();if(!obValid()){if(ob.step===2){ob.err=1;obRender()}return}ob.err=0;if(ob.step>=8){obFinish();return}ob.step++;obRender();return}
@@ -5707,7 +5707,7 @@ document.addEventListener('click',e=>{
       save();toast(Tx("Gespeichert"));break;
     }
     case 'reset':
-      if(penArmed){wipeBody();S=defaults();S.started=true;S.pmPick=1;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};ensureLive();penArmed=false;tab='quests';B=null;save();toast(Tx("Neu gestartet"))}else penArmed=true;break;
+      if(penArmed){wipeBody();S=defaults();S.started=true;S.pmPick=BETA?0:1;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};ensureLive();penArmed=false;tab='quests';B=null;save();toast(Tx("Neu gestartet"))}else penArmed=true;break;
     case 'buy':if(!buyItem(id))return;save();break;
     case 'pen-erlass':if(!usePardon(id))return;save();break;
     case 'decree':if(!useDecree())return;save();break;
