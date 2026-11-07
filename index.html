@@ -1075,6 +1075,19 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 #lgpick .ob-body,#pmpick .ob-body{flex:1;overflow:auto;padding:8px 16px 20px;-webkit-overflow-scrolling:touch}
 #lgpick .lgb{min-height:58px;font-size:18px}
 #tabs button .lk{position:absolute;top:6px;right:calc(50% - 20px);width:12px;height:12px;fill:none;stroke:var(--warn);stroke-width:2.2;stroke-linecap:round}
+/* v36: Trainer */
+#cpick{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;background:var(--bg);background-image:radial-gradient(700px 420px at 50% -8%,#1a2c7a66,transparent 70%),radial-gradient(520px 380px at 105% 105%,#3a1a7a44,transparent 70%)}
+#cpick .ob-top{width:100%;max-width:560px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 8px}
+#cpick .ob-body{flex:1;overflow:auto;padding:8px 16px 20px;-webkit-overflow-scrolling:touch}
+.cav{width:68px;height:68px;border-radius:14px;object-fit:cover;flex:none;border:1px solid var(--line2);background:#070c22}
+.cs-row{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+#coach{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:31;width:min(520px,calc(100% - 24px));display:flex;align-items:center;gap:12px;padding:9px 10px 9px 9px;background:#0d1638f5;border:1px solid var(--line2);border-radius:16px;box-shadow:0 10px 34px #000b;animation:pop .22s ease-out}
+#coach img{width:56px;height:56px;border-radius:12px;object-fit:cover;flex:none}
+#coach div{min-width:0;flex:1}
+#coach b{display:block;font-family:var(--f-d);letter-spacing:.05em;font-size:15px;color:var(--glow)}
+#coach span{display:block;font-size:14.5px;line-height:1.35}
+#coach button{flex:none;width:36px;height:36px;border-radius:10px;border:0;background:transparent;color:var(--dim);font-size:22px;line-height:1}
+@media (prefers-reduced-motion:reduce){#coach{animation:none}}
 </style>
 </head>
 <body>
@@ -1222,7 +1235,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v35';
+const APP_V='v36';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -1615,6 +1628,93 @@ function mainCat(d){
 }
 const gymStat=d=>{const c=mainCat(d);return c==='ausdauer'?'vit':c==='beweglichkeit'?'agi':'str'};
 const isTrain=d=>!!(d&&d.t&&d.ex&&d.ex.length);
+/* ---------- v36: Trainer ---------- */
+const COACH={
+ kaito:{n:'Kaito',t:Tx("Ruhig, streng, fair"),q:Tx("Disziplin schlägt Motivation."),say:{
+  welcome:[Tx("Ich bin Kaito. Ich sehe, was du tust. Fang an."),Tx("Willkommen. Mach deine Quests, den Rest regle ich."),Tx("Disziplin schlägt Motivation. Fangen wir an.")],
+  level:[Tx("Level erreicht. Weiter."),Tx("Ein Level höher. Gut."),Tx("Das war solide. Nächstes Ziel.")],
+  rank:[Tx("Neuer Rang. Den hast du dir verdient."),Tx("Rangaufstieg. Das passiert selten. Ich bin beeindruckt.")],
+  streak:[Tx("Die Serie hält. Konstanz ist Stärke."),Tx("Tag für Tag. So wird man stark.")],
+  daydone:[Tx("Alle Quests erledigt. Gut gemacht."),Tx("Tag abgeschlossen. Ruh dich aus.")],
+  penalty:[Tx("Die Serie ist weg. Das passiert. Fang heute neu an."),Tx("Ein Fehler zählt nicht. Aufgeben schon. Weiter.")],
+  comeback:[Tx("Du warst weg. Kein Vorwurf. Heute zählt."),Tx("Schön, dass du zurück bist. Wir fangen klein an.")],
+  morning:[Tx("Ein neuer Tag. Deine Quests warten."),Tx("Heute wieder. Mehr braucht es nicht.")]}},
+ rex:{n:'Rex',t:Tx("Laut, witzig, Kumpel"),q:Tx("Wir machen dich zur Maschine!"),say:{
+  welcome:[Tx("Yo, ich bin Rex! Wir machen dich zur Maschine. Los geht's!"),Tx("Rex hier! Ab jetzt hast du einen Trainer, der nicht nervt. Meistens.")],
+  level:[Tx("Level-Up! Du Tier!"),Tx("Ding! Wieder ein Level. Ich bin stolz auf dich!"),Tx("Hoch mit dir! Das nächste Level wartet schon.")],
+  rank:[Tx("Neuer Rang! Ich hab's immer gewusst!"),Tx("Rangaufstieg! Das müssen wir feiern. Danach Quests.")],
+  streak:[Tx("Die Serie läuft! Nicht aufhören, Champ!"),Tx("Tag für Tag, Alter. Das ist der Plan!")],
+  daydone:[Tx("Alles erledigt! Du hast dir ein Nickerchen verdient."),Tx("Tagesquests geknackt! Starke Nummer.")],
+  penalty:[Tx("Autsch, die Serie ist weg. Passiert. Neuer Tag, neue Chance!"),Tx("Hey, Kopf hoch! Neuer Tag, neue Serie.")],
+  comeback:[Tx("Da bist du ja wieder! Ich dachte schon, du hast mich vergessen."),Tx("Willkommen zurück! Wir starten locker.")],
+  morning:[Tx("Guten Morgen, Champ! Die Quests erledigen sich nicht allein."),Tx("Heute wieder Vollgas?")]}}
+};
+const COACH_IDS=Object.keys(COACH);
+const COACH_MOOD={welcome:'encourage',level:'proud',rank:'cheer',streak:'proud',daydone:'cheer',penalty:'stern',comeback:'encourage',morning:'neutral'};
+const coachImg=(id,m,sm)=>'img/coach-'+id+'-'+m+(sm?'-s':'')+'.webp';
+let coachQ=[],coachTm=0;
+function coachSnap(){return {lv:S.level,rk:rankOf(S.level),st:S.streak||0,lc:S.lastComplete||'',seen:dayKey()}}
+function coachDays(a,b){const x=a.split('-'),y=b.split('-');return Math.round((Date.UTC(+y[0],+y[1]-1,+y[2])-Date.UTC(+x[0],+x[1]-1,+x[2]))/864e5)}
+function coachGate(ev){
+  const f=S.coachF||'rare';
+  if(f==='off')return false;
+  const t=dayKey(),cl=(S.cl&&S.cl.d===t)?S.cl:(S.cl={d:t,n:0,last:0});
+  const big=['welcome','rank','streak','penalty','comeback'].includes(ev);
+  if(big)return cl.n<3;
+  if(cl.n>=2||Date.now()-cl.last<60000)return false;
+  const p={level:f==='normal'?1:((S.level%5===0)?1:.35),daydone:f==='normal'?.6:.3,morning:f==='normal'?.4:0}[ev]||0;
+  return Math.random()<p;
+}
+function coachTry(ev){
+  const c=COACH[S.coach];if(!c||!c.say[ev]||!coachGate(ev))return;
+  const L=c.say[ev],i=Math.floor(Math.random()*L.length);
+  coachQ.push({ev,text:L[i]});
+  coachFlush();
+}
+function coachShow(m){
+  const c=COACH[S.coach];if(!c)return;
+  let el=document.getElementById('coach');if(el)el.remove();
+  el=document.createElement('div');el.id='coach';el.setAttribute('role','status');el.setAttribute('aria-live','polite');
+  el.innerHTML=Tx("<img alt=\"\" src=\"{0}\"><div><b>{1}</b><span>{2}</span></div><button type=\"button\" data-act=\"coach-x\" aria-label=\"Schließen\">×</button>",coachImg(S.coach,COACH_MOOD[m.ev]||'neutral',0),esc(c.n),esc(m.text));
+  document.body.appendChild(el);
+  const t=dayKey(),cl=(S.cl&&S.cl.d===t)?S.cl:(S.cl={d:t,n:0,last:0});cl.n++;cl.last=Date.now();S.cl=cl;save();
+  clearTimeout(coachTm);coachTm=setTimeout(coachHide,9000);
+}
+function coachHide(){clearTimeout(coachTm);const el=document.getElementById('coach');if(el)el.remove()}
+function coachFlush(){
+  if(!coachQ.length)return;
+  if(modalOpen||document.querySelector('#lgpick,#pmpick,#cpick,#onb'))return;
+  coachShow(coachQ.shift());
+}
+setInterval(function(){try{coachFlush()}catch(e){}},1500);
+function coachWatch(){
+  if(!S.started||!COACH[S.coach])return;
+  const t=dayKey(),n=coachSnap(),o=S.cw;
+  if(!o){S.cw=n;save();return}
+  let ev=null;
+  if(RANKS.indexOf(n.rk)>RANKS.indexOf(o.rk))ev='rank';
+  else if(n.st===0&&o.st>=2)ev='penalty';
+  else if(n.st>o.st&&[3,7,14,21,30,50,75,100].includes(n.st))ev='streak';
+  else if(n.lv>o.lv)ev='level';
+  else if(n.lc===t&&o.lc!==t)ev='daydone';
+  else if(o.seen!==t)ev=coachDays(o.seen||t,t)>=3?'comeback':'morning';
+  if(JSON.stringify(n)!==JSON.stringify(o)){S.cw=n;save()}
+  if(ev)coachTry(ev);
+}
+function cpRender(){
+  let el=document.getElementById('cpick');
+  if(!(S.started&&S.coachPick&&!ob)){if(el)el.remove();return}
+  if(el)return;
+  el=document.createElement('div');el.id='cpick';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label',Tx("Trainer wählen"));
+  const cards=COACH_IDS.map(id=>{const c=COACH[id];return obCard('coach-pick',id,S.coach===id,'<img class="cav" alt="" src="'+coachImg(id,'neutral',1)+'">',c.n,c.t+'. '+c.q)}).join('');
+  el.innerHTML=Tx("<div class=\"ob-top\"><div class=\"ob-brand\"><span>Step Up: SOLO</span></div></div><div class=\"ob-body\"><div class=\"ob-in\"><div style=\"width:100%\">{0}<div style=\"display:grid;gap:10px\">{1}</div><p class=\"ob-note\">Weitere Trainer folgen. Du kannst jederzeit wechseln, unter Spieler und Konto.</p><div class=\"acts\" style=\"justify-content:center;margin-top:6px\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"coach-none\">Ohne Trainer</button></div></div></div></div>",obHead(Tx("Wähle deinen Trainer"),Tx("Er begleitet dich und meldet sich nur, wenn es passt.")),cards);
+  document.body.appendChild(el);
+}
+function coachSection(){
+  const c=COACH[S.coach],f=S.coachF||'rare';
+  const fb=(id,l)=>'<button class="btn ghost sm'+(f===id?' on':'')+'" aria-pressed="'+(f===id)+'" data-act="coach-freq" data-id="'+id+'">'+l+'</button>';
+  return Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Trainer</div><h2>{0}</h2></div></div>{1}<div class=\"acts\"><button class=\"btn vio\" data-act=\"coach-change\">{2}</button>{3}</div>{4}</section>",c?esc(c.n):Tx("Kein Trainer"),c?'<div class="cs-row"><img class="cav" alt="" src="'+coachImg(S.coach,'neutral',1)+'"><p class="dim" style="font-size:14px;margin:0">'+c.t+'. '+c.q+'</p></div>':Tx("<p class=\"dim\" style=\"font-size:14px;margin-bottom:10px\">Du hast keinen Trainer gewählt.</p>"),c?Tx("Trainer wechseln"):Tx("Trainer wählen"),c?Tx("<button class=\"btn ghost\" data-act=\"coach-test\">Spruch anhören</button>"):'',c?Tx("<div class=\"lbl\" style=\"margin:12px 0 6px\">Wie oft meldet er sich?</div><div class=\"acts\">{0}{1}{2}</div>",fb('rare',Tx("Selten")),fb('normal',Tx("Normal")),fb('off',Tx("Aus"))):'');
+}
 /* ---------- v35: Premium ---------- */
 const BETA=true;
 const PREM_DAYS=7;
@@ -1650,7 +1750,7 @@ function premSection(){
 }
 function pmRender(){
   let el=document.getElementById('pmpick');
-  if(!(S.started&&S.pmPick&&!ob)){if(el)el.remove();return}
+  if(!(S.started&&S.pmPick&&!S.coachPick&&!ob)){if(el)el.remove();return}
   if(el)return;
   el=document.createElement('div');el.id='pmpick';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label',Tx("Start wählen"));
   el.innerHTML=Tx("<div class=\"ob-top\"><div class=\"ob-brand\"><span>Step Up: SOLO</span></div></div><div class=\"ob-body\"><div class=\"ob-in\"><div style=\"width:100%\"><div class=\"scene m ob-sc\"><img alt=\"\" src=\"img/ui-status.webp\" style=\"object-position:50% 40%\" onerror=\"this.parentNode.remove()\"></div>{0}<div style=\"display:grid;gap:10px\">{1}{2}</div><p class=\"ob-note\">Du kannst Premium später jederzeit unter Spieler und Konto freischalten.</p>{3}</div></div></div>",obHead(Tx("Wie möchtest du starten?"),Tx("Deine Quests sind fertig. Wähle, wie du loslegst.")),obCard('pm-trial','trial',false,gico('skill-blade',44),Tx("{0} Tage gratis testen",PREM_DAYS),Tx("Alles freigeschaltet: Training mit Stoppuhr, Muskelanalyse und Arena.")),obCard('pm-free','free',false,qico('weights',46),Tx("Ohne Kauf nutzen"),Tx("Tägliche Quests passend zu deinen Antworten, dazu Level, Rang, Kämpfe und Shop. Training, Muskelanalyse und Arena sind gesperrt.")),BETA?Tx("<p class=\"ob-note\">Beta: Es wird nichts abgebucht.</p>"):'');
@@ -2496,7 +2596,7 @@ function obFinish(){
   if(redo)S.quests=qs.concat(S.quests.filter(q=>q.type!=='daily'));
   else{
     S.name=(ob.name||'').trim()||Tx("Spieler");S.cls=clsOk(ob.cls,1)?ob.cls:'';
-    S.quests=qs;S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};S.prem=null;S.pmPick=BETA?0:1;
+    S.quests=qs;S.started=true;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};S.prem=null;S.pmPick=BETA?0:1;S.coachPick=1;
   }
   if(!S.tp&&!S.tpHide){try{S.tp=genPlan(tpDefaults());tpd=null;tpDay=wdToday();syncTraining()}catch(e){}}
   ensureLive();ob=null;obRender();save();render();
@@ -2656,6 +2756,7 @@ function spawnGate(force){
 function ensureLive(){
   if(!S.started)return;
   const t=dayKey();
+  if(!S.coach&&!S.coachPick)S.coachPick=1;
   if(!S.prem&&!S.pmPick){S.prem={m:'trial',t0:t,until:addDays(t,PREM_DAYS-1),used:1};try{syncTraining()}catch(e){}}
   try{wqAuto()}catch(e){}
   S.quests=S.quests.filter(q=>q.type!=='dungeon');
@@ -3203,7 +3304,7 @@ function viewVerlauf(){
 /* Status in Unterreiter */
 function stSplit(str){
   const p=str.split(/[\u0001-\u0005]/),T=[['ueber',Tx("Profil")],['erf',Tx("Erfolge")],['konto',Tx("Konto")]];
-  const body={ueber:p[0]+p[4],erf:p[1],konto:premSection()+p[2]+p[5]+backupSection()+guideSection()}[stSub]||p[0];
+  const body={ueber:p[0]+p[4],erf:p[1],konto:premSection()+coachSection()+p[2]+p[5]+backupSection()+guideSection()}[stSub]||p[0];
   return '<div class="seg c3" role="tablist" style="margin-bottom:12px">'+T.map(([k,l])=>'<button role="tab" aria-selected="'+(stSub===k)+'" data-act="st-sub" data-id="'+k+'">'+l+'</button>').join('')+'</div>'+(stSub==='erf'?scene('erfolge','vbn','50% 45%'):'')+body;
 }
 
@@ -5328,7 +5429,7 @@ function render(){
   const m=document.getElementById('main');
   const seg=subSeg();
   m.innerHTML=seg+({quests:viewQuests,plan:viewPlan,dungeon:viewDungeon,status:viewStatus,shop:viewShop,arena:viewArena,verlauf:viewVerlauf,shadows:viewShadows})[tab]();
-  markLang();tickCd();ensureLook();pmRender();
+  markLang();tickCd();ensureLook();cpRender();pmRender();coachWatch();
 }
 function tickCd(){
   const el=document.getElementById('cd');
@@ -5356,6 +5457,12 @@ document.addEventListener('click',e=>{
   const q=S.quests.find(x=>x.id===id);
   switch(a){
     case 'modal-ok':nextModal();render();return;
+    case 'coach-pick':{S.coach=id;S.coachPick=0;S.cw=coachSnap();save();render();coachTry('welcome');return}
+    case 'coach-none':{S.coach='none';S.coachPick=0;save();render();return}
+    case 'coach-change':{S.coachPick=1;save();render();return}
+    case 'coach-freq':{S.coachF=id;save();render();return}
+    case 'coach-test':{const c=COACH[S.coach];if(!c)return;const k=['welcome','level','streak','comeback'],ev=k[Math.floor(Math.random()*k.length)],L=c.say[ev];coachQ.push({ev,text:L[Math.floor(Math.random()*L.length)]});coachFlush();return}
+    case 'coach-x':{coachHide();return}
     case 'lg-pick':{try{localStorage.setItem('hunter-lang',id);localStorage.setItem('hunter-lang-ok','1')}catch(e){}location.reload();return}
     case 'pm-trial':premTrial();S.pmPick=0;save();render();toast(Tx("{0} Tage Test gestartet",PREM_DAYS));return;
     case 'pm-free':S.prem={m:'free',used:0};S.pmPick=0;syncTraining();save();render();return;
@@ -5707,7 +5814,7 @@ document.addEventListener('click',e=>{
       save();toast(Tx("Gespeichert"));break;
     }
     case 'reset':
-      if(penArmed){wipeBody();S=defaults();S.started=true;S.pmPick=BETA?0:1;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};ensureLive();penArmed=false;tab='quests';B=null;save();toast(Tx("Neu gestartet"))}else penArmed=true;break;
+      if(penArmed){wipeBody();S=defaults();S.started=true;S.coachPick=1;S.pmPick=BETA?0:1;S.lastDay=dayKey();S.sys={day:S.lastDay,q:genSys(),st:'open'};ensureLive();penArmed=false;tab='quests';B=null;save();toast(Tx("Neu gestartet"))}else penArmed=true;break;
     case 'buy':if(!buyItem(id))return;save();break;
     case 'pen-erlass':if(!usePardon(id))return;save();break;
     case 'decree':if(!useDecree())return;save();break;
@@ -5821,7 +5928,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Premium:</b> Training, Muskelanalyse und Arena sind jetzt Premium. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Trainer:</b> Wähle Kaito oder Rex als deinen Trainer. Er meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training, Muskelanalyse und Arena sind jetzt Premium. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
