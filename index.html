@@ -1151,7 +1151,7 @@ const RANK_AT=[1,10,20,35,50,70];
 const TITLES={E:Tx("Schwächster Spieler"),D:Tx("Aufsteiger"),C:Tx("Erprobter Spieler"),B:Tx("Elite-Spieler"),A:Tx("Nationaler Spieler"),S:'Monarch'};
 const DUNGEON_REWARD={E:[50,25],D:[100,50],C:[200,100],B:[400,200],A:[800,400],S:[1500,800]};
 const TIER_PRICE=[40,100,250,500],TIER_NAME=[Tx("Klein"),Tx("Mittel"),Tx("Groß"),Tx("Riesig")];
-const QUEST_MAX=8,GATE_MAX=3,SHOP_MAX=15;
+const QUEST_MAX=16,GATE_MAX=3,SHOP_MAX=15;
 const PEN_T=[{n:Tx("Burpees"),u:'Wdh.',b:20},{n:'Kniebeugen',u:'Wdh.',b:30},{n:Tx("Planke"),u:'Sek.',b:60},{n:Tx("Mountain Climbers"),u:'Wdh.',b:40},{n:'Liegestütze',u:'Wdh.',b:15},{n:Tx("Hampelmänner"),u:'Wdh.',b:50},{n:Tx("Wandsitzen"),u:'Sek.',b:60},{n:'Ausfallschritte',u:'Wdh.',b:30},{n:'Sit-ups',u:'Wdh.',b:30},{n:'Dips',u:'Wdh.',b:15},{n:Tx("Treppen sprinten"),u:'Stockwerke',b:5},{n:'Seilspringen',u:'Min.',b:5}];
 /* Belohnungen kommen vom System, nicht vom Spieler */
 function effortMin(target,unit){
@@ -1750,6 +1750,21 @@ function coachSection(){
   const c=COACH[S.coach],f=S.coachF||'rare';
   const fb=(id,l)=>'<button class="btn ghost sm'+(f===id?' on':'')+'" aria-pressed="'+(f===id)+'" data-act="coach-freq" data-id="'+id+'">'+l+'</button>';
   return Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Trainer</div><h2>{0}</h2></div></div>{1}<div class=\"acts\"><button class=\"btn vio\" data-act=\"coach-change\">{2}</button>{3}</div>{4}</section>",c?esc(c.n):Tx("Kein Trainer"),c?'<div class="cs-row"><img class="cav" alt="" src="'+coachImg(S.coach,'neutral',1)+'"><p class="dim" style="font-size:14px;margin:0">'+c.t+'. '+c.q+'</p></div>':Tx("<p class=\"dim\" style=\"font-size:14px;margin-bottom:10px\">Du hast keinen Trainer gewählt.</p>"),c?Tx("Trainer wechseln"):Tx("Trainer wählen"),c?Tx("<button class=\"btn ghost\" data-act=\"coach-test\">Spruch anhören</button>"):'',c?Tx("<div class=\"lbl\" style=\"margin:12px 0 6px\">Wie oft meldet er sich?</div><div class=\"acts\">{0}{1}{2}</div>",fb('rare',Tx("Selten")),fb('normal',Tx("Normal")),fb('off',Tx("Aus"))):'');
+}
+/* ---------- v36d: Eigene Quests ---------- */
+const OWN_FREE=5,OWN_PREM=10;
+function ownCap(){return premOn()?OWN_PREM:OWN_FREE}
+function ownN(){return S.quests.filter(q=>q.type==='daily'&&q.own).length}
+function ownFull(){
+  if(S.quests.filter(y=>y.type==='daily').length>=QUEST_MAX){toast(Tx("Höchstens {0} tägliche Quests",QUEST_MAX));return true}
+  if(ownN()<ownCap())return false;
+  if(premOn()){toast(Tx("Höchstens {0} eigene Quests",OWN_PREM));return true}
+  modal({kind:'vio',title:Tx("Mehr eigene Quests mit Premium"),nobtn:true,body:Tx("<p>Gratis kannst du {0} eigene Tagesquests haben. Mit Premium sind es bis zu {1}.</p><p class=\"dim\" style=\"font-size:13.5px;margin:8px 0 14px\">Alle anderen Quests wählt das System für dich anhand deines Fragebogens.</p><div style=\"display:grid;gap:8px\">{2}<button class=\"btn vio\" data-act=\"prem-open2\">Premium ansehen</button><button class=\"btn ghost sm\" data-act=\"modal-ok\">Schließen</button></div>",OWN_FREE,OWN_PREM,premTrialOk()?Tx("<button class=\"btn ok\" data-act=\"prem-trial\">{0} Tage gratis testen</button>",PREM_DAYS):'')});
+  return true;
+}
+function ownHint(){
+  if(premOn()||!S.started||S.auto)return '';
+  return Tx("<p class=\"dim\" style=\"font-size:13px;margin:8px 2px 0\">Eigene Quests: {0} von {1} (gratis)</p>",ownN(),OWN_FREE);
 }
 /* ---------- v35: Premium ---------- */
 const BETA=true;
@@ -5382,7 +5397,7 @@ function viewQuests(){
   h+=chalHtml();
   h+=Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Tägliche Quest</div><h2>Training des Spielers</h2></div><div style=\"text-align:right\"><div class=\"lbl\">Zeitlimit</div><div class=\"cd\" id=\"cd\">--:--:--</div></div></div><div class=\"row\" style=\"margin-bottom:8px\"><span class=\"qp\">Abgeschlossen {0} / {1}</span><span class=\"sp\"></span><span class=\"dim\" style=\"font-size:13px\">Tageslimit: {2} / {3} XP{4}</span></div>{5}{6}{7}</section>",dn,rq.length,capState().xp,dayCap(),helpBtn('tageslimit'),hasIt('shield')||(hasIt('decree')&&d.some(x=>!x.done))?'<div class="acts" style="margin-bottom:8px">'+(hasIt('shield')?Tx("<span class=\"chip sys\">Straf-Schild ×{0}</span>{1}",hasIt('shield'),helpBtn('schild')):'')+(hasIt('decree')&&d.some(x=>!x.done)?Tx("<button class=\"btn vio sm\" data-act=\"decree\">Tages-Erlass einsetzen ({0})</button>",hasIt('decree')):'')+'</div>':'',d.length?(()=>{const f=d.find(x=>!x.done);return d.map(x=>qRow(x,x===f)).join('')})():'<div class="empty">'+(off.length?Tx("Heute ist ein freier Tag. Es steht nichts an."):Tx("Keine täglichen Quests. Lege unten eine an."))+'</div>',offHtml(off));
   if(S.auto)h+=autoCard();
-  else h+=form&&form.type==='daily'?formHtml():Tx("<div class=\"acts\"><button class=\"btn\" data-act=\"newq\" data-id=\"daily\">+ Eigene Quest</button><button class=\"btn vio\" data-act=\"sug-toggle\" aria-expanded=\"{0}\">{1}</button></div>{2}",sugOpen,sugOpen?Tx("Vorschläge schließen"):Tx("Vorschläge"),sugHtml());
+  else h+=form&&form.type==='daily'?formHtml():Tx("<div class=\"acts\"><button class=\"btn\" data-act=\"newq\" data-id=\"daily\">+ Eigene Quest</button><button class=\"btn vio\" data-act=\"sug-toggle\" aria-expanded=\"{0}\">{1}</button></div>{2}{3}",sugOpen,sugOpen?Tx("Vorschläge schließen"):Tx("Vorschläge"),ownHint(),sugHtml());
   h+=S.tp?gymCard():(S.tpHide?'':gymCard().replace(Tx("<div class=\"acts\"><button class=\"btn\" data-act=\"tp-quick\">Plan erstellen</button><button class=\"btn ghost\" data-act=\"go-plan\">Anpassen</button></div>"),Tx("<div class=\"acts\"><button class=\"btn\" data-act=\"tp-quick\">Plan erstellen</button><button class=\"btn ghost\" data-act=\"go-plan\">Anpassen</button><button class=\"btn ghost\" data-act=\"tp-hide\">Ausblenden</button></div>")));
   h+=defCard()+premCard();
   const sq=S.quests.filter(q=>q.type==='system');
@@ -5502,6 +5517,7 @@ document.addEventListener('click',e=>{
     case 'lg-pick':{try{localStorage.setItem('hunter-lang',id);localStorage.setItem('hunter-lang-ok','1')}catch(e){}location.reload();return}
     case 'pm-trial':premTrial();S.pmPick=0;save();render();toast(Tx("{0} Tage Test gestartet",PREM_DAYS));return;
     case 'pm-free':S.prem={m:'free',used:0};S.pmPick=0;syncTraining();save();render();return;
+    case 'prem-open2':nextModal();modal({kind:'vio',title:Tx("Premium"),body:premModalBody(id),nobtn:true});return;
     case 'prem-open':modal({kind:'vio',title:Tx("Premium"),body:premModalBody(id),nobtn:true});return;
     case 'prem-trial':nextModal();premTrial();render();toast(Tx("{0} Tage Test gestartet",PREM_DAYS));return;
     case 'prem-buy':nextModal();premBuy();render();toast(Tx("Beta: Premium freigeschaltet"));return;
@@ -5599,14 +5615,14 @@ document.addEventListener('click',e=>{
       rememberUnit(f.unit);
       if(f.type==='dungeon'&&RANKS.indexOf(f.rank)>maxGate())f.rank=RANKS[maxGate()];
       if(!f.id){
-        if(f.type==='daily'&&S.quests.filter(y=>y.type==='daily').length>=QUEST_MAX){toast(Tx("Höchstens {0} tägliche Quests",QUEST_MAX));return}
+        if(f.type==='daily'&&ownFull())return;
         if(f.type==='dungeon'&&S.quests.filter(y=>y.type==='dungeon'&&!y.done).length>=GATE_MAX){toast(Tx("Höchstens {0} offene Dungeons",GATE_MAX));return}
       }
       const xp=calcXP(t,f.unit,f.type,f.rank),gd=calcGold(xp,f.type,f.rank);
       if(f.id){
         const x=S.quests.find(y=>y.id===f.id);
         if(x){const typeChanged=x.type!==f.type;Object.assign(x,{name:f.name.trim(),type:f.type,rank:f.rank,target:t,unit:f.unit,stat:f.stat,xp,gold:gd});if(dsave)x.days=dsave;else delete x.days;if(typeChanged||x.cur>=t){x.cur=0;x.done=false}x.cur=Math.min(x.cur,t)}
-      }else S.quests.push(Object.assign({id:uid(),name:f.name.trim(),type:f.type,rank:f.rank,target:t,unit:f.unit,stat:f.stat,xp,gold:gd,cur:0,done:false},dsave?{days:dsave}:{}));
+      }else S.quests.push(Object.assign({id:uid(),name:f.name.trim(),type:f.type,rank:f.rank,target:t,unit:f.unit,stat:f.stat,xp,gold:gd,cur:0,done:false},dsave?{days:dsave}:{},f.type==='daily'?{own:1}:{}));
       form=null;save();toast(Tx("Quest gespeichert"));break;
     }
     case 'sys-accept':{
@@ -5862,10 +5878,10 @@ document.addEventListener('click',e=>{
     case 'auto-on':nextModal();autoOn();save();toast(Tx("Das System wählt jetzt deine Quests"));break;
     case 'auto-off':nextModal();autoOff();save();toast(Tx("Du wählst wieder selbst"));break;
     case 'sug-add':{
-      const t=sugItems().find(x=>x.n===id);
+      const t=sugItems().find(x=>x.n===id||Dx(x.n)===id);
       if(!t)return;
-      if(S.quests.filter(y=>y.type==='daily').length>=QUEST_MAX){toast(Tx("Höchstens {0} tägliche Quests",QUEST_MAX));return}
-      S.quests.push(mkQ(t.n,t.b,t.u,t.s));save();toast(Tx("Hinzugefügt: {0}",t.n));break;
+      if(ownFull())return;
+      S.quests.push(Object.assign(mkQ(t.n,t.b,t.u,t.s),{own:1}));save();toast(Tx("Hinzugefügt: {0}",t.n));break;
     }
     case 'st-sub':stSub=id;break;
     case 'v-sub':vSub=id;gForm=false;gArm=null;break;
