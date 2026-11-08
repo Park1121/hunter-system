@@ -1094,17 +1094,22 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 #tour[hidden]{display:none}
 #tour .tb{position:fixed;pointer-events:auto;touch-action:none;background:transparent}
 #tour.dim .tb[data-p=t]{background:#02040bcc}
-#tour .tring{position:fixed;display:none;border:2px solid var(--glow);border-radius:14px;box-shadow:0 0 0 100vmax #02040bb8,0 0 18px 2px var(--glow);pointer-events:none;animation:tpulse 1.4s ease-in-out infinite}
+#tour .tring{position:fixed;display:none;border:3px solid var(--glow);border-radius:14px;box-shadow:0 0 0 100vmax #02040bb8,0 0 18px 2px var(--glow);pointer-events:none;animation:tpulse 1.4s ease-in-out infinite}
 @keyframes tpulse{50%{box-shadow:0 0 0 100vmax #02040bb8,0 0 30px 6px var(--glow);border-color:#fff}}
 #tour .tbox{position:fixed;left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 24px));pointer-events:auto;display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:linear-gradient(180deg,#14214f,#0b1230);border:1px solid var(--line2);box-shadow:0 14px 40px #000c}
-#tour .tbox .cav{width:56px;height:56px}
+#tour .tbox .cav{width:92px;height:92px;border-radius:16px}
+#tour .tarrow{position:fixed;display:none;width:36px;height:36px;margin-left:-18px;pointer-events:none;z-index:2;animation:tbob .8s ease-in-out infinite}
+#tour .tarrow::before{content:'';position:absolute;left:4px;top:4px;border:14px solid transparent}
+#tour .tarrow.up::before{border-bottom:20px solid var(--glow);border-top:0}
+#tour .tarrow.dn::before{border-top:20px solid var(--glow);border-bottom:0}
+@keyframes tbob{50%{transform:translateY(7px)}}
 #tour .tourx{flex:1;min-width:0}
-#tour .tourx b{display:block;font-family:var(--f-d);letter-spacing:.05em;font-size:15px;color:var(--glow)}
-#tour .tt{display:block;font-size:15px;line-height:1.4}
+#tour .tourx b{display:block;font-family:var(--f-d);letter-spacing:.05em;font-size:18px;color:var(--glow)}
+#tour .tt{display:block;font-size:16.5px;line-height:1.4}
 #tour .tbtn{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center}
 #tour .tbtn .btn{min-height:38px;padding:6px 14px;font-size:15px}
 #tour .tbtn .lnk{background:none;border:0;color:var(--dim);font-size:13px;text-decoration:underline;padding:8px 4px;min-height:36px}
-@media (prefers-reduced-motion:reduce){#tour .tring{animation:none}}
+@media (prefers-reduced-motion:reduce){#tour .tring,#tour .tarrow{animation:none}}
 </style>
 </head>
 <body>
@@ -1841,7 +1846,31 @@ const TOUR=[
  {id:'a-info',sec:'arena',p:1,info:1,t:Tx("Teile deinen Code, füge Freunde hinzu und fordere sie zum Duell heraus.")},
  {id:'end',sec:'end',end:1,m:'cheer',t:Tx("Das war alles. Du kannst den Rundgang jederzeit im Konto wiederholen. Viel Erfolg!")}
 ];
-let tourEnt='',tourW=0,tourScr='',tourBusy=false,tourKey='';
+let tourEnt='',tourW=0,tourScr='',tourBusy=false,tourKey='',tourElm=null,tourSt=null,tourLastScroll=0;
+function tVis(e){
+  if(!e||!e.getClientRects().length)return false;
+  const r=e.getBoundingClientRect();
+  if(r.width<2||r.height<2)return false;
+  const cs=getComputedStyle(e);
+  return cs.visibility!=='hidden'&&cs.display!=='none';
+}
+function tFind(st){
+  if(!st.sel)return null;
+  if(typeof st.sel==='function'){const e=st.sel();return tVis(e)?e:null}
+  const l=document.querySelectorAll(st.sel);
+  for(let i=0;i<l.length;i++)if(tVis(l[i]))return l[i];
+  return null;
+}
+function tFixed(e){for(let n=e;n&&n!==document.body;n=n.parentElement){if(getComputedStyle(n).position==='fixed')return true}return false}
+function tScroll(el){
+  if(tFixed(el))return;
+  const r=el.getBoundingClientRect(),H=innerHeight;
+  if(r.top>=96&&r.bottom<=H-110)return;
+  const now=performance.now();if(now-tourLastScroll<250)return;
+  tourLastScroll=now;
+  const d=r.top+r.height/2-H*.42;
+  try{window.scrollBy({top:d,left:0,behavior:'instant'})}catch(x){window.scrollBy(0,d)}
+}
 function tourCur(){return S.tour&&TOUR.find(x=>x.id===S.tour.id)}
 function tourUse(st){
   const T=S.tour,m=(T&&T.mode)||'F',pr=premOn(),secs=[].concat(st.sec);
@@ -1874,7 +1903,7 @@ function tourDom(){
   let d=document.getElementById('tour');
   if(!d){
     d=document.createElement('div');d.id='tour';d.hidden=true;
-    d.innerHTML='<div class="tb" data-p="t"></div><div class="tb" data-p="b"></div><div class="tb" data-p="l"></div><div class="tb" data-p="r"></div><div class="tring"></div><div class="tbox" role="status"></div>';
+    d.innerHTML='<div class="tb" data-p="t"></div><div class="tb" data-p="b"></div><div class="tb" data-p="l"></div><div class="tb" data-p="r"></div><div class="tring"></div><div class="tarrow"></div><div class="tbox" role="status"></div>';
     document.body.appendChild(d);
   }
   return d;
@@ -1892,7 +1921,7 @@ function tourShow(st,el,wait){
       :st.end?Tx("<button class=\"btn ok\" data-act=\"tour-go\">Fertig</button>")
       :(st.info||wait)?Tx("<button class=\"btn ok\" data-act=\"tour-go\">Weiter</button><button class=\"lnk\" data-act=\"tour-skip\">Beenden</button>")
       :Tx("<button class=\"lnk\" data-act=\"tour-go\">Schritt überspringen</button><button class=\"lnk\" data-act=\"tour-skip\">Beenden</button>");
-    box.innerHTML=(who.img?'<img class="cav" alt="" src="'+(st.m?coachImg(who.c,mood,1):who.img)+'">':'')+'<div class="tourx"><b>'+esc(who.n)+'</b><span class="tt">'+st.t+'</span><div class="tbtn">'+sk+'</div></div>';
+    box.innerHTML=(who.img?'<img class="cav" alt="" src="'+coachImg(who.c,mood,0)+'">':'')+'<div class="tourx"><b>'+esc(who.n)+'</b><span class="tt">'+st.t+'</span><div class="tbtn">'+sk+'</div></div>';
   }
   if(r&&!wait){
     const x1=Math.max(0,r.left-6),y1=Math.max(0,r.top-6),x2=Math.min(W,r.right+6),y2=Math.min(H,r.bottom+6);
@@ -1908,8 +1937,20 @@ function tourShow(st,el,wait){
     ring.style.cssText='display:none';
     bl[0].style.cssText='left:0;top:0;width:'+W+'px;height:'+H+'px';for(let i=1;i<4;i++)bl[i].style.cssText='display:none';
   }
-  if(r&&!wait&&r.top+r.height/2>H*.5){box.style.top='calc(64px + env(safe-area-inset-top,0px))';box.style.bottom='auto'}
-  else{box.style.bottom='calc(96px + env(safe-area-inset-bottom,0px))';box.style.top='auto'}
+  let top=!!(r&&!wait&&r.top+r.height/2>H*.5)||(st.sel==='#fName');
+  const place=t=>{if(t){box.style.top='calc(64px + env(safe-area-inset-top,0px))';box.style.bottom='auto'}else{box.style.bottom='calc(96px + env(safe-area-inset-bottom,0px))';box.style.top='auto'}};
+  place(top);
+  if(r&&!wait){
+    const b=box.getBoundingClientRect();
+    if(!(r.right<b.left||r.left>b.right||r.bottom<b.top||r.top>b.bottom)){top=!top;place(top)}
+  }
+  const ar=d.querySelector('.tarrow');
+  if(r&&!wait){
+    const b=box.getBoundingClientRect();let below=b.top<r.top;if(below&&r.bottom+48>H)below=false;else if(!below&&r.top-48<0)below=true;
+    const cx=Math.min(W-22,Math.max(22,r.left+r.width/2));
+    ar.style.cssText='display:block;left:'+cx+'px;top:'+(below?(r.bottom+8):(r.top-44))+'px';
+    ar.className='tarrow '+(below?'up':'dn');
+  }else ar.style.cssText='display:none';
 }
 function tourTick(){
   if(tourBusy)return;
@@ -1932,7 +1973,7 @@ function tourTick2(){
   if(tourEnt!==st.id){tourEnt=st.id;tourW=0;if(!premOn()&&st.np)T.lockSeen=1;if(st.on)st.on()}
   if(st.skipIf&&st.skipIf()){tourAdv();return}
   if(st.done&&st.done()){tourAdv();return}
-  const el=st.sel?(typeof st.sel==='function'?st.sel():document.querySelector(st.sel)):null;
+  const el=tFind(st);
   if(st.sel&&!el){
     tourW++;
     if(tourW===8&&st.go)st.go();
@@ -1941,20 +1982,16 @@ function tourTick2(){
     return;
   }
   tourW=0;
-  if(el&&tourScr!==st.id){
-    tourScr=st.id;
-    const r=el.getBoundingClientRect();
-    if(r.top<90||r.bottom>innerHeight-110)el.scrollIntoView({block:'center'});
-  }
+  if(el)tScroll(el);
   tourShow(st,el,false);
 }
 document.addEventListener('click',e=>{
   const T=S.tour;if(!T||T.st!=='run')return;
   const st=tourCur();if(!st||st.info||st.done||st.intro||st.end||!st.sel)return;
-  const el=typeof st.sel==='function'?st.sel():document.querySelector(st.sel);
+  const el=tFind(st);
   if(el&&el.contains(e.target)){const id=st.id;setTimeout(()=>{if(S.tour&&S.tour.st==='run'&&S.tour.id===id)tourAdv()},380)}
 },true);
-setInterval(()=>{if(S.tour&&S.started)tourTick()},300);
+setInterval(()=>{if(S.tour&&S.started)tourTick()},140);
 addEventListener('resize',()=>{tourTick()});
 addEventListener('scroll',()=>{tourTick()},true);
 function tourSection(){
