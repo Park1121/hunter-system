@@ -1257,7 +1257,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v37';
+const APP_V='v38';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -1535,6 +1535,16 @@ const FOC={
  lower:{n:Tx("Unterkörper"),sh:Tx("Unter"),d:Tx("Beine, Gesäß, Waden, Rumpf"),sl:[['kniebeuge_lh','goblet','beinpresse','kniebeuge'],['rdl','rdl_kh','hip_thrust','glute_bridge'],['ausfall_kh','bulgarian','ausfallschritte','step_up'],['beinbeuger','glute_bridge'],['wadenheben'],['plank','hollow','deadbug']]},
  cardio:{n:Tx("Cardio und Rumpf"),sh:Tx("Cardio"),d:Tx("Ausdauer und Bauch"),sl:[['laufen','laufband','crosstrainer','seilspringen','intervalle','gehen'],['plank','hollow','deadbug'],['russian','crunches','beinheben','knieheben'],['burpees','hampel','mountain']]},
  mobility:{n:Tx("Beweglichkeit"),sh:Tx("Mobil"),d:Tx("Dehnen und Gelenke locker"),sl:[['mobility','yoga','dehnen'],['huefte','katze'],['schulter_mob','katze','dehnen']]},
+ chest:{n:Tx("Brust und Trizeps"),sh:Tx("Brust"),d:Tx("Brust, vordere Schulter, Trizeps"),sl:[['bankdruecken','kh_bankdruecken','brustpresse','liegestuetze','knie_liegestuetze'],['schraegbank','kh_bankdruecken','liegestuetze','band_brust'],['fliegende','butterfly','enge_ls','knie_liegestuetze'],['schulter_kh','pike','band_schulter'],['trizeps_druecken','trizeps_kh','bankdips','band_trizeps'],['dips','enge_ls','bankdips']]},
+ back:{n:Tx("Rücken und Bizeps"),sh:Tx("Rücken"),d:Tx("Lat, oberer Rücken, hintere Schulter, Bizeps"),sl:[['klimmzuege','latzug','australian','band_latzug','superman'],['rudern_lh','rudern_kabel','rudern_kh','band_rudern','tischrudern'],['rudern_kh','rudern_kabel','tischrudern','band_rudern'],['reverse_fly','face_pull','shrugs','superman'],['bizeps_kh','curl_lh','kabel_curl','band_curl'],['hammer','chin_ups','bizeps_kh']]},
+ delts:{n:Tx("Schultern und Rumpf"),sh:Tx("Schulter"),d:Tx("Schultern, Nacken, Bauch"),sl:[['schulter_kh','schulter_lh','schulterpresse','pike','band_schulter'],['seitheben','band_seitheben'],['reverse_fly','face_pull','yraise'],['shrugs','face_pull','farmer'],['plank','hollow','deadbug'],['russian','crunches','beinheben','knieheben']]},
+ arms:{n:Tx("Arme"),sh:Tx("Arme"),d:Tx("Bizeps, Trizeps, Unterarme"),sl:[['curl_lh','bizeps_kh','kabel_curl','chin_ups','band_curl'],['trizeps_druecken','trizeps_kh','enge_ls','bankdips','band_trizeps'],['hammer','bizeps_kh','band_curl'],['dips','bankdips','trizeps_kh','band_trizeps'],['kabel_curl','curl_lh','chin_ups'],['handgelenk','hang','farmer']]},
+ fb_c:{v:1,n:Tx("Ganzkörper C"),sh:'GK C',d:Tx("Beine, Schultern, Rücken, Brust, Gesäß"),sl:[['goblet','kniebeuge_lh','beinpresse','kniebeuge','step_up'],['schulter_kh','schulterpresse','schulter_lh','pike','band_schulter'],['rudern_kabel','rudern_kh','rudern_lh','australian','band_rudern','tischrudern'],['kh_bankdruecken','schraegbank','brustpresse','liegestuetze','band_brust'],['hip_thrust','rdl_kh','glute_bridge'],['hollow','plank','deadbug']]},
+ upper_b:{v:1,n:Tx("Oberkörper B"),sh:Tx("Ober B"),d:Tx("Rücken, Schultern, Brust, Arme"),sl:[['rudern_lh','rudern_kabel','rudern_kh','australian','band_rudern'],['schulter_lh','schulter_kh','schulterpresse','pike','band_schulter'],['schraegbank','kh_bankdruecken','brustpresse','liegestuetze','band_brust'],['klimmzuege','latzug','band_latzug','tischrudern'],['seitheben','band_seitheben','reverse_fly'],['curl_lh','bizeps_kh','band_curl'],['trizeps_kh','trizeps_druecken','bankdips','band_trizeps']]},
+ lower_b:{v:1,n:Tx("Unterkörper B"),sh:Tx("Unter B"),d:Tx("Gesäß, Beinbeuger, Quadrizeps, Rumpf"),sl:[['rdl','rdl_kh','rdl_ein','hip_thrust'],['hip_thrust','glute_bridge','beinpresse'],['bulgarian','ausfall_kh','ausfallschritte','step_up'],['beinbeuger','glute_bridge'],['beinstrecker','wandsitzen','step_up'],['wadenheben'],['hollow','plank','deadbug']]},
+ push_b:{v:1,n:Tx("Push B"),sh:Tx("Push B"),d:Tx("Schultern, Brust, Trizeps mit anderen Übungen"),sl:[['schulter_lh','schulter_kh','schulterpresse','pike','band_schulter'],['schraegbank','kh_bankdruecken','brustpresse','liegestuetze','band_brust'],['fliegende','butterfly','enge_ls','knie_liegestuetze'],['seitheben','band_seitheben'],['trizeps_kh','trizeps_druecken','bankdips','band_trizeps'],['dips','enge_ls','bankdips']]},
+ pull_b:{v:1,n:Tx("Pull B"),sh:Tx("Pull B"),d:Tx("Rücken und Bizeps mit anderen Übungen"),sl:[['rudern_lh','rudern_kabel','rudern_kh','band_rudern','tischrudern'],['klimmzuege','latzug','australian','band_latzug'],['reverse_fly','face_pull','yraise'],['shrugs','face_pull','superman'],['hammer','kabel_curl','bizeps_kh','band_curl'],['curl_lh','chin_ups','bizeps_kh']]},
+ legs_b:{v:1,n:Tx("Beine B"),sh:Tx("Beine B"),d:Tx("Gesäß, Beinbeuger, Quadrizeps mit anderen Übungen"),sl:[['rdl','rdl_kh','rdl_ein','hip_thrust'],['bulgarian','ausfall_kh','ausfallschritte','step_up'],['beinpresse','goblet','kniebeuge','kniebeuge_lh'],['hip_thrust','glute_bridge'],['beinbeuger','wandsitzen'],['wadenheben']]},
  custom:{n:Tx("Eigener Tag"),sh:Tx("Eigen"),d:Tx("Leer, du wählst alle Übungen selbst"),sl:[]}
 };
 const SPLITS={
@@ -1543,6 +1553,89 @@ const SPLITS={
  ppl:{n:Tx("Push, Pull, Beine"),d:Tx("Drücken, Ziehen und Beine an getrennten Tagen. Mehr Umfang, sinnvoll ab 4 Tagen."),seq:{2:['push','pull'],3:['push','pull','legs'],4:['push','pull','legs','upper'],5:['push','pull','legs','upper','lower'],6:['push','pull','legs','push','pull','legs']}},
  home:{n:Tx("Heim-Training"),d:Tx("Ganzkörper mit Körpergewicht und deinem Equipment, dazu Cardio und Beweglichkeit."),seq:{2:['fb_a','fb_b'],3:['fb_a','cardio','fb_b'],4:['fb_a','cardio','fb_b','mobility'],5:['fb_a','cardio','fb_b','cardio','mobility'],6:['fb_a','cardio','fb_b','cardio','fb_a','mobility']}}
 };
+/* v38 */
+SPLITS.bro={n:Tx("Bro-Split"),d:Tx("Ein Muskel pro Tag mit viel Umfang. Sinnvoll mit Erfahrung und ab 4 bis 5 Tagen."),seq:{2:['upper','lower'],3:['chest','back','legs'],4:['chest','back','legs','delts'],5:['chest','back','delts','legs','arms'],6:['chest','back','delts','legs','arms','cardio']}};
+SPLITS.fb.vs=[
+ {n:Tx("A und B im Wechsel"),d:Tx("Zwei feste Ganzkörpertage. Einfach und gut zu merken."),seq:SPLITS.fb.seq},
+ {n:Tx("A, B und C"),d:Tx("Drei verschiedene Ganzkörpertage. Mehr Abwechslung für die Muskeln."),seq:{2:['fb_a','fb_b'],3:['fb_a','fb_b','fb_c'],4:['fb_a','fb_b','fb_c','cardio'],5:['fb_a','fb_b','fb_c','fb_a','cardio'],6:['fb_a','fb_b','fb_c','fb_a','fb_b','cardio']}},
+ {n:Tx("Mit Ausdauer"),d:Tx("Ganzkörper im Wechsel mit Cardio und Beweglichkeit."),seq:{2:['fb_a','fb_b'],3:['fb_a','cardio','fb_b'],4:['fb_a','cardio','fb_b','mobility'],5:['fb_a','cardio','fb_b','cardio','mobility'],6:['fb_a','cardio','fb_b','cardio','fb_a','mobility']}}
+];
+SPLITS.ul.vs=[
+ {n:Tx("Klassisch"),d:Tx("Oberkörper und Unterkörper im Wechsel."),seq:SPLITS.ul.seq},
+ {n:Tx("Mit zwei Versionen"),d:Tx("Oberkörper und Unterkörper je in A und B mit anderen Übungen. Mehr Umfang."),seq:{2:['upper','lower'],3:['upper','lower','upper_b'],4:['upper','lower','upper_b','lower_b'],5:['upper','lower','upper_b','lower_b','cardio'],6:['upper','lower','upper_b','lower_b','upper','lower']}},
+ {n:Tx("Mit Ausdauer"),d:Tx("Oberkörper und Unterkörper plus ein Cardio-Tag."),seq:{2:['upper','lower'],3:['upper','lower','cardio'],4:['upper','lower','cardio','fb_a'],5:['upper','lower','cardio','upper','lower'],6:['upper','lower','cardio','upper','lower','mobility']}}
+];
+SPLITS.ppl.vs=[
+ {n:Tx("Klassisch"),d:Tx("Push, Pull und Beine, je einmal pro Woche."),seq:SPLITS.ppl.seq},
+ {n:Tx("Zweimal pro Woche"),d:Tx("Push, Pull und Beine zweimal mit anderen Übungen. Sinnvoll ab 5 Tagen."),seq:{2:['push','pull'],3:['push','pull','legs'],4:['push','pull','legs','upper_b'],5:['push','pull','legs','push_b','pull_b'],6:['push','pull','legs','push_b','pull_b','legs_b']}},
+ {n:Tx("Mit Arm- und Schultertag"),d:Tx("Push, Pull und Beine plus ein eigener Tag für Arme und Schultern."),seq:{2:['push','pull'],3:['push','pull','legs'],4:['push','pull','legs','arms'],5:['push','pull','legs','delts','arms'],6:['push','pull','legs','delts','arms','cardio']}}
+];
+SPLITS.home.vs=[
+ {n:Tx("Ganzkörper mit Ausdauer"),d:Tx("Ganzkörper A und B, dazu Cardio und Beweglichkeit."),seq:SPLITS.home.seq},
+ {n:Tx("Oben und Unten"),d:Tx("Oberkörper und Unterkörper im Wechsel, ohne Studio."),seq:{2:['upper','lower'],3:['upper','lower','cardio'],4:['upper','lower','cardio','mobility'],5:['upper','lower','cardio','fb_a','mobility'],6:['upper','lower','cardio','upper','lower','mobility']}},
+ {n:Tx("Push, Pull, Beine"),d:Tx("Drücken, Ziehen und Beine zu Hause."),seq:{2:['push','pull'],3:['push','pull','legs'],4:['push','pull','legs','cardio'],5:['push','pull','legs','cardio','mobility'],6:['push','pull','legs','cardio','fb_a','mobility']}}
+];
+SPLITS.bro.vs=[
+ {n:Tx("Klassisch"),d:Tx("Ein Tag pro Muskelgruppe: Brust, Rücken, Schultern, Beine, Arme."),seq:SPLITS.bro.seq},
+ {n:Tx("Oberkörper-Fokus"),d:Tx("Mehr Tage für Brust, Rücken und Schultern."),seq:{2:['upper','lower'],3:['chest','back','delts'],4:['chest','back','delts','arms'],5:['chest','back','delts','arms','legs'],6:['chest','back','delts','arms','legs','cardio']}},
+ {n:Tx("Beine-Fokus"),d:Tx("Zwei Beintage pro Woche, dazu Brust und Rücken."),seq:{2:['legs','upper'],3:['legs','chest','back'],4:['legs','chest','back','legs_b'],5:['legs','chest','back','delts','legs_b'],6:['legs','chest','back','arms','legs_b','delts']}}
+];
+const FOCN={
+ bal:[Tx("Ausgewogen"),Tx("Kraft, Muskeln und Ausdauer im Gleichgewicht.")],
+ aes:[Tx("Ästhetik"),Tx("Mehr Umfang für Schultern, Arme und Gesäß. 10 bis 12 Wiederholungen.")],
+ str:[Tx("Kraft"),Tx("Wenige schwere Grundübungen mit 5 bis 6 Wiederholungen.")],
+ mus:[Tx("Muskelgruppen"),Tx("Bis zu zwei Muskelgruppen bekommen mehr Training.")]
+};
+const MG={brust:{n:Tx("Brust"),mu:['brust']},ruecken:{n:Tx("Rücken"),mu:['lat','trap','uruecken']},schultern:{n:Tx("Schultern"),mu:['schulter']},arme:{n:Tx("Arme"),mu:['bizeps','trizeps']},beine:{n:Tx("Beine"),mu:['quad','hamstring','wade']},gesaess:{n:Tx("Gesäß"),mu:['gesaess']},bauch:{n:Tx("Bauch"),mu:['bauch','seite']}};
+const AESX={fb_a:[['seitheben','band_seitheben']],fb_b:[['hip_thrust','glute_bridge']],fb_c:[['seitheben','band_seitheben']],push:[['seitheben','band_seitheben']],pull:[['face_pull','reverse_fly']],legs:[['hip_thrust','glute_bridge'],['wadenheben']],upper:[['seitheben','band_seitheben']],upper_b:[['seitheben','band_seitheben']],lower:[['hip_thrust','glute_bridge']],lower_b:[['wadenheben']],push_b:[['seitheben','band_seitheben']],legs_b:[['wadenheben']],chest:[['seitheben','band_seitheben']]};
+const exLoad=(x,mus)=>{const e=exOf(x.e);if(!e)return 0;const w=muW(e);let v=0;mus.forEach(k=>{v=Math.max(v,w[k]||0)});return v};
+function mgPick(mus,set,used,n){
+  const av=eqSet(set),lim=limsOf();
+  const c=EXD.filter(e=>!used.has(e.id)&&e.c!=='ausdauer'&&e.c!=='beweglichkeit'&&e.m!=='min'&&e.m!=='km'&&av.has(e.q)&&!e.x.some(x=>lim.includes(x))&&exLoad({e:e.id},mus)>=.8);
+  c.sort((a,b)=>(b.t==='c'?1:0)-(a.t==='c'?1:0));
+  return c.length?c[n%Math.min(c.length,4)]:null;
+}
+function applyMus(days,set){
+  const gs=(set.mg||[]).filter(g=>MG[g]).slice(0,2);if(!gs.length)return;
+  const used=new Set();days.forEach(d=>d.ex.forEach(x=>used.add(x.e)));
+  const cap=Math.min(10,(({15:3,30:4,45:5,60:6})[set.time]||5)+3);
+  gs.forEach(g=>{
+    const mus=MG[g].mu;let n=0;
+    const td=days.filter(d=>d.t&&d.f!=='cardio'&&d.f!=='mobility'&&d.ex.length);
+    const hit=td.filter(d=>d.ex.some(x=>exLoad(x,mus)>=.8));
+    let tg=hit.slice();
+    if(tg.length<2)tg=tg.concat(td.filter(d=>!hit.includes(d)).sort((a,b)=>a.ex.length-b.ex.length).slice(0,2-tg.length));
+    tg.forEach(d=>{
+      const top=d.ex.filter(x=>exLoad(x,mus)>=.8).sort((a,b)=>exLoad(b,mus)-exLoad(a,mus))[0];
+      if(top){const e=exOf(top.e);if(e&&e.m!=='min'&&e.m!=='km'&&top.s<6)top.s++}
+      if(d.ex.length<cap){const e=mgPick(mus,set,used,n++);if(e){used.add(e.id);d.ex.splice(Math.min(2,d.ex.length),0,mkEntry(e.id,set))}}
+    });
+  });
+}
+function weakGroups(){
+  if(!S.tlog||S.tlog.length<6)return [];
+  let pts={};try{pts=muStats('m').pts}catch(e){return []}
+  const r=Object.keys(MG).map(g=>{const m=MG[g].mu;return [g,m.reduce((a,k)=>a+(pts[k]||0),0)/m.length/4]});
+  r.sort((a,b)=>a[1]-b[1]);
+  return r.filter(a=>a[1]<2).slice(0,2).map(a=>a[0]);
+}
+function recFoc(set){
+  const g=(S.prof&&S.prof.goals)||[],wk=weakGroups();
+  if(wk.length&&set.level!=='anf')return {k:'mus',mg:wk,why:Tx("Deine Muskelanalyse zeigt Lücken. Mehr Training dort gleicht sie aus.")};
+  if(set.level==='anf')return {k:'bal',mg:[],why:Tx("Zum Einstieg passt ein ausgewogener Plan am besten.")};
+  if(g.includes('kraft')&&set.level==='adv')return {k:'str',mg:[],why:Tx("Du willst stärker werden und hast Erfahrung. Schwere Grundübungen bringen dir am meisten.")};
+  if(g.includes('kraft')&&(set.time||45)>=45)return {k:'aes',mg:[],why:Tx("Du willst Muskeln aufbauen und hast genug Zeit. Mehr Umfang formt Schultern, Arme und Gesäß.")};
+  return {k:'bal',mg:[],why:Tx("Für deine Ziele ist ein ausgewogener Plan ein guter Standard.")};
+}
+function recVar(set){
+  const k=set.split;
+  if(k==='fb')return set.level!=='anf'&&set.days>=3&&set.time>=45?1:0;
+  if(k==='ul')return (set.foc==='str'||set.level==='adv')?1:(set.time<=30?2:0);
+  if(k==='ppl')return set.days>=5?1:set.days===4?2:0;
+  if(k==='home')return set.level!=='anf'&&set.days>=4?1:0;
+  if(k==='bro'){const m=set.mg||[];return m.some(x=>x==='beine'||x==='gesaess')?2:(set.foc==='mus'?1:0)}
+  return 0;
+}
 const DAYPOS={2:[0,3],3:[0,2,4],4:[0,1,3,4],5:[0,1,2,4,5],6:[0,1,2,3,4,5]};
 let tpDay=wdToday(),tpOpenEx=null,tpFocus=false,tpSetOpen=false,tpArm=null,tpd=null,pk=null,sesOn=false,sesArm=false,wakeL=null,actx=null;
 
@@ -1561,6 +1654,7 @@ function eqSet(set){
 }
 function recSplit(s){
   if(s.place!=='gym')return 'home';
+  if(s.foc==='aes'&&s.level==='adv'&&s.days>=5)return 'bro';
   if(s.days<=3)return (s.level==='anf'||s.days===2)?'fb':'ppl';
   if(s.days===4)return 'ul';
   return 'ppl';
@@ -1569,7 +1663,8 @@ function tpDefaults(){
   const P=S.prof||{};
   const days=Math.min(6,Math.max(2,Number(P.days)||3));
   const set={place:P.place==='gym'?'gym':'home',eq:(P.equip||[]).map(k=>k==='band'?'bd':k).filter(k=>k==='db'||k==='bar'||k==='bd'),days,level:P.level||'anf',time:[15,30,45,60].includes(P.time)?P.time:45};
-  set.split=recSplit(set);
+  const rf=recFoc(set);set.foc=rf.k;set.mg=(rf.mg||[]).slice();
+  set.split=recSplit(set);set.vr=recVar(set);
   return set;
 }
 const scaleSets=(e,set)=>{const lv=(set&&set.level)||'mid';return (e.m==='kg'||e.m==='bw')&&lv==='anf'?Math.max(2,e.s-1):e.s};
@@ -1577,22 +1672,30 @@ const mkEntry=(id,set)=>{const e=EXM[id];return {id:uid(),e:id,s:scaleSets(e,set
 function pickEx(f,set){
   const F=FOC[f];if(!F||!F.sl.length)return [];
   const av=eqSet(set),lim=limsOf(),out=[],used=new Set();
-  const N=Math.min(f==='cardio'||f==='mobility'?4:9,({15:3,30:4,45:5,60:6})[set.time]||5);
-  for(const slot of F.sl){
+  const cm=f==='cardio'||f==='mobility',fo=cm?'bal':(set.foc||'bal');
+  let N=Math.min(cm?4:9,({15:3,30:4,45:5,60:6})[set.time]||5);
+  if(fo==='aes')N=Math.min(9,N+1);else if(fo==='str')N=Math.max(3,N-1);
+  let SL=F.sl;
+  if(fo==='aes'&&AESX[f])SL=SL.slice(0,2).concat(AESX[f].filter(x=>!F.sl.some(y=>y.includes(x[0]))),SL.slice(2));
+  for(const slot of SL){
     if(out.length>=N)break;
-    const id=slot.find(i=>{const e=EXM[i];return e&&!used.has(i)&&av.has(e.q)&&!e.x.some(x=>lim.includes(x))});
+    const id=slot.find(i=>{const e=EXM[i];return e&&!used.has(i)&&av.has(e.q)&&!e.x.some(x=>lim.includes(x))&&!(fo==='str'&&e.t==='i')});
     if(!id)continue;
     used.add(id);out.push(mkEntry(id,set));
   }
+  if(fo==='str'&&out.length<3)return pickEx(f,Object.assign({},set,{foc:'bal'}));
+  if(fo==='aes')out.forEach(x=>{const e=EXM[x.e];if(e.m==='kg')x.r=e.t==='i'?12:10});
+  if(fo==='str'){let k=0;out.forEach(x=>{const e=EXM[x.e];if(e.m==='kg'&&e.t==='c'){x.r=k<2?5:6;x.s=set.level==='anf'?(k<2?4:3):(k<2?5:4);k++}})}
   return out;
 }
 const restDay=()=>({t:0,f:'',n:'Ruhetag',ex:[]});
 const mkDay=(f,set)=>({t:1,f,n:FOC[f].n,ex:pickEx(f,set)});
 function genPlan(set){
   set=Object.assign({},set,{eq:(set.eq||[]).slice()});
-  const sp=SPLITS[set.split]||SPLITS.fb,seq=sp.seq[set.days]||sp.seq[3],pos=DAYPOS[set.days]||DAYPOS[3];
+  const sp=SPLITS[set.split]||SPLITS.fb,vv=(sp.vs&&sp.vs[set.vr|0])||sp,seq=vv.seq[set.days]||sp.seq[set.days]||vv.seq[3]||sp.seq[3],pos=DAYPOS[set.days]||DAYPOS[3];
   const days=[];for(let i=0;i<7;i++)days.push(restDay());
   seq.forEach((f,i)=>{days[pos[i]]=mkDay(f,set)});
+  if(set.foc==='mus')applyMus(days,set);
   return {v:1,set,days,at:dayKey()};
 }
 /* Alten Wochenplan (Quests pro Tag) in den neuen Plan übernehmen */
@@ -1821,7 +1924,7 @@ const TOUR=[
  {id:'t-pk',sec:'train',p:1,info:1,opt:1,ses:1,sel:'#pk-q',skipIf:()=>!document.querySelector('#pk'),t:Tx("Suche eine Übung oder filtere nach Kategorie. Tippe auf eine Übung, um sie zu wählen.")},
  {id:'t-pkn',sec:'train',p:1,info:1,opt:1,sel:'#pk [data-act=pk-new]',skipIf:()=>!document.querySelector('#pk'),t:Tx("Fehlt eine Übung? Lege sie hier selbst an.")},
  {id:'t-pkx',sec:'train',p:1,opt:1,sel:'#pk [data-act=pk-close]',skipIf:()=>!document.querySelector('#pk'),t:Tx("Für die Tour schließen wir die Liste. Tippe auf Schließen.")},
- {id:'t-set',sec:'train',p:1,info:1,opt:1,sel:'[data-act=tp-setopen]',t:Tx("In den Einstellungen baust du den ganzen Plan neu auf: Ort, Tage, Dauer und Aufteilung.")},
+ {id:'t-set',sec:'train',p:1,info:1,opt:1,sel:'[data-act=tp-setopen]',t:Tx("In den Einstellungen baust du den ganzen Plan neu auf: Ort, Tage, Dauer, Fokus und Aufbau mit Varianten.")},
  {id:'t-ses',sec:'train',p:1,opt:1,sel:'[data-act=ses-open]',t:Tx("Heute ist Trainingstag. Tippe auf Training starten.")},
  {id:'s-set',sec:'train',p:1,info:1,opt:1,ses:1,sel:'[data-act=ses-set]',skipIf:()=>!(S.ses&&sesOn),t:Tx("Trage Gewicht und Wiederholungen ein, dann hakst du den Satz ab. Danach läuft die Pause.")},
  {id:'s-end',sec:'train',p:1,info:1,opt:1,ses:1,sel:'[data-act=ses-end]',skipIf:()=>!(S.ses&&sesOn),t:Tx("Mit Beenden speicherst du das Training und bekommst deine XP.")},
@@ -2090,7 +2193,7 @@ const trainDays=()=>S.tp?S.tp.days.filter(isTrain).length:0;
 
 /* ---------- Ansichten ---------- */
 window.imgFb=function(el,src){el.onerror=function(){this.remove()};el.src=src};
-const FOCCAT=k=>k==='custom'?'rumpf':k==='cardio'?'ausdauer':k==='mobility'?'beweglichkeit':k==='push'?'brust':k==='pull'?'ruecken':k==='legs'||k==='lower'?'beine':k==='upper'?'schultern':'rumpf';
+const FOCCAT=k=>({chest:'brust',back:'ruecken',delts:'schultern',arms:'arme',upper_b:'schultern',lower_b:'beine',push_b:'brust',pull_b:'ruecken',legs_b:'beine'})[k]||(k==='custom'?'rumpf':k==='cardio'?'ausdauer':k==='mobility'?'beweglichkeit':k==='push'?'brust':k==='pull'?'ruecken':k==='legs'||k==='lower'?'beine':k==='upper'?'schultern':'rumpf');
 const focThumb=(k,sz,cat)=>'<img class="gq" alt="" loading="lazy" src="img/foc-'+k+'-s.webp" style="--gs:'+(sz||44)+'px" onerror="imgFb(this,\'img/cat-'+(cat||FOCCAT(k))+'-s.webp\')">';
 /* ---------- Wochenranking ---------- */
 const WK_REW=[[60,1],[40,0],[25,0]];
@@ -2193,7 +2296,12 @@ function setForm(){
   h+=Tx("<div class=\"ob-grp\"><span class=\"lbl\">Trainingstage pro Woche</span><div class=\"pick\">{0}</div></div>",[2,3,4,5,6].map(n=>chipBtn('tps-days',n,d.days===n,n)).join(''));
   h+=Tx("<div class=\"ob-grp\"><span class=\"lbl\">Zeit pro Einheit</span><div class=\"pick\">{0}</div></div>",[15,30,45,60].map(n=>chipBtn('tps-time',n,d.time===n,n===60?Tx("60+ Min."):Tx("{0} Min.",n))).join(''));
   h+=Tx("<div class=\"ob-grp\"><span class=\"lbl\">Erfahrung</span><div class=\"pick\">{0}</div></div>",[['anf',Tx("Anfänger")],['mid',Tx("Fortgeschritten")],['adv',Tx("Erfahren")]].map(a=>chipBtn('tps-lvl',a[0],d.level===a[0],a[1])).join(''));
+  const rf=recFoc(d);
+  h+=Tx("<div class=\"ob-grp\"><span class=\"lbl\">Fokus</span><div class=\"oc-list\">{0}</div><p class=\"ob-note\">Empfehlung: {1}. {2}</p></div>",Object.keys(FOCN).map(k=>obCard('tps-foc',k,(d.foc||'bal')===k,'',FOCN[k][0]+(k===rf.k?Tx(" <span class=\"chip sys\" style=\"vertical-align:middle\">Empfohlen</span>"):''),FOCN[k][1])).join(''),FOCN[rf.k][0],rf.why);
+  if(d.foc==='mus')h+=Tx("<div class=\"ob-grp\"><span class=\"lbl\">Welche Muskelgruppen? Bis zu zwei</span><div class=\"pick\">{0}</div>{1}</div>",Object.keys(MG).map(g=>chipBtn('tps-mg',g,(d.mg||[]).includes(g),MG[g].n)).join(''),(d.mg||[]).length?'':Tx("<p class=\"ob-note\">Wähle mindestens eine Gruppe, sonst bleibt der Plan ausgewogen.</p>"));
   h+=Tx("<div class=\"ob-grp\"><span class=\"lbl\">Aufbau</span><div class=\"oc-list\">{0}</div></div>",Object.keys(SPLITS).map(k=>obCard('tps-split',k,d.split===k,'',SPLITS[k].n+(k===rec?Tx(" <span class=\"chip sys\" style=\"vertical-align:middle\">Empfohlen</span>"):''),SPLITS[k].d)).join(''));
+  const sv=SPLITS[d.split]||SPLITS.fb,rv=recVar(d);
+  if(sv.vs)h+=Tx("<div class=\"ob-grp\"><span class=\"lbl\">Variante</span><div class=\"oc-list\">{0}</div></div>",sv.vs.map((v,i)=>obCard('tps-var',i,(d.vr|0)===i,'',v.n+(i===rv?Tx(" <span class=\"chip sys\" style=\"vertical-align:middle\">Empfohlen</span>"):''),v.d)).join(''));
   const lim=limsOf();
   if(lim.length)h+=Tx("<p class=\"ob-note\">Aus deinem Fragebogen: Übungen mit Belastung für {0} meidet das System.</p>",lim.map(x=>LIMN[x]).join(', '));
   return h;
@@ -2231,11 +2339,11 @@ function dayEditor(){
   return h+'</section>';
 }
 function focusPick(){
-  return Tx("<div class=\"fpick\"><div class=\"lbl\" style=\"margin-bottom:6px\">Fokus des Tages (ersetzt die Übungen)</div><div class=\"oc-list two\">{0}</div></div>",Object.keys(FOC).map(k=>obCard('tp-focus',k,false,focThumb(k,40),FOC[k].n,FOC[k].d,'sm')).join(''));
+  return Tx("<div class=\"fpick\"><div class=\"lbl\" style=\"margin-bottom:6px\">Fokus des Tages (ersetzt die Übungen)</div><div class=\"oc-list two\">{0}</div></div>",Object.keys(FOC).filter(k=>!FOC[k].v).map(k=>obCard('tp-focus',k,false,focThumb(k,40),FOC[k].n,FOC[k].d,'sm')).join(''));
 }
 function planSettings(){
   const s=S.tp.set;
-  let h=Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Einstellungen</div><h2>Plan neu aufbauen</h2></div><button class=\"btn ghost sm\" data-act=\"tp-setopen\">{0}</button></div><div class=\"chips\"><span class=\"chip\">{1}</span><span class=\"chip\">{2} Tage</span><span class=\"chip\">{3} Min.</span><span class=\"chip\">{4}</span></div>",tpSetOpen?Tx("Schließen"):Tx("Öffnen"),s.place==='gym'?Tx("Studio"):Tx("Zu Hause"),s.days,s.time===60?'60+':s.time,(SPLITS[s.split]||SPLITS.fb).n);
+  let h=Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Einstellungen</div><h2>Plan neu aufbauen</h2></div><button class=\"btn ghost sm\" data-act=\"tp-setopen\">{0}</button></div><div class=\"chips\"><span class=\"chip\">{1}</span><span class=\"chip\">{2} Tage</span><span class=\"chip\">{3} Min.</span><span class=\"chip\">{4}</span><span class=\"chip\">{5}</span></div>",tpSetOpen?Tx("Schließen"):Tx("Öffnen"),s.place==='gym'?Tx("Studio"):Tx("Zu Hause"),s.days,s.time===60?'60+':s.time,(SPLITS[s.split]||SPLITS.fb).n,FOCN[s.foc||'bal'][0]);
   if(tpSetOpen)h+=Tx("{0}<div class=\"acts\" style=\"margin-top:14px\"><button class=\"btn {1}\" data-act=\"tp-gen\">{2}</button></div><p class=\"ob-note\">Eigene Änderungen an den Tagen gehen dabei verloren. Deine Gewichte und Bestwerte bleiben erhalten.</p>",setForm(),tpArm==='gen'?'bad':'warn',tpArm==='gen'?Tx("Sicher? Alle Tage werden ersetzt"):Tx("Plan neu erstellen"));
   h+=Tx("<div class=\"acts\" style=\"margin-top:14px;border-top:1px solid var(--line);padding-top:12px\"><button class=\"btn {0} sm\" data-act=\"tp-off\">{1}</button></div><p class=\"ob-note\">Deine Protokolle, Bestwerte und Gewichte bleiben erhalten. Du kannst später jederzeit einen neuen Plan erstellen.</p>",tpArm==='off'?'bad':'ghost',tpArm==='off'?Tx("Sicher? Plan und Tages-GYM-Quest verschwinden"):Tx("Keinen Trainingsplan mehr"));
   return h+'</section>';
@@ -4056,7 +4164,7 @@ function weekHtml(){
 /* Trainingsplan aus den Angaben */
 function planIntro(){
   const d=tpDefaults(),P=S.prof;
-  const chips=[d.place==='gym'?Tx("Studio"):Tx("Zu Hause"),d.days+Tx(" Tage pro Woche"),d.time+Tx(" Min. pro Einheit"),({anf:Tx("Anfänger"),mid:Tx("Fortgeschritten"),adv:Tx("Erfahren")})[d.level]||''].filter(Boolean);
+  const chips=[d.place==='gym'?Tx("Studio"):Tx("Zu Hause"),d.days+Tx(" Tage pro Woche"),d.time+Tx(" Min. pro Einheit"),({anf:Tx("Anfänger"),mid:Tx("Fortgeschritten"),adv:Tx("Erfahren")})[d.level]||'',SPLITS[d.split].n,Tx("Fokus: ")+FOCN[d.foc||'bal'][0]].filter(Boolean);
   return Tx("<section class=\"win\"><div class=\"banner\" style=\"height:150px\"><img alt=\"\" src=\"img/ui-plan.webp\" onerror=\"this.parentNode.remove()\"></div><div class=\"sub\"><div><div class=\"lbl\">Trainingsplan</div><h2>Dein Wochenplan</h2></div></div><p style=\"margin-bottom:8px\">{0}</p><div class=\"chips\" style=\"margin-bottom:12px\">{1}</div><div class=\"acts\"><button class=\"btn ok\" data-act=\"tp-quick\">Plan erstellen</button><button class=\"btn ghost\" data-act=\"tp-setopen\">{2}</button></div>{3}</section>{4}",P?Tx("Das System baut den Plan aus deinen Angaben aus dem Fragebogen. Danach kannst du jede Übung tauschen und Tage verschieben."):Tx("Du hast den Fragebogen noch nicht beantwortet. Das System nimmt deshalb Standardwerte. Mit dem Fragebogen im Spieler-Tab wird der Plan genauer."),chips.map(c=>'<span class="chip">'+esc(c)+'</span>').join(''),tpSetOpen?Tx("Schließen"):Tx("Anpassen"),tpSetOpen?Tx("{0}<div class=\"acts\" style=\"margin-top:16px\"><button class=\"btn ok\" data-act=\"tp-gen\" style=\"width:100%\">Mit diesen Angaben erstellen</button></div>",setForm()):'',healthNote());
 }
 
@@ -6047,12 +6155,15 @@ document.addEventListener('click',e=>{
       if(!pkPick(e.id))return;
       break;
     }
-    case 'tps-place':{const d=tpDraft();d.place=id;d.split=recSplit(d);break}
+    case 'tps-place':{const d=tpDraft();d.place=id;d.split=recSplit(d);d.vr=recVar(d);break}
     case 'tps-eq':tog(tpDraft().eq,id);break;
-    case 'tps-days':{const d=tpDraft();d.days=Number(id);d.split=recSplit(d);break}
+    case 'tps-days':{const d=tpDraft();d.days=Number(id);d.split=recSplit(d);d.vr=recVar(d);break}
     case 'tps-time':tpDraft().time=Number(id);break;
-    case 'tps-lvl':{const d=tpDraft();d.level=id;d.split=recSplit(d);break}
-    case 'tps-split':tpDraft().split=id;break;
+    case 'tps-lvl':{const d=tpDraft();d.level=id;d.split=recSplit(d);d.vr=recVar(d);break}
+    case 'tps-foc':{const d=tpDraft();if(!FOCN[id])break;d.foc=id;if(id==='mus'&&!(d.mg&&d.mg.length))d.mg=(recFoc(d).mg||[]).slice();d.split=recSplit(d);d.vr=recVar(d);break}
+    case 'tps-mg':{const d=tpDraft();if(!MG[id])break;d.mg=d.mg||[];const i=d.mg.indexOf(id);if(i>=0)d.mg.splice(i,1);else{if(d.mg.length>=2)d.mg.shift();d.mg.push(id)}d.vr=recVar(d);break}
+    case 'tps-var':{const d=tpDraft(),sv=SPLITS[d.split]||SPLITS.fb;d.vr=sv.vs&&sv.vs[Number(id)]?Number(id):0;break}
+    case 'tps-split':{const d=tpDraft();if(!SPLITS[id])break;d.split=id;d.vr=recVar(d);break}
     case 'tp-setopen':tpSetOpen=!tpSetOpen;tpd=null;break;
     case 'tp-gen':{
       if(S.tp&&tpArm!=='gen'){tpArm='gen';break}
@@ -6237,7 +6348,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
