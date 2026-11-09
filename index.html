@@ -1075,6 +1075,10 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 #lgpick .ob-top,#pmpick .ob-top{width:100%;max-width:560px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 8px}
 #lgpick .ob-body,#pmpick .ob-body{flex:1;overflow:auto;padding:8px 16px 20px;-webkit-overflow-scrolling:touch}
 #lgpick .lgb{min-height:58px;font-size:18px}
+html:lang(ko){--f-d:'Barlow Condensed','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic','Nanum Gothic',system-ui,sans-serif;--f-b:'Barlow','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic','Nanum Gothic',system-ui,-apple-system,sans-serif}
+html:lang(ko) body{word-break:keep-all;overflow-wrap:break-word;line-height:1.55}
+html:lang(ko) *{letter-spacing:0!important}
+html:lang(ko) h1,html:lang(ko) h2,html:lang(ko) h3,html:lang(ko) .btn,html:lang(ko) .lbl,html:lang(ko) .chip,html:lang(ko) .seg button,html:lang(ko) .pick button,html:lang(ko) #tabs button{font-weight:600}
 #tabs button .lk{position:absolute;top:6px;right:calc(50% - 20px);width:12px;height:12px;fill:none;stroke:var(--warn);stroke-width:2.2;stroke-linecap:round}
 /* v36: Trainer */
 #cpick{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;background:var(--bg);background-image:radial-gradient(700px 420px at 50% -8%,#1a2c7a66,transparent 70%),radial-gradient(520px 380px at 105% 105%,#3a1a7a44,transparent 70%)}
@@ -1142,7 +1146,7 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 <div id="modal" hidden></div>
 <div id="toast"></div>
 
-<script>try{var _l=localStorage.getItem('hunter-lang')||window.__LANG0||'';if(_l!=='de'&&_l!=='en')_l=/^de/i.test(navigator.language||'de')?'de':'en';if(_l==='en'||localStorage.getItem('hunter-lang-used-en'))document.write('<script src="lang-en.js"><\/script>')}catch(e){}</script>
+<script>try{var _l=localStorage.getItem('hunter-lang')||window.__LANG0||'';if(_l!=='de'&&_l!=='en'&&_l!=='ko')_l=/^de/i.test(navigator.language||'de')?'de':/^ko/i.test(navigator.language||'')?'ko':'en';if(_l==='en'||localStorage.getItem('hunter-lang-used-en'))document.write('<script src="lang-en.js"><\/script>');if(_l==='ko'||localStorage.getItem('hunter-lang-used-ko'))document.write('<script src="lang-ko.js"><\/script>')}catch(e){}</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function(){
@@ -1150,27 +1154,30 @@ a.btn{display:inline-flex;align-items:center;justify-content:center;text-decorat
 const KEY='hunter-system-v2';
 /* ---------- Sprache (DE/EN) ---------- */
 const LANG=(function(){let l='';try{l=localStorage.getItem('hunter-lang')||''}catch(e){}
-  if(l!=='de'&&l!=='en'){l=window.__LANG0||'';if(l!=='de'&&l!=='en'){const n=String(navigator.language||'de').toLowerCase();l=n.indexOf('de')===0?'de':'en'}}
-  if(l==='en'){try{localStorage.setItem('hunter-lang-used-en','1')}catch(e){}}
+  const OKL=x=>x==='de'||x==='en'||x==='ko';
+  if(!OKL(l)){l=window.__LANG0||'';if(!OKL(l)){const n=String(navigator.language||'de').toLowerCase();l=n.indexOf('de')===0?'de':n.indexOf('ko')===0?'ko':'en'}}
+  if(l==='en'||l==='ko'){try{localStorage.setItem('hunter-lang-used-'+l,'1')}catch(e){}}
   return l})();
 const DS=LANG==='de'?',':'.';
 const HPL=LANG==='de'?' LP':' HP';
-const fmtDM=(d,m)=>LANG==='de'?d+'.'+m+'.':Number(m)+'/'+Number(d);
-const PLS=x=>LANG==='de'?x:'s';
-const EN=window.__EN||{};
+const fmtDM=(d,m)=>LANG==='de'?d+'.'+m+'.':LANG==='ko'?Number(m)+'월 '+Number(d)+'일':Number(m)+'/'+Number(d);
+const PLS=x=>LANG==='de'?x:LANG==='ko'?'':'s';
+const EN=window.__EN||{},KO=window.__KO||{},DICT=LANG==='ko'?KO:EN;
 let REV=null;
 function Tx(k){
-  let t=LANG==='en'&&Object.prototype.hasOwnProperty.call(EN,k)?EN[k]:k;
+  let t=LANG!=='de'&&Object.prototype.hasOwnProperty.call(DICT,k)?DICT[k]:k;
   if(arguments.length>1){const a=arguments;t=t.replace(/\{(\d+)\}/g,(m,i)=>(+i+1<a.length)?(typeof a[+i+1]==='string'?Dx(a[+i+1]):a[+i+1]):m)}
   return t;
 }
 /* Anzeige-Uebersetzung fuer gespeicherte Texte (Quest-Namen, Einheiten, Klassen) */
 function Dx(s){
   if(typeof s!=='string'||!s)return s;
-  if(LANG==='en')return Object.prototype.hasOwnProperty.call(EN,s)?EN[s]:s;
-  if(!window.__EN)return s;
-  if(!REV){REV={};for(const k in EN){const v=EN[k];if(!(v in REV)&&!/[{<]/.test(k))REV[v]=k}}
-  return Object.prototype.hasOwnProperty.call(REV,s)?REV[s]:s;
+  const ho=Object.prototype.hasOwnProperty;
+  if(LANG!=='de'&&ho.call(DICT,s))return DICT[s];
+  if(!window.__EN&&!window.__KO)return s;
+  if(!REV){REV={};[EN,KO].forEach(D=>{for(const k in D){const v=D[k];if(!(v in REV)&&!/[{<]/.test(k))REV[v]=k}})}
+  if(ho.call(REV,s)){const g=REV[s];return LANG==='de'?g:(ho.call(DICT,g)?DICT[g]:g)}
+  return s;
 }
 function i18nSweep(root){
   if(!root)return;
@@ -1178,8 +1185,20 @@ function i18nSweep(root){
   while((n=w.nextNode()))list.push(n);
   list.forEach(n=>{const v=n.nodeValue,t=v.trim();if(!t)return;const d=Dx(t);if(d!==t)n.nodeValue=v.replace(t,d)});
 }
+function koInject(){
+  try{
+    document.querySelectorAll('[data-act=lang][data-id=en],[data-act=lg-pick][data-id=en]').forEach(b=>{
+      const p=b.parentNode;if(!p||p.querySelector('[data-id=ko]'))return;
+      const k=b.cloneNode(false);k.setAttribute('data-id','ko');k.setAttribute('lang','ko');k.classList.remove('on');k.textContent='한국어';
+      b.insertAdjacentElement('afterend',k);
+    });
+    document.querySelectorAll('[data-act=lang-toggle]').forEach(b=>{if(b.textContent!=='DE | EN | KO')b.textContent='DE | EN | KO'});
+    document.querySelectorAll('[data-act=lang]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-id')===LANG));
+  }catch(e){}
+}
+try{let _ki=0;new MutationObserver(()=>{if(_ki)return;_ki=1;Promise.resolve().then(()=>{_ki=0;koInject()})}).observe(document.body,{childList:true,subtree:true})}catch(e){}
 try{document.documentElement.lang=LANG}catch(e){}
-if(LANG==='en'){try{const tb=document.getElementById('tabs');if(tb)tb.setAttribute('aria-label',Tx(Tx("Bereiche")));
+if(LANG!=='de'){try{const tb=document.getElementById('tabs');if(tb)tb.setAttribute('aria-label',Tx(Tx("Bereiche")));
   new MutationObserver(ms=>{ms.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===3){const t=n.nodeValue.trim(),d=t&&Dx(t);if(d&&d!==t)n.nodeValue=n.nodeValue.replace(t,d)}else if(n.nodeType===1)i18nSweep(n)}))}).observe(document.body,{childList:true,subtree:true})}catch(e){}}
 
 /* Online-Arena: Werte aus Supabase eintragen (Project URL und anon public key). Leer lassen = nur lokal + Spieler-Code. */
@@ -1198,17 +1217,17 @@ const PEN_T=[{n:Tx("Burpees"),u:'Wdh.',b:20},{n:'Kniebeugen',u:'Wdh.',b:30},{n:T
 function effortMin(target,unit){
   const t=Math.max(0,Number(target)||0),u=String(unit||'').toLowerCase().trim();
   if(!u)return t<=1?5:Math.min(t,30)*0.5;
-  if(/^(std|h$|stunde|hour|hr)/.test(u))return t*60;
-  if(/^min/.test(u))return t;
-  if(/^(sek|sec|s$)/.test(u))return t/60;
+  if(/^(std|h$|stunde|hour|hr|시간)/.test(u))return t*60;
+  if(/^(min|분)/.test(u))return t;
+  if(/^(sek|sec|s$|초)/.test(u))return t/60;
   if(/km/.test(u))return t*6;
   if(/stock|etage|floor|stair/.test(u))return t*0.5;
-  if(/seite|kapitel|page|chapter/.test(u))return t*3;
-  if(/^l$|liter|litre/.test(u))return t*2;
-  if(/glas|gläs|glass/.test(u))return t*0.5;
+  if(/seite|kapitel|page|chapter|쪽|페이지/.test(u))return t*3;
+  if(/^l$|liter|litre|리터/.test(u))return t*2;
+  if(/glas|gläs|glass|^잔/.test(u))return t*0.5;
   if(/^m$|meter/.test(u))return t/100;
-  if(/schritt|step/.test(u))return t/120;
-  if(/wdh|rep|stück|mal|^x$|satz|sätze|times|set|piece/.test(u))return t*0.15;
+  if(/schritt|step|걸음/.test(u))return t/120;
+  if(/wdh|rep|stück|mal|^x$|satz|sätze|times|set|piece|^회|^번|^개|세트/.test(u))return t*0.15;
   return Math.min(t,60)*0.3;
 }
 function calcXP(target,unit,type,rank){
@@ -1277,7 +1296,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v40';
+const APP_V='v41';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -1432,7 +1451,7 @@ const ELEM_LORE={
 const RANK_LORE={E:Tx("Der Weg hat gerade erst begonnen."),D:Tx("Die ersten Tore sind überlebt."),C:Tx("Das System stuft diesen Spieler als erprobt ein."),B:Tx("Die Gilde respektiert diesen Namen."),A:Tx("Der Name ist im ganzen Land bekannt."),S:Tx("Eine lebende Legende.")};
 const RARITY=[Tx("Gewöhnlich"),Tx("Ungewöhnlich"),Tx("Selten"),Tx("Episch"),Tx("Legendär"),Tx("Mythisch")];
 const BAG_MAX=30;
-const WD=LANG==='de'?['Mo','Di','Mi','Do','Fr','Sa','So']:['Mo','Tu','We','Th','Fr','Sa','Su'];
+const WD=LANG==='de'?['Mo','Di','Mi','Do','Fr','Sa','So']:LANG==='ko'?['월','화','수','목','금','토','일']:['Mo','Tu','We','Th','Fr','Sa','Su'];
 const wdToday=()=>(new Date().getDay()+6)%7;
 /* ---------- Training: Bibliothek, Plan, Session (Schritt 3) ---------- */
 const emptyPlan=()=>({d:[[],[],[],[],[],[],[]]});
@@ -3722,7 +3741,7 @@ function muUmfang(){
 /* Monatsrückblick */
 let mMo='';
 const mkAdd=(mk,n)=>{const p=mk.split('-').map(Number),d=new Date(p[0],p[1]-1+n,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
-const mkName=mk=>{const p=mk.split('-').map(Number);return new Date(p[0],p[1]-1,1).toLocaleDateString(LANG==='de'?'de-DE':'en-US',{month:'long',year:'numeric'})};
+const mkName=mk=>{const p=mk.split('-').map(Number);return new Date(p[0],p[1]-1,1).toLocaleDateString(LANG==='de'?'de-DE':LANG==='ko'?'ko-KR':'en-US',{month:'long',year:'numeric'})};
 function monthStats(mk){
   const all=(S.tlog||[]).slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0),tl=all.filter(e=>e.d.slice(0,7)===mk);
   const o={units:tl.length,sets:0,vol:0,cats:{},ts:0,qd:0,qt:0,qa:0};
@@ -5804,7 +5823,7 @@ function autoProfile(){
   const K={str:'Krieger',vit:'Dauerläufer',agi:'Schattenläufer',int:'Magier',dis:'Eiserner Wächter'};
   const r=rankOf(S.level),el=ELEMS.includes(S.look)?S.look:STAT_ELEM[top];
   let nn=NICK_N[0][1];NICK_N.forEach(a=>{if(S.level>=a[0])nn=a[1]});
-  return {klasse:clsOk(S.cls,S.level)?S.cls:K[top],spitzname:el+'-'+nn,lore:Tx("{0} {1} Stärkster Wert: {2}.",ELEM_LORE[el](S.name),RANK_LORE[r],statName(top))};
+  return {klasse:clsOk(S.cls,S.level)?S.cls:K[top],spitzname:Dx(el)+(LANG==='ko'?' ':'-')+nn,lore:Tx("{0} {1} Stärkster Wert: {2}.",ELEM_LORE[el](S.name),RANK_LORE[r],statName(top))};
 }
 function avatarHtml(cls,src,rank,name,au){
   au=validAura(au);
@@ -5978,7 +5997,7 @@ function viewKalender(){
   const full=Object.values(S.hist).filter(h=>h.t>0&&h.d>=h.t).length;
   return Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Verlauf</div><h2>Die letzten 12 Wochen</h2></div></div><div class=\"heat\" role=\"img\" aria-label=\"Kalender der letzten 12 Wochen\">{0}</div><div class=\"legend\"><span><i style=\"background:#2a1220;border:1px solid #ff546855\"></i>nichts</span><span><i style=\"background:#16337a\"></i>teilweise</span><span><i style=\"background:#2a6cd6\"></i>fast alles</span><span><i style=\"background:var(--ok)\"></i>alles</span><span>Spalten sind Wochen, Zeilen Mo bis So. Heute ist umrandet.</span></div></section><section class=\"win\"><div class=\"sub\"><div class=\"lbl\">Bilanz</div></div><div class=\"kv\"><div><span class=\"lbl\">Konstanz (30 Tage)</span><span class=\"num\">{1}</span></div><div><span class=\"lbl\">Serie</span><span class=\"num\">{2}</span></div><div><span class=\"lbl\">Beste Serie</span><span class=\"num\">{3}</span></div><div><span class=\"lbl\">Volle Tage</span><span class=\"num\">{4}</span></div><div><span class=\"lbl\">Quests gesamt</span><span class=\"num\">{5}</span></div><div><span class=\"lbl\">Kämpfe gewonnen</span><span class=\"num\">{6}</span></div></div></section>",cells,c.days?c.pct+' %':'–',S.streak,S.bestStreak,full,S.totalDone,S.wins);
 }
-function markLang(){document.querySelectorAll('[data-act=lang]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-id')===LANG))}
+function markLang(){koInject();document.querySelectorAll('[data-act=lang]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-id')===LANG))}
 function goldMig(){
   if(!S.started||S.gm===1)return;
   S.gm=1;
@@ -6380,7 +6399,7 @@ document.addEventListener('click',e=>{
     }
     case 'gym-check':sesFinish(true);return;
     case 'stat':if(S.free>0&&S.stats[id]!=null){S.free--;S.stats[id]++;save()}break;
-    case 'lang-toggle':case 'lang':{const nl=a==='lang-toggle'?(LANG==='de'?'en':'de'):id;if(nl==='de'||nl==='en'){try{localStorage.setItem('hunter-lang',nl)}catch(e){}save();Promise.race([flush(),new Promise(r=>setTimeout(r,1200))]).catch(()=>{}).then(()=>location.reload())}return}
+    case 'lang-toggle':case 'lang':{const nl=a==='lang-toggle'?(LANG==='de'?'en':LANG==='en'?'ko':'de'):id;if(nl==='de'||nl==='en'||nl==='ko'){try{localStorage.setItem('hunter-lang',nl)}catch(e){}save();Promise.race([flush(),new Promise(r=>setTimeout(r,1200))]).catch(()=>{}).then(()=>location.reload())}return}
     case 'settings':{
       S.name=(document.getElementById('setName').value.trim()||Tx("Spieler"));
       save();toast(Tx("Gespeichert"));break;
@@ -6507,7 +6526,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Koreanisch:</b> Die App gibt es jetzt auch auf Koreanisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
