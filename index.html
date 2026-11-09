@@ -1301,7 +1301,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v42';
+const APP_V='v43';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -2169,16 +2169,124 @@ function dgToday(){const d=S.dg;return d&&d.d===dayKey()?d.n:0}
 function dgLimited(){return !premOn()&&dgToday()>=DG_FREE}
 /* ---------- v35: Premium ---------- */
 const BETA=true;
+/* ---------- v43: native Bruecke (Capacitor). Im Browser tut sie nichts. ---------- */
+const NAT={
+  is(){try{const C=window.Capacitor;return !!(C&&(C.isNativePlatform?C.isNativePlatform():(C.getPlatform&&C.getPlatform()!=='web')))}catch(e){return false}},
+  plug(n){try{return (window.__NATIVE_MOCK&&window.__NATIVE_MOCK[n])||(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins[n])||null}catch(e){return null}},
+  os(){try{return window.__NATIVE_OS||(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform())||'web'}catch(e){return 'web'}}
+};
+const nativeOn=()=>NAT.is()||!!window.__NATIVE_MOCK;
+const WEB_BASE='https://park1121.github.io/hunter-system/';
+const webBase=()=>nativeOn()?WEB_BASE:location.origin+location.pathname;
+function buzz(p){
+  const H=NAT.plug('Haptics');
+  if(H&&nativeOn()){
+    try{const d=Array.isArray(p)?p.reduce((a,b)=>a+b,0):Number(p)||20;if(d<=40)H.impact({style:'LIGHT'});else if(d<=120)H.impact({style:'MEDIUM'});else H.vibrate({duration:Math.min(400,d)});return}catch(e){}
+  }
+  try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}
+}
+let remSig='';
+async function remSchedule(force){
+  const L=NAT.plug('LocalNotifications');
+  if(!L||!nativeOn()||!S.rem||!S.rem.on)return 'off';
+  const on=S.tp&&S.tp.days?S.tp.days.map((d,i)=>isTrain(d)?i:-1).filter(i=>i>=0):[];
+  const sig=JSON.stringify([S.rem.t,on,LANG]);
+  if(!force&&sig===remSig)return 'same';
+  try{
+    let pr=await L.checkPermissions();
+    if(!pr||pr.display!=='granted'){pr=await L.requestPermissions()}
+    if(!pr||pr.display!=='granted')return 'denied';
+    const pend=await L.getPending();
+    if(pend&&pend.notifications&&pend.notifications.length)await L.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
+    if(!on.length){remSig=sig;return 'none'}
+    const hm=String(S.rem.t||'18:00').split(':').map(Number);
+    await L.schedule({notifications:on.map(i=>({id:100+i,title:'Step Up: SOLO',body:Tx("Zeit fürs Training. Öffne die App und starte dein Training."),schedule:{on:{weekday:((i+1)%7)+1,hour:hm[0],minute:hm[1]},allowWhileIdle:true}}))});
+    remSig=sig;return 'ok';
+  }catch(e){return 'error'}
+}
+async function remOff(){
+  const L=NAT.plug('LocalNotifications');
+  try{if(L){const pend=await L.getPending();if(pend&&pend.notifications&&pend.notifications.length)await L.cancel({notifications:pend.notifications.map(n=>({id:n.id}))})}}catch(e){}
+  remSig='';
+}
+function remNative(){
+  const t=(S.rem&&S.rem.t)||'18:00',on=!!(S.rem&&S.rem.on);
+  return Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Erinnerung</div><h2>Trainingszeit</h2></div></div><p class=\"dim\" style=\"font-size:14px;margin-bottom:10px\">Die App erinnert dich an deinen Trainingstagen zur gewählten Uhrzeit.</p><div class=\"grid\"><label class=\"f\">Uhrzeit<input type=\"time\" id=\"remT\" value=\"{0}\"></label><div style=\"display:flex;align-items:flex-end\"><button class=\"btn\" data-act=\"rem-nat\" style=\"width:100%\">{1}</button></div></div>{2}<p class=\"ob-note\">Änderst du deinen Plan, passt die App die Erinnerungen automatisch an.</p></section>",t,on?Tx("Speichern"):Tx("Erinnerung einschalten"),on?Tx("<div class=\"acts\" style=\"margin-top:8px\"><button class=\"btn ghost sm\" data-act=\"rem-off\">Ausschalten</button></div>"):'');
+}
+/* ---------- v43: Premium ueber den Store (RevenueCat). Preise kommen live aus dem Store. ---------- */
+const BILL_CFG={ent:'premium',keyIos:'',keyAndroid:''};
+let billOffers=null,billBusy=false,billInit=false;
+const billTrialDays=i=>{if(!i||Number(i.price)!==0)return 0;const n=Number(i.periodNumberOfUnits||1),u=String(i.periodUnit||'DAY').toUpperCase();return n*({DAY:1,WEEK:7,MONTH:30,YEAR:365}[u]||1)};
+function billProv(){
+  if(window.__BILLING_MOCK)return window.__BILLING_MOCK;
+  const P=NAT.plug('Purchases');
+  if(!P||!nativeOn())return null;
+  const pks={};
+  const stFrom=ci=>{const e=ci&&ci.entitlements&&ci.entitlements.active&&ci.entitlements.active[BILL_CFG.ent];if(!e)return {entitled:false};return {entitled:true,trial:String(e.periodType||'').toUpperCase()==='TRIAL',until:e.expirationDate?String(e.expirationDate).slice(0,10):null}};
+  return {
+    async init(){
+      if(billInit)return;
+      const key=NAT.os()==='android'?BILL_CFG.keyAndroid:BILL_CFG.keyIos;
+      if(!key)throw new Error('kein Schluessel');
+      await P.configure({apiKey:key});billInit=true;
+    },
+    async offers(){
+      const o=await P.getOfferings(),cur=o&&o.current;
+      if(!cur||!cur.availablePackages)return [];
+      return cur.availablePackages.map(pk=>{const pr=pk.product||{},t=String(pk.packageType||'').toUpperCase();pks[pk.identifier]=pk;
+        return {id:pk.identifier,period:t==='ANNUAL'?'year':t==='MONTHLY'?'month':t==='WEEKLY'?'week':'other',price:pr.priceString||'',trialDays:billTrialDays(pr.introPrice)}});
+    },
+    async buy(id){
+      try{const r=await P.purchasePackage({aPackage:pks[id]});return stFrom(r&&r.customerInfo)}
+      catch(e){if(e&&(e.userCancelled||e.code==='1'||e.code===1))return {cancelled:true};throw e}
+    },
+    async restore(){const r=await P.restorePurchases();return stFrom(r&&r.customerInfo)},
+    async status(){const r=await P.getCustomerInfo();return stFrom(r&&r.customerInfo)}
+  };
+}
+function billApply(st){
+  if(!st||st.cancelled)return;
+  const was=premOn(),t0=(S.prem&&S.prem.t0)||dayKey();
+  if(st.entitled)S.prem=st.trial?{m:'trial',t0:t0,until:st.until||addDays(dayKey(),PREM_DAYS-1),used:1,src:'store'}:{m:'pro',t0:t0,used:1,until:st.until||null,src:'store'};
+  else S.prem={m:'free',used:(S.prem&&S.prem.used)?1:0,src:'store'};
+  try{syncTraining()}catch(e){}save();
+  if(premOn()!==was)render();
+}
+async function billSync(){
+  const pv=billProv();if(!pv)return;
+  try{if(pv.init)await pv.init();billApply(await pv.status());if(billOffers===null)billOffers=await pv.offers()}catch(e){}
+}
+async function billLoad(){
+  const pv=billProv();if(!pv)return;
+  try{if(pv.init)await pv.init();billOffers=await pv.offers()}catch(e){billOffers=[]}
+  if(document.getElementById('pw-box')){nextModal();modal({kind:'vio',title:Tx("Premium"),body:paywallBody(),nobtn:true})}
+}
+const usePaywall=()=>!!billProv()||!BETA;
+const billPer=p=>({year:Tx(" pro Jahr"),month:Tx(" pro Monat"),week:Tx(" pro Woche")}[p]||'');
+const billName=p=>({year:Tx("Jährlich"),month:Tx("Monatlich"),week:Tx("Wöchentlich")}[p]||Tx("Premium"));
+const subsUrl=()=>NAT.os()==='android'?'https://play.google.com/store/account/subscriptions':'https://apps.apple.com/account/subscriptions';
+function paywallBody(f){
+  const L=Object.keys(PREM_F).map(k=>'<li'+(k===f?' style="color:var(--glow)"':'')+'><b>'+PREM_F[k][0]+'</b><br><span class="dim" style="font-size:13px">'+PREM_F[k][1]+'</span></li>').join('');
+  const pv=LANG==='de'?'datenschutz.html':'privacy.html',im=LANG==='de'?'impressum.html':'imprint.html';
+  const prov=billProv();
+  let off;
+  if(!prov)off=Tx("<p class=\"dim\" style=\"font-size:14px\">Premium kaufst du in der App aus dem App Store oder von Google Play.</p>");
+  else if(billOffers===null){off=Tx("<p class=\"dim\" style=\"font-size:14px\">Die Preise werden geladen ...</p>");billLoad()}
+  else if(!billOffers.length)off=Tx("<p class=\"dim\" style=\"font-size:14px\">Gerade ist kein Angebot verfügbar. Versuche es später noch einmal.</p>");
+  else off=billOffers.map(o=>'<button class="btn'+(o.period==='year'?'':' ghost')+'" data-act="prem-offer" data-id="'+esc(o.id)+'" style="display:grid;gap:2px;justify-items:center"><b>'+billName(o.period)+'</b><span>'+esc(o.price)+billPer(o.period)+'</span>'+(o.trialDays?Tx("<small>{0} Tage gratis, danach {1}{2}</small>",o.trialDays,esc(o.price),billPer(o.period)):'')+'</button>').join('');
+  return Tx("<div id=\"pw-box\"><p>Premium schaltet diese Teile frei:</p><ul style=\"text-align:left;margin:10px 0 14px;padding-left:18px;display:grid;gap:8px\">{0}</ul><div style=\"display:grid;gap:8px\">{1}<button class=\"btn ghost sm\" data-act=\"prem-restore\">Käufe wiederherstellen</button><button class=\"btn ghost sm\" data-act=\"modal-ok\">Schließen</button></div><p class=\"dim\" style=\"font-size:12px;margin-top:10px;text-align:left\">Das Abo verlängert sich automatisch um denselben Zeitraum, bis du es kündigst. Die Zahlung läuft über dein Apple- oder Google-Konto. Kündigen kannst du jederzeit in den Abo-Einstellungen deines Store-Kontos, mindestens 24 Stunden vor Ende des laufenden Zeitraums. Eine kostenlose Testphase geht danach in das bezahlte Abo über, wenn du nicht vorher kündigst.</p><p class=\"dim\" style=\"font-size:12.5px;margin-top:6px\"><a href=\"{2}\" target=\"_blank\" rel=\"noopener\">Abo verwalten</a> · <a href=\"{3}\" target=\"_blank\" rel=\"noopener\">AGB</a> · <a href=\"{4}\" target=\"_blank\" rel=\"noopener\">Datenschutz</a> · <a href=\"{5}\" target=\"_blank\" rel=\"noopener\">Impressum</a></p></div>",L,off,subsUrl(),termsHref(),pv,im);
+}
+
 const PREM_DAYS=7;
 const PREM_F={
  plan:[Tx("Training"),Tx("Trainingsplan, Übungen mit Sätzen, Stoppuhr und Fortschritt. Das System plant deine Woche.")],
  muskel:[Tx("Muskelanalyse"),Tx("Sieh, welche Muskeln du trainierst und welche zu kurz kommen. Am Samstag bekommst du eine Schwächen-Quest.")],
  dungeon:[Tx("Dungeons ohne Limit"),Tx("Gratis startest du einen Dungeon pro Tag. Mit Premium so viele du willst.")]
 };
-function premOn(){if(BETA&&!S.betaLock)return true;const p=S.prem;if(!p)return false;if(p.m==='pro')return true;return p.m==='trial'&&dayKey()<=p.until}
+function premOn(){if(BETA&&!S.betaLock)return true;const p=S.prem;if(!p)return false;if(p.m==='pro')return !(p.src==='store'&&p.until&&dayKey()>addDays(p.until,3));return p.m==='trial'&&dayKey()<=p.until}
 function premLeft(){const p=S.prem;if(!p||p.m!=='trial')return 0;const a=dayKey().split('-'),b=p.until.split('-');return Math.max(0,Math.round((Date.UTC(+b[0],+b[1]-1,+b[2])-Date.UTC(+a[0],+a[1]-1,+a[2]))/864e5)+1)}
 function premMode(){if(BETA&&!S.betaLock)return 'beta';const p=S.prem;if(!p)return 'free';if(p.m==='pro')return 'pro';if(p.m==='trial')return dayKey()<=p.until?'trial':'expired';return 'free'}
-const premTrialOk=()=>!(S.prem&&S.prem.used);
+const premTrialOk=()=>BETA&&!(S.prem&&S.prem.used);
 function premSet(p){S.prem=p;S.betaLock=0;try{syncTraining()}catch(e){}save()}
 function premTrial(){if(!premTrialOk())return;premSet({m:'trial',t0:dayKey(),until:addDays(dayKey(),PREM_DAYS-1),used:1})}
 function premBuy(){premSet({m:'pro',t0:dayKey(),used:1})}
@@ -2562,7 +2670,7 @@ function sesTick(){
     if(tt)tt.textContent=fmtT(rem);
     if(rem<=0){
       if(b)b.classList.add('go');if(l)l.textContent=Tx("Weiter geht es");
-      if(!r.fired){r.fired=1;sesBeep();try{if(navigator.vibrate)navigator.vibrate([220,90,220])}catch(e){}}
+      if(!r.fired){r.fired=1;sesBeep();buzz([220,90,220])}
     }
   }
 }
@@ -3408,6 +3516,7 @@ function downloadIcs(t){
   }catch(e){toast(Tx("Das Laden ging nicht. Versuche es in einem anderen Browser."))}
 }
 function remSection(){
+  if(nativeOn())return remNative();
   const t=(S.rem&&S.rem.t)||'18:00';
   return Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Erinnerung</div><h2>Trainingszeit</h2></div></div><p class=\"dim\" style=\"font-size:14px;margin-bottom:10px\">Eine Web-App kann dich nicht wecken, solange sie geschlossen ist. Darum legst du einen Kalender-Eintrag an, der an deinen Trainingstagen klingelt. Das geht auf Android und auf dem iPhone.</p><div class=\"grid\"><label class=\"f\">Uhrzeit<input type=\"time\" id=\"remT\" value=\"{0}\"></label><div style=\"display:flex;align-items:flex-end\"><button class=\"btn\" data-act=\"rem-ics\" style=\"width:100%\">Kalender-Eintrag laden</button></div></div><p class=\"ob-note\">Änderst du deinen Plan, lade den Eintrag neu. Den alten kannst du im Kalender löschen.</p></section>",esc(t));
 }
@@ -4344,7 +4453,7 @@ function planIntro(){
 const EN_MAX=100,ROOMS=5,BURST_EN=30;
 let runSum=null,outArm=false,fuseArm=null,frArm=null,disArm=null;
 const addEn=n=>{S.en=Math.max(0,Math.min(EN_MAX,Math.round((S.en||0)+n)))};
-function vib(p){if(S.fx&&S.fx.vib===false)return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
+function vib(p){if(S.fx&&S.fx.vib===false)return;buzz(p)}
 let sfxCtx=null;
 function sfx(k){
   if(!S.fx||S.fx.snd!==true)return;
@@ -5317,7 +5426,7 @@ async function authAct(kind){
     if(!/^\S+@\S+\.\S+$/.test(email)){msg(Tx("Bitte eine gültige E-Mail eintragen."));return}
     if(kind==='reset'){
       msg(Tx("Einen Moment ..."));
-      const r=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+      const r=await sb.auth.resetPasswordForEmail(email,{redirectTo:webBase()});
       if(r.error)throw r.error;
       msg(Tx("Wir haben dir einen Link geschickt. Öffne ihn auf diesem Gerät, dann kannst du ein neues Passwort wählen."));
       return;
@@ -5981,7 +6090,7 @@ function viewStatus(){
   const st=STATS.map(([k,l])=>Tx("<div class=\"stat\"><span class=\"nm\">{0}<span>{1}</span></span><div class=\"bar\"><i style=\"width:{2}%\"></i></div><span class=\"num v\">{3}</span>{4}</div><div class=\"qp\" style=\"margin:-4px 0 4px;font-size:12px\">{5} · Stufe {6} · nächste Stufe {7} / {8} · erarbeitet {9} XP</div>",gico('stat-'+k),l,Math.min(100,(S.prog[k]||0)/statNeed(S.stats[k])*100),S.stats[k],S.free>0?Tx("<button class=\"btn sm\" data-act=\"stat\" data-id=\"{0}\" aria-label=\"{1} erhöhen\">+</button>",k,l):'<span></span>',HINT[k],S.stats[k],S.prog[k]||0,statNeed(S.stats[k]),Math.round((S.sx&&S.sx[k])||0))).join('');
   const r=rankOf(S.level),p=pStats(),pf=getProfile();
   const sk=SKILLS.map(k=>'<div class="skill '+(S.level>=k.lv?'':'lock')+'"><span class="nm">'+gico('skill-'+k.id)+'<span>'+esc(k.name)+'</span></span><span class="qp">'+(S.level>=k.lv?skMp(k)+' MP':Tx("ab LV {0}",k.lv))+'</span><span class="dim" style="flex-basis:100%;font-size:13px">'+esc(k.desc)+'</span></div>').join('');
-  return stSplit(Tx("<section class=\"win hall\" style=\"--sbg:url(img/ui-status.webp)\"><div class=\"sub\"><div><div class=\"lbl\">Status-Fenster</div><h2>{0}</h2></div>{1}</div><div class=\"char\">{2}<div class=\"info\">{3}{4}<div class=\"acts\"><button class=\"btn sm\" data-act=\"photo\">{5}</button>{6}</div></div></div></section>{7}<section id=\"stat-pts\" class=\"win\"><div class=\"sub\"><div class=\"lbl\">Werte{8}</div></div>{9}<div class=\"kv\" style=\"margin:12px 0\"><div><span class=\"lbl\">Rang</span><span class=\"num\">{10}</span></div><div><span class=\"lbl\">Level</span><span class=\"num\">{11}</span></div><div><span class=\"lbl\">Lebenspunkte</span><span class=\"num\">{12}</span></div><div><span class=\"lbl\">Mana</span><span class=\"num\">{13}</span></div><div><span class=\"lbl\">Angriff</span><span class=\"num\">{14}</span></div><div><span class=\"lbl\">Verteidigung</span><span class=\"num\">{15}</span></div></div>{16}<p class=\"dim\" style=\"margin:8px 0 0;font-size:13px\">Jede Fähigkeit hat ihren eigenen Balken und wächst nur durch Quests, die sie stärken. Insgesamt erarbeitet: <b>{17} XP</b>. Alle zwei Level steigen zusätzlich alle Werte um 1.</p></section>\u0001{18}{19}\u0002{20}{21}\u0003\u0004<section class=\"win vio\"><div class=\"sub\"><div class=\"lbl\" style=\"color:var(--violet)\">Fähigkeiten</div></div>{22}{23}</section>\u0005{24}<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Daten</div><h2>Datenschutz und Konto</h2></div></div><p class=\"dim\" style=\"font-size:13px;margin-bottom:10px\">Deine Körperdaten bleiben nur auf diesem Gerät. Dein Charakter und dein Arena-Profil liegen auf dem Server, wenn du online spielst. Name und Profilbild sehen andere Spieler, nimm am besten einen Spitznamen. Step Up: SOLO ist ein Spiel und keine medizinische Beratung. Alle Werte sind grobe Richtwerte. Bei Vorerkrankungen, Beschwerden oder Unsicherheit sprich vor dem Training mit einer Ärztin oder einem Arzt. Trainiere im Rahmen deiner Möglichkeiten und höre bei Schmerzen auf.</p><div class=\"acts\" style=\"flex-wrap:wrap\"><a class=\"btn ghost\" href=\"datenschutz.html\" target=\"_blank\" rel=\"noopener\">Datenschutz</a><a class=\"btn ghost\" href=\"impressum.html\" target=\"_blank\" rel=\"noopener\">Impressum</a><a class=\"btn ghost\" href=\"agb.html\" target=\"_blank\" rel=\"noopener\">Nutzungsbedingungen</a></div><div class=\"acts\" style=\"margin-top:10px\"><button class=\"btn bad\" data-act=\"acc-del\">Konto und alle Daten löschen</button></div></section><section class=\"win\"><div class=\"sub\"><div class=\"lbl\">Einstellungen</div></div><div class=\"grid\"><label class=\"f\">Name<input type=\"text\" id=\"setName\" maxlength=\"30\" value=\"{25}\"></label><div class=\"f wide dim\" style=\"font-size:13px\">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class=\"f wide\"><span>Sprache / Language</span><div class=\"pick\"><button type=\"button\" data-act=\"lang\" data-id=\"de\">Deutsch</button><button type=\"button\" data-act=\"lang\" data-id=\"en\">English</button></div></div><div class=\"f wide\"><span>Klasse</span><div class=\"pick\">{26}</div>{27}</div><div class=\"f wide\"><span>Tagesquests</span><label class=\"item\" style=\"cursor:pointer;border-top:0\"><input type=\"checkbox\" data-act=\"auto-ask\" style=\"width:20px;height:20px\"{28}><span class=\"nm dim\" style=\"font-weight:400\">Quests vom System: abwechslungsreich nach Fragebogen, ohne eigene Quests</span></label></div><div class=\"f wide\"><span>Kampf-Effekte</span><label class=\"item\" style=\"cursor:pointer;border-top:0\"><input type=\"checkbox\" data-act=\"fx\" data-id=\"vib\" style=\"width:20px;height:20px\"{29}><span class=\"nm dim\" style=\"font-weight:400\">Vibration bei Treffern (nur Android)</span></label><label class=\"item\" style=\"cursor:pointer\"><input type=\"checkbox\" data-act=\"fx\" data-id=\"snd\" style=\"width:20px;height:20px\"{30}><span class=\"nm dim\" style=\"font-weight:400\">Kampf-Töne</span></label></div><div class=\"f wide dim\" style=\"font-size:13px\">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ok\" data-act=\"settings\">Speichern</button><span class=\"sp\"></span><button class=\"btn {31} sm\" data-act=\"reset\">{32}</button></div><p class=\"dim\" style=\"font-size:12px;margin-top:10px\">Step Up: SOLO {33}</p></section>",esc(S.name),S.free>0?Tx("<span class=\"lbl\" style=\"color:var(--warn)\">Freie Punkte: {0}</span>",S.free):'',avatarHtml('big',S.avatar,r,S.name,S.aura),pf?'<div class="num cname" style="font-size:22px">'+clsIco(pf.klasse)+'<span>'+esc(pf.klasse)+'</span></div>'+(pf.spitzname?'<div class="lbl">„'+esc(pf.spitzname)+'“</div>':'')+'<div class="lore">'+esc(pf.lore)+'</div>':'<div class="dim">'+(S.avatar?Tx("Noch kein Profil."):Tx("Lade ein Foto hoch, damit das System deinen Charakter erstellt."))+'</div>',aiMsg?'<div class="think">'+esc(aiMsg)+'</div>':'',S.avatar?Tx("Foto ändern"):Tx("Foto wählen"),S.avatar&&samp&&sampImg?Tx("<button class=\"btn vio sm\" data-act=\"profile\">Profil neu erzeugen</button>"):'',rankSection(),helpBtn('skill'),radar(),r,S.level,p.hp,p.mp,Math.round(p.atk),Math.round(p.def),st,Math.round(skillSum()),recSection(),achSection(),bodySection(),profSection(),clsCard(),sk,online?(acct.guest
+  return stSplit(Tx("<section class=\"win hall\" style=\"--sbg:url(img/ui-status.webp)\"><div class=\"sub\"><div><div class=\"lbl\">Status-Fenster</div><h2>{0}</h2></div>{1}</div><div class=\"char\">{2}<div class=\"info\">{3}{4}<div class=\"acts\"><button class=\"btn sm\" data-act=\"photo\">{5}</button>{6}</div></div></div></section>{7}<section id=\"stat-pts\" class=\"win\"><div class=\"sub\"><div class=\"lbl\">Werte{8}</div></div>{9}<div class=\"kv\" style=\"margin:12px 0\"><div><span class=\"lbl\">Rang</span><span class=\"num\">{10}</span></div><div><span class=\"lbl\">Level</span><span class=\"num\">{11}</span></div><div><span class=\"lbl\">Lebenspunkte</span><span class=\"num\">{12}</span></div><div><span class=\"lbl\">Mana</span><span class=\"num\">{13}</span></div><div><span class=\"lbl\">Angriff</span><span class=\"num\">{14}</span></div><div><span class=\"lbl\">Verteidigung</span><span class=\"num\">{15}</span></div></div>{16}<p class=\"dim\" style=\"margin:8px 0 0;font-size:13px\">Jede Fähigkeit hat ihren eigenen Balken und wächst nur durch Quests, die sie stärken. Insgesamt erarbeitet: <b>{17} XP</b>. Alle zwei Level steigen zusätzlich alle Werte um 1.</p></section>\u0001{18}{19}\u0002{20}{21}\u0003\u0004<section class=\"win vio\"><div class=\"sub\"><div class=\"lbl\" style=\"color:var(--violet)\">Fähigkeiten</div></div>{22}{23}</section>\u0005{24}<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Daten</div><h2>Datenschutz und Konto</h2></div></div><p class=\"dim\" style=\"font-size:13px;margin-bottom:10px\">Deine Körperdaten bleiben nur auf diesem Gerät. Dein Charakter und dein Arena-Profil liegen auf dem Server, wenn du online spielst. Name und Profilbild sehen andere Spieler, nimm am besten einen Spitznamen. Step Up: SOLO ist ein Spiel und keine medizinische Beratung. Alle Werte sind grobe Richtwerte. Bei Vorerkrankungen, Beschwerden oder Unsicherheit sprich vor dem Training mit einer Ärztin oder einem Arzt. Trainiere im Rahmen deiner Möglichkeiten und höre bei Schmerzen auf.</p><div class=\"acts\" style=\"flex-wrap:wrap\"><a class=\"btn ghost\" href=\"datenschutz.html\" target=\"_blank\" rel=\"noopener\">Datenschutz</a><a class=\"btn ghost\" href=\"impressum.html\" target=\"_blank\" rel=\"noopener\">Impressum</a><a class=\"btn ghost\" href=\"agb.html\" target=\"_blank\" rel=\"noopener\">Nutzungsbedingungen</a></div><div class=\"acts\" style=\"margin-top:10px\"><button class=\"btn bad\" data-act=\"acc-del\">Konto und alle Daten löschen</button></div></section><section class=\"win\"><div class=\"sub\"><div class=\"lbl\">Einstellungen</div></div><div class=\"grid\"><label class=\"f\">Name<input type=\"text\" id=\"setName\" maxlength=\"30\" value=\"{25}\"></label><div class=\"f wide dim\" style=\"font-size:13px\">Strafen legt das System fest. Sie wechseln und werden mit deinem Level härter.</div><div class=\"f wide\"><span>Sprache / Language</span><div class=\"pick\"><button type=\"button\" data-act=\"lang\" data-id=\"de\">Deutsch</button><button type=\"button\" data-act=\"lang\" data-id=\"en\">English</button></div></div><div class=\"f wide\"><span>Klasse</span><div class=\"pick\">{26}</div>{27}</div><div class=\"f wide\"><span>Tagesquests</span><label class=\"item\" style=\"cursor:pointer;border-top:0\"><input type=\"checkbox\" data-act=\"auto-ask\" style=\"width:20px;height:20px\"{28}><span class=\"nm dim\" style=\"font-weight:400\">Quests vom System: abwechslungsreich nach Fragebogen, ohne eigene Quests</span></label></div><div class=\"f wide\"><span>Kampf-Effekte</span><label class=\"item\" style=\"cursor:pointer;border-top:0\"><input type=\"checkbox\" data-act=\"fx\" data-id=\"vib\" style=\"width:20px;height:20px\"{29}><span class=\"nm dim\" style=\"font-weight:400\">Vibration bei Treffern</span></label><label class=\"item\" style=\"cursor:pointer\"><input type=\"checkbox\" data-act=\"fx\" data-id=\"snd\" style=\"width:20px;height:20px\"{30}><span class=\"nm dim\" style=\"font-weight:400\">Kampf-Töne</span></label></div><div class=\"f wide dim\" style=\"font-size:13px\">Spitzname und Beschreibung erstellt das System aus deinem Foto, deiner Klasse und deinem Level. Rahmen und Farbe richten sich nach deinem Rang.</div></div><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ok\" data-act=\"settings\">Speichern</button><span class=\"sp\"></span><button class=\"btn {31} sm\" data-act=\"reset\">{32}</button></div><p class=\"dim\" style=\"font-size:12px;margin-top:10px\">Step Up: SOLO {33}</p></section>",esc(S.name),S.free>0?Tx("<span class=\"lbl\" style=\"color:var(--warn)\">Freie Punkte: {0}</span>",S.free):'',avatarHtml('big',S.avatar,r,S.name,S.aura),pf?'<div class="num cname" style="font-size:22px">'+clsIco(pf.klasse)+'<span>'+esc(pf.klasse)+'</span></div>'+(pf.spitzname?'<div class="lbl">„'+esc(pf.spitzname)+'“</div>':'')+'<div class="lore">'+esc(pf.lore)+'</div>':'<div class="dim">'+(S.avatar?Tx("Noch kein Profil."):Tx("Lade ein Foto hoch, damit das System deinen Charakter erstellt."))+'</div>',aiMsg?'<div class="think">'+esc(aiMsg)+'</div>':'',S.avatar?Tx("Foto ändern"):Tx("Foto wählen"),S.avatar&&samp&&sampImg?Tx("<button class=\"btn vio sm\" data-act=\"profile\">Profil neu erzeugen</button>"):'',rankSection(),helpBtn('skill'),radar(),r,S.level,p.hp,p.mp,Math.round(p.atk),Math.round(p.def),st,Math.round(skillSum()),recSection(),achSection(),bodySection(),profSection(),clsCard(),sk,online?(acct.guest
      ?Tx("<section class=\"win gold\"><div class=\"sub\"><div><div class=\"lbl\" style=\"color:var(--warn)\">Konto</div><h2>Charakter sichern</h2></div></div><p class=\"dim\" style=\"margin-bottom:10px\">Du spielst als Gast. Ohne Konto ist dein Charakter weg, wenn du den Browser wechselst oder die Browserdaten löschst. Mit E-Mail und Passwort findest du ihn überall wieder.</p><div class=\"grid\"><label class=\"f\">E-Mail<input type=\"text\" id=\"accMail\" autocomplete=\"email\" inputmode=\"email\" autocapitalize=\"off\"></label><label class=\"f\">Passwort<input type=\"password\" id=\"accPw\" autocomplete=\"new-password\"></label></div><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ok\" data-act=\"acc-upgrade\">Konto anlegen</button></div></section>")
      :Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Konto</div><h2>Angemeldet</h2></div></div><p class=\"dim\" style=\"margin-bottom:10px;overflow-wrap:anywhere\">{0}</p><div class=\"acts\"><button class=\"btn ghost\" data-act=\"pw-change\">Passwort ändern</button><button class=\"btn ghost\" data-act=\"acc-out\">Abmelden</button></div></section>",esc(acct.email))):'',esc(S.name),CLASSES.map(c=>'<button type="button" class="cl '+(pf.klasse===c[0]?'on':'')+'"'+(c[1]>S.level?' disabled':'')+' data-act="setcls" data-id="'+c[0]+'">'+clsIco(c[0])+'<span>'+c[0]+'</span>'+(c[1]>1?'<small>'+(c[1]>S.level?Tx("ab LV {0}",c[1]):Tx("freigeschaltet"))+'</small>':'')+'</button>').join(''),clsInfo(pf.klasse),S.auto?' checked':'',S.fx&&S.fx.vib===false?'':' checked',S.fx&&S.fx.snd===true?' checked':'',penArmed?'bad':'ghost',penArmed?Tx("Alles löschen. Sicher?"):Tx("Neu beginnen"),APP_V));
 }
@@ -6083,11 +6192,14 @@ document.addEventListener('click',e=>{
     case 'lg-pick':{try{localStorage.setItem('hunter-lang',id);localStorage.setItem('hunter-lang-ok','1')}catch(e){}location.reload();return}
     case 'pm-trial':premTrial();S.pmPick=0;save();render();toast(Tx("{0} Tage Test gestartet",PREM_DAYS));return;
     case 'pm-free':S.prem={m:'free',used:0};S.pmPick=0;syncTraining();save();render();return;
-    case 'prem-open2':nextModal();modal({kind:'vio',title:Tx("Premium"),body:premModalBody(id),nobtn:true});return;
-    case 'prem-open':modal({kind:'vio',title:Tx("Premium"),body:premModalBody(id),nobtn:true});return;
+    case 'prem-open2':nextModal();modal({kind:'vio',title:Tx("Premium"),body:usePaywall()?paywallBody(id):premModalBody(id),nobtn:true});return;
+    case 'prem-open':modal({kind:'vio',title:Tx("Premium"),body:usePaywall()?paywallBody(id):premModalBody(id),nobtn:true});return;
+    case 'prem-offer':{const pv=billProv();if(!pv||billBusy)return;billBusy=true;toast(Tx("Einen Moment ..."));
+      pv.buy(id).then(r=>{billBusy=false;if(r&&r.cancelled)return;if(r&&r.entitled){billApply(r);nextModal();render();toast(Tx("Premium ist aktiv"))}else toast(Tx("Der Kauf hat nicht geklappt"))}).catch(()=>{billBusy=false;toast(Tx("Der Kauf hat nicht geklappt"))});return}
     case 'prem-trial':nextModal();premTrial();render();toast(Tx("{0} Tage Test gestartet",PREM_DAYS));return;
     case 'prem-buy':nextModal();premBuy();render();toast(Tx("Beta: Premium freigeschaltet"));return;
-    case 'prem-restore':nextModal();toast(Tx("Beta: Es gibt nichts wiederherzustellen"));return;
+    case 'prem-restore':{const pv=billProv();if(!pv){nextModal();toast(Tx("Beta: Es gibt nichts wiederherzustellen"));return}
+      pv.restore().then(r=>{if(r&&r.entitled){billApply(r);nextModal();render();toast(Tx("Käufe wiederhergestellt"))}else toast(Tx("Keine Käufe gefunden"))}).catch(()=>toast(Tx("Das hat nicht geklappt")));return}
     case 'prem-beta':{if(id==='pro')premBuy();else if(id==='free'){premSet({m:'free',used:(S.prem&&S.prem.used)||0});S.betaLock=1;try{syncTraining()}catch(e){}save()}else{premSet({m:'free',used:0});S.betaLock=1;try{syncTraining()}catch(e){}save()}render();return}
     case 'onb-start':ob=obNew(true);obRender();return;
     case 'onb-later':S.onbSkip=true;save();break;
@@ -6257,6 +6369,12 @@ document.addEventListener('click',e=>{
       if(!/^\d\d:\d\d$/.test(v)){toast(Tx("Bitte eine Uhrzeit wählen"));return}
       S.rem={t:v};save();downloadIcs(v);return;
     }
+    case 'rem-nat':{
+      const v=((document.getElementById('remT')||{}).value||'').trim();
+      if(!/^\d\d:\d\d$/.test(v)){toast(Tx("Bitte eine Uhrzeit wählen"));return}
+      S.rem={t:v,on:1};save();
+      remSchedule(true).then(r=>{if(r==='ok')toast(Tx("Erinnerung ist eingeschaltet"));else if(r==='none')toast(Tx("Dein Plan hat keinen Trainingstag"));else if(r==='denied'){S.rem.on=0;save();render();toast(Tx("Benachrichtigungen sind in den Einstellungen deines Geräts ausgeschaltet"))}else toast(Tx("Das hat nicht geklappt"))});render();return}
+    case 'rem-off':S.rem=Object.assign({},S.rem,{on:0});save();remOff();toast(Tx("Erinnerung ausgeschaltet"));break;
     case 'acc-upgrade':upgradeAccount();return;
     case 'acc-out':signOutNow();return;
     case 'acc-del':accDelModal();return;
@@ -6286,7 +6404,7 @@ document.addEventListener('click',e=>{
     case 'wk-tab':wkTab=id==='cl'?'cl':'fr';break;
     case 'wkshare':S.wkShare=S.wkShare===false;save();break;
     case 'invite':{
-      const link=location.origin+location.pathname+'?add='+myFc();
+      const link=webBase()+'?add='+myFc();
       const tmp=document.createElement('textarea');tmp.value=link;tmp.style.position='fixed';tmp.style.opacity='0';document.body.appendChild(tmp);
       const done=()=>{tmp.remove();toast(Tx("Einladungs-Link kopiert"))};
       try{navigator.clipboard.writeText(link).then(done,()=>{tmp.select();try{document.execCommand('copy')}catch(x){}done()})}catch(x){tmp.select();try{document.execCommand('copy')}catch(y){}done()}
@@ -6565,7 +6683,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Melden und Blockieren:</b> Im Profil eines Spielers kannst du ihn melden oder blockieren. Blockierte Spieler siehst du nicht mehr</li><li><b>Nutzungsbedingungen:</b> Neue Spieler stimmen im Willkommensbildschirm zu, bestehende einmalig in einem Fenster. Der Text steht unter Status > Konto</li><li><b>Koreanisch:</b> Die App gibt es jetzt auch auf Koreanisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Vorbereitung für die App-Version:</b> Kaufbildschirm mit Preisen aus dem Store, Erinnerungen als Benachrichtigung und Vibration auch auf dem iPhone</li><li><b>Melden und Blockieren:</b> Im Profil eines Spielers kannst du ihn melden oder blockieren. Blockierte Spieler siehst du nicht mehr</li><li><b>Nutzungsbedingungen:</b> Neue Spieler stimmen im Willkommensbildschirm zu, bestehende einmalig in einem Fenster. Der Text steht unter Status > Konto</li><li><b>Koreanisch:</b> Die App gibt es jetzt auch auf Koreanisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 if(S.started&&!S.terms&&!navigator.webdriver&&!window.__noTermsAsk){
   modal({title:Tx("Nutzungsbedingungen"),nobtn:true,body:Tx("<p>Wir haben Nutzungsbedingungen ergänzt. Sie regeln unter anderem Verhalten in der Arena, Premium und Haftung. Bitte lies sie und stimme zu, um weiterzuspielen.</p><p style=\"margin:10px 0\"><a href=\"{0}\" target=\"_blank\" rel=\"noopener\">Nutzungsbedingungen lesen</a></p><div class=\"btnrow\"><button class=\"btn ok\" data-act=\"terms-ok\">Akzeptieren</button></div>",termsHref())});
@@ -6573,6 +6691,7 @@ if(S.started&&!S.terms&&!navigator.webdriver&&!window.__noTermsAsk){
 render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
 initRemote();
+if(S.started){setTimeout(()=>{billSync();remSchedule(false)},600);document.addEventListener('visibilitychange',()=>{if(!document.hidden){billSync();remSchedule(false)}})}
 })();
 </script>
 </body>
