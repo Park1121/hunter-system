@@ -1215,7 +1215,8 @@ function calcXP(target,unit,type,rank){
   if(type==='dungeon')return DUNGEON_REWARD[DUNGEON_REWARD[rank]?rank:'E'][0];
   return Math.round(Math.max(8,Math.min(50,5+1.1*effortMin(target,unit))));
 }
-function calcGold(xp,type,rank){return type==='dungeon'?DUNGEON_REWARD[DUNGEON_REWARD[rank]?rank:'E'][1]:Math.round(xp/2)}
+const GOLD_K=.45;
+function calcGold(xp,type,rank){return type==='dungeon'?DUNGEON_REWARD[DUNGEON_REWARD[rank]?rank:'E'][1]:Math.round(xp*GOLD_K)}
 const dayCap=()=>200+S.level*8;
 function capState(){const t=dayKey();if(!S.cap||S.cap.day!==t)S.cap={day:t,xp:0,dg:0,sx:{}};return S.cap}
 const maxGate=()=>Math.min(5,rankIdx(S.level)+1);
@@ -2199,8 +2200,8 @@ function syncTraining(){
   S.quests=S.quests.filter(x=>x.type!=='gym'||x===q);
   if(!isTrain(d)){if(q&&!q.done)S.quests=S.quests.filter(x=>x!==q);return}
   const st=dayStats(d);
-  if(!q){S.quests.push({id:uid(),type:'gym',name:'GYM: '+d.n,target:1,unit:'',stat:gymStat(d),xp:st.xp,gold:Math.round(st.xp/2),rank:'E',cur:0,done:false,day:tk});return}
-  if(!q.done){q.name='GYM: '+d.n;q.stat=gymStat(d);q.xp=st.xp;q.gold=Math.round(st.xp/2)}
+  if(!q){S.quests.push({id:uid(),type:'gym',name:'GYM: '+d.n,target:1,unit:'',stat:gymStat(d),xp:st.xp,gold:Math.round(st.xp*GOLD_K),rank:'E',cur:0,done:false,day:tk});return}
+  if(!q.done){q.name='GYM: '+d.n;q.stat=gymStat(d);q.xp=st.xp;q.gold=Math.round(st.xp*GOLD_K)}
 }
 function nextTrain(){
   if(!S.tp)return null;
@@ -2303,7 +2304,7 @@ function gymCard(){
     h+=Tx("<div class=\"gdone\">{0}<div><b>Erledigt</b><small>{1} · +{2} XP</small></div></div></section>",gico('ico-setdone',44),lg?(lg.direct?Tx("Ohne Protokoll abgehakt"):Tx("{0} Sätze{1}",lg.sets,lg.vol?Tx(" · {0} kg Volumen",lg.vol):'')):Tx("Training geschafft"),q.xp);
     return h;
   }
-  h+=Tx("<div class=\"chips\" style=\"margin-bottom:8px\"><span class=\"chip xp\">bis +{0} XP</span><span class=\"chip g\">+{1} G</span><span class=\"chip\">{2}</span></div><p class=\"gx\">{3}{4}</p>",q?q.xp:st.xp,q?q.gold:Math.round(st.xp/2),statName(gymStat(d)),names.slice(0,5).join(', '),names.length>5?Tx(" und {0} weitere",names.length-5):'');
+  h+=Tx("<div class=\"chips\" style=\"margin-bottom:8px\"><span class=\"chip xp\">bis +{0} XP</span><span class=\"chip g\">+{1} G</span><span class=\"chip\">{2}</span></div><p class=\"gx\">{3}{4}</p>",q?q.xp:st.xp,q?q.gold:Math.round(st.xp*GOLD_K),statName(gymStat(d)),names.slice(0,5).join(', '),names.length>5?Tx(" und {0} weitere",names.length-5):'');
   const dn=S0?S0.ex.reduce((a,x)=>a+x.sets.filter(s=>s.d).length,0):0,tt=S0?S0.ex.reduce((a,x)=>a+(x.sk?0:x.sets.length),0):0;
   h+=Tx("<div class=\"acts\"><button class=\"btn ok\" data-act=\"ses-open\">{0}</button><button class=\"btn ghost\" data-act=\"gym-check\" title=\"Ohne Protokoll: 60 % der Belohnung\">Abhaken</button></div></section>",S0?Tx("Fortsetzen ({0} / {1} Sätze)",dn,tt):Tx("Training starten"));
   return h;
@@ -2575,9 +2576,9 @@ function sesFinish(direct){
   if(dfi){
     xp=Math.round(xp*.8);
     const dq=S.dq;if(dq)dq.done=1;
-    completeQuest({id:uid(),type:'gym',name:Tx("Schwächen-Quest"),target:1,cur:0,done:false,xp,gold:Math.round(xp/2),stat:gymStat({ex:(dq&&dq.ex)||[]}),rank:'E',day:dayKey()});
-  }else if(q){q.xp=xp;q.gold=Math.round(xp/2);completeQuest(q)}
-  else{S.gold+=Math.round(xp/2);grantXP(xp);toast(Tx("Training: +{0} XP",xp))}
+    completeQuest({id:uid(),type:'gym',name:Tx("Schwächen-Quest"),target:1,cur:0,done:false,xp,gold:Math.round(xp*GOLD_K),stat:gymStat({ex:(dq&&dq.ex)||[]}),rank:'E',day:dayKey()});
+  }else if(q){q.xp=xp;q.gold=Math.round(xp*GOLD_K);completeQuest(q)}
+  else{S.gold+=Math.round(xp*GOLD_K);grantXP(xp);toast(Tx("Training: +{0} XP",xp))}
   if(!direct){
     modal({pic:'victory',title:Tx("Training geschafft"),body:Tx("<div class=\"big\">+{0} XP</div><div class=\"kv\"><div><span class=\"lbl\">Sätze</span><span class=\"num\">{1}</span></div><div><span class=\"lbl\">Volumen</span><span class=\"num\">{2}</span></div><div><span class=\"lbl\">Dauer</span><span class=\"num\">{3} Min.</span></div></div>{4}{5}<p class=\"dim\">Dein Körper baut jetzt auf. Iss gut und schlaf genug.</p>",xp,sets,vol?vol+' kg':'–',Math.max(1,Math.round(ms/60000)),prs.length?prs.map(p=>Tx("<p style=\"color:var(--warn);font-family:var(--f-d);font-size:19px;letter-spacing:.05em\">Neuer Bestwert: {0}{1} {2}{3}</p>",esc(p.e.n),p.e.m==='kg'&&p.w?' '+fmtW(p.w)+' kg ×':'',p.r,p.e.m==='kg'||p.e.m==='bw'?'':' '+unitOf(p.e))).join(''):'',vol||!s||!s.ex.some(x=>{const e=exOf(x.e);return e&&e.m==='kg'&&!x.sk&&x.sets.some(t=>t.d)})?'':Tx("<p class=\"dim\">Du hast kein Gewicht eingetragen, darum ist das Volumen leer. Trage die kg ein, dann siehst du es.</p>")),btn:Tx("Weiter")});
   }
@@ -2752,7 +2753,7 @@ function pickTest(){
   const old=pool.reduce((m,r)=>at(r)<m?at(r):m,'9');
   const c=pool.filter(r=>at(r)===old),r=c[Math.floor(Math.random()*c.length)];
   S.testQ=t;
-  return {n:Tx("Max-Test: {0}",r.n),u:r.u,s:r.s,target:1,xp:45+Math.round(S.level*1.5),gold:25,weak:false,test:r.k};
+  return {n:Tx("Max-Test: {0}",r.n),u:r.u,s:r.s,target:1,xp:45+Math.round(S.level*1.5),gold:22,weak:false,test:r.k};
 }
 function agoTxt(at){if(!at)return '';const d=dayNum(dayKey())-dayNum(at);return d<=0?Tx("heute"):d===1?Tx("gestern"):Tx("vor {0} Tagen",d)}
 function testBody(keys){
@@ -3167,7 +3168,7 @@ function mkWeekly(wk){
   const f=e[1]==='km'?2.5:4;
   let t=tgtFor(k)*f*(1+S.level*0.01);
   t=e[1]==='km'?Math.max(3,Math.round(t*2)/2):nice(t);
-  return {id:uid(),name:Tx("Wochenziel: {0}",e[0]),target:t,unit:e[1],stat:e[2],xp:120+Math.round(S.level*3),gold:60,type:'weekly',rank:'E',cur:0,done:false,wk};
+  return {id:uid(),name:Tx("Wochenziel: {0}",e[0]),target:t,unit:e[1],stat:e[2],xp:120+Math.round(S.level*3),gold:54,type:'weekly',rank:'E',cur:0,done:false,wk};
 }
 /* Das System öffnet Gates, der Spieler kann keine mehr erstellen */
 function spawnGate(force){
@@ -5512,7 +5513,7 @@ function completeQuest(q){
       const y=prevActive();
       S.streak=(S.lastComplete===y)?S.streak+1:1;
       const p0=prestigeOf();S.lastComplete=dayKey();S.bestStreak=Math.max(S.bestStreak,S.streak);if(prestigeOf()>p0){const pz=PRESTIGE[prestigeOf()-1];modal({kind:'vio',title:Tx("Prestige"),body:Tx("{0}<div class=\"big stars\">{1}</div><p>{2}-Siegel: {3} Tage Serie am Stück</p><p class=\"dim\">Es steht jetzt neben deinem Namen, auch für deine Freunde.</p>",sealFx(prestigeOf()),'★'.repeat(prestigeOf()),pz.n,pz.d),btn:Tx("Stolz tragen")})}spCheck();
-      const bx=Math.min(100,30+S.streak*5),bg=20;
+      const bx=Math.min(100,30+S.streak*5),bg=18;
       S.gold+=bg;S.keys++;addEn(20);
       modal({pic:'daily',title:Tx("Tagesquest geschafft"),body:Tx("<div class=\"big\">{0} 🔥</div><p>Serie: {1} Tag{2} in Folge</p><p>Bonus: +{3} XP, +{4} G und ein Schlüssel</p>",S.streak,S.streak,S.streak>1?PLS('e'):'',bx,bg),btn:Tx("Weiter")});
       grantXP(bx);
@@ -5538,7 +5539,7 @@ function genSys(){
   const lm=P?({anf:.85,mid:1,adv:1.2})[P.level]||1:1;
   const target=t.b===1?1:Math.max(1,Math.round(t.b*lm*(1+lv*0.03)));
   S.sysLast=t.n;
-  return {n:t.n,u:t.u,s:t.s,target,xp:35+Math.round(lv*1.5),gold:20,weak:t.s===weakest};
+  return {n:t.n,u:t.u,s:t.s,target,xp:35+Math.round(lv*1.5),gold:18,weak:t.s===weakest};
 }
 
 /* ---------- v23h: Quests vom System ---------- */
@@ -5952,7 +5953,14 @@ function viewKalender(){
   return Tx("<section class=\"win\"><div class=\"sub\"><div><div class=\"lbl\">Verlauf</div><h2>Die letzten 12 Wochen</h2></div></div><div class=\"heat\" role=\"img\" aria-label=\"Kalender der letzten 12 Wochen\">{0}</div><div class=\"legend\"><span><i style=\"background:#2a1220;border:1px solid #ff546855\"></i>nichts</span><span><i style=\"background:#16337a\"></i>teilweise</span><span><i style=\"background:#2a6cd6\"></i>fast alles</span><span><i style=\"background:var(--ok)\"></i>alles</span><span>Spalten sind Wochen, Zeilen Mo bis So. Heute ist umrandet.</span></div></section><section class=\"win\"><div class=\"sub\"><div class=\"lbl\">Bilanz</div></div><div class=\"kv\"><div><span class=\"lbl\">Konstanz (30 Tage)</span><span class=\"num\">{1}</span></div><div><span class=\"lbl\">Serie</span><span class=\"num\">{2}</span></div><div><span class=\"lbl\">Beste Serie</span><span class=\"num\">{3}</span></div><div><span class=\"lbl\">Volle Tage</span><span class=\"num\">{4}</span></div><div><span class=\"lbl\">Quests gesamt</span><span class=\"num\">{5}</span></div><div><span class=\"lbl\">Kämpfe gewonnen</span><span class=\"num\">{6}</span></div></div></section>",cells,c.days?c.pct+' %':'–',S.streak,S.bestStreak,full,S.totalDone,S.wins);
 }
 function markLang(){document.querySelectorAll('[data-act=lang]').forEach(b=>b.classList.toggle('on',b.getAttribute('data-id')===LANG))}
+function goldMig(){
+  if(!S.started||S.gm===1)return;
+  S.gm=1;
+  (S.quests||[]).forEach(q=>{if(q&&q.type!=='dungeon'&&q.gold>0&&!q.done)q.gold=Math.round(q.gold*.9)});
+  save();
+}
 function render(){
+  goldMig();
   if(S.started&&checkAch())save();
   gearNoteCheck();
   renderHdr();renderTabs();renderWarn();
