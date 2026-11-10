@@ -401,6 +401,8 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:60
 .ob-lead{font-size:16.5px;line-height:1.5}
 .ob-sub{color:var(--dim);font-size:14.5px;margin:0 0 16px}
 .ob-note{color:var(--dim);font-size:13px;line-height:1.4;margin-top:8px}
+.plbare>div:first-child{margin-top:0!important;border-top:0!important;padding-top:0!important}
+#pllib .acts input[type=text],.plbare .acts input[type=text]{flex:1 1 160px;min-width:0}
 .ob-agree{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:12px;border:1px solid var(--line2);border-radius:12px;background:#ffffff08;cursor:pointer;font-size:14px;line-height:1.4}
 .ob-agree input{width:22px;height:22px;flex:0 0 22px;margin:1px 0 0}
 .ob-agree a{color:var(--glow)}
@@ -1301,7 +1303,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v43';
+const APP_V='v44';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -2508,10 +2510,159 @@ function histSection(){
   if(!lg.length)return Tx("{0}<div class=\"empty\">Noch keine Einheit protokolliert. Starte dein erstes Training.</div></section>",h);
   return h+lg.map(e=>{const [y,m,d]=e.d.split('-');return '<div class="item"><span class="nm">'+esc(e.n)+'<small class="dim" style="display:block;font-weight:400">'+WD[wdOf(e.d)]+', '+fmtDM(d,m)+'</small></span>'+(e.direct?Tx("<span class=\"chip\">abgehakt</span>"):Tx("<span class=\"chip\">{0} Sätze</span>{1}",e.sets,e.vol?'<span class="chip">'+e.vol+' kg</span>':''))+'<span class="chip xp">+'+e.xp+' XP</span></div>'}).join('')+'</section>';
 }
+
+/* ---------- v44: Trainingsplan teilen, Bibliothek ---------- */
+const PL_MAX=20;
+const hasOwn=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+const b64e=s=>{const u=new TextEncoder().encode(s);let b='';u.forEach(c=>{b+=String.fromCharCode(c)});return btoa(b).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
+const b64d=s=>{const b=atob(String(s).replace(/-/g,'+').replace(/_/g,'/')),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return new TextDecoder().decode(u)};
+const libL=()=>Array.isArray(S.lib)?S.lib:(S.lib=[]);
+const plClamp=(v,a,b,d)=>{v=Math.round(Number(v));return isFinite(v)?Math.max(a,Math.min(b,v)):d};
+let plIn=null,plAsk=null,plSh=null,plDelArm=null,plShown={f:'',p:''};
+function plDefName(){const k=dayKey();return Tx("Plan vom {0}",fmtDM(k.slice(8),k.slice(5,7)))}
+function planPack(tp,name){
+  const used=new Set(),st=tp.set||{};
+  const d=tp.days.map(x=>({t:x.t?1:0,f:String(x.f||''),n:String(x.n||'').slice(0,30),e:(x.ex||[]).filter(a=>exOf(a.e)).map(a=>{used.add(a.e);return [a.e,a.s,a.r]})}));
+  const c=(S.cx||[]).filter(e=>used.has(e.id)).map(e=>[e.id,e.n,e.c,e.q,e.m,e.s,e.r,e.cue||'']);
+  return b64e(JSON.stringify({v:1,w:String(name||'').slice(0,30),s:{p:st.place,q:st.eq,d:st.days,l:st.level,t:st.time,f:st.foc,m:st.mg,sp:st.split,vr:st.vr},d:d,c:c}));
+}
+function planCode(raw){
+  let c=String(raw||'').trim();
+  const m=c.match(/[?&]plan=([A-Za-z0-9_-]+)/);if(m)c=m[1];
+  c=c.replace(/\s+/g,'');
+  return /^[A-Za-z0-9_-]{20,12000}$/.test(c)?c:'';
+}
+function planUnpack(raw){
+  try{
+    const code=planCode(raw);if(!code)return null;
+    const o=JSON.parse(b64d(code));
+    if(!o||o.v!==1||!Array.isArray(o.d)||o.d.length!==7)return null;
+    const cx=[];
+    (Array.isArray(o.c)?o.c:[]).slice(0,40).forEach(a=>{
+      if(!Array.isArray(a))return;
+      const id=String(a[0]||'');
+      if(!/^c_[a-z0-9]{3,12}$/.test(id)||!hasOwn(CATN,a[2])||!hasOwn(EQN,a[3])||!hasOwn(MODE,a[4]))return;
+      cx.push({id:id,n:String(a[1]||'').slice(0,40)||Tx("Übung"),c:a[2],q:a[3],m:a[4],s:plClamp(a[5],1,10,1),r:plClamp(a[6],1,999,10),t:'o',x:[],cue:String(a[7]||'').slice(0,200),cx:1});
+    });
+    const cid=new Set(cx.map(e=>e.id));
+    const days=o.d.map(x=>{
+      x=x||{};
+      const ex=(Array.isArray(x.e)?x.e:[]).slice(0,10).filter(a=>Array.isArray(a)&&typeof a[0]==='string'&&(hasOwn(EXM,a[0])||cid.has(a[0]))).map(a=>({id:uid(),e:a[0],s:plClamp(a[1],1,10,3),r:plClamp(a[2],1,999,10)}));
+      return (ex.length&&x.t)?{t:1,f:(typeof x.f==='string'&&hasOwn(FOC,x.f))?x.f:'custom',n:String(x.n||Tx("Training")).slice(0,30),ex:ex}:restDay();
+    });
+    const nt=days.filter(isTrain).length;
+    if(!nt)return null;
+    const s=o.s||{};
+    const set={place:s.p==='gym'?'gym':'home',eq:(Array.isArray(s.q)?s.q:[]).filter(k=>k==='db'||k==='bar'||k==='bd').slice(0,3),days:Math.min(6,Math.max(2,nt)),level:['anf','mid','adv'].includes(s.l)?s.l:'anf',time:[15,30,45,60].includes(s.t)?s.t:45};
+    if(typeof s.f==='string'&&hasOwn(FOCN,s.f))set.foc=s.f;
+    if(Array.isArray(s.m))set.mg=s.m.filter(k=>typeof k==='string'&&/^[a-z_]{2,16}$/.test(k)).slice(0,12);
+    set.split=(typeof s.sp==='string'&&hasOwn(SPLITS,s.sp))?s.sp:'fb';
+    set.vr=plClamp(s.vr,0,9,0);
+    return {name:String(o.w||'').slice(0,30),set:set,days:days,cx:cx,nt:nt};
+  }catch(e){return null}
+}
+function planPrev(pl){
+  const nm={};pl.cx.forEach(e=>{nm[e.id]=e});
+  const eo=id=>hasOwn(EXM,id)?EXM[id]:nm[id];
+  const rest=pl.days.map((d,i)=>isTrain(d)?'':WD[i]).filter(Boolean);
+  let h=Tx("<div class=\"chips\" style=\"margin-bottom:8px\"><span class=\"chip\">{0} Trainingstage</span><span class=\"chip\">{1}</span></div><div class=\"plv\" style=\"max-height:44vh;overflow:auto;text-align:left\">",pl.nt,pl.set.place==='gym'?Tx("Studio"):Tx("Zu Hause"));
+  h+=pl.days.map((d,i)=>{
+    if(!isTrain(d))return '';
+    return '<div class="item"><span class="nm"><b>'+WDL[i]+' · '+esc(d.n)+'</b><small class="dim" style="display:block;font-weight:400">'+d.ex.map(x=>{const e=eo(x.e);return e?esc(e.n)+' '+esc(tgtTxt(e,x)):''}).filter(Boolean).join(', ')+'</small></span></div>';
+  }).join('');
+  h+='</div>';
+  if(rest.length)h+=Tx("<p class=\"dim\" style=\"font-size:13px;margin-top:6px\">Ruhetage: {0}</p>",rest.join(', '));
+  return h;
+}
+function plInDrop(){try{localStorage.removeItem('hunter-plan-in')}catch(e){}plIn=null}
+function plInModal(code,pl){
+  plIn={code:code,pl:pl};
+  const pr=premOn();
+  modal({title:Tx("Trainingsplan erhalten"),nobtn:true,body:
+    (pl.name?'<p style="margin-bottom:6px"><b>'+esc(pl.name)+'</b></p>':'')+planPrev(pl)+
+    (pr?Tx("<div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ok\" data-act=\"pl-in-use\">Als meinen Plan übernehmen</button><button class=\"btn\" data-act=\"pl-in-save\">In Meine Pläne speichern</button><button class=\"btn ghost\" data-act=\"pl-in-close\">Schließen</button></div>")
+     :Tx("<p class=\"dim\" style=\"font-size:13.5px;margin-top:10px\">Ansehen ist gratis. Zum Übernehmen und Speichern brauchst du Premium.</p><div class=\"acts\" style=\"margin-top:10px\">{0}<button class=\"btn vio\" data-act=\"pl-in-prem\">Premium ansehen</button><button class=\"btn ghost\" data-act=\"pl-in-close\">Schließen</button></div>",premTrialOk()?Tx("<button class=\"btn ok\" data-act=\"prem-trial\">{0} Tage gratis testen</button>",PREM_DAYS):''))});
+}
+function planInCheck(){
+  let code='';try{code=localStorage.getItem('hunter-plan-in')||''}catch(e){}
+  if(!code||!S.started||modalOpen||sesOn||document.getElementById('onb'))return;
+  const k=premOn()?'p':'f';
+  if(plShown[k]===code)return;
+  plShown[k]=code;
+  const pl=planUnpack(code);
+  if(!pl){plInDrop();toast(Tx("Dieser Plan-Link ist ungültig"));return}
+  plInModal(code,pl);
+}
+function libSave(name,code){
+  const L=libL();
+  if(L.length>=PL_MAX){toast(Tx("Höchstens {0} Pläne",PL_MAX));return false}
+  L.unshift({id:uid(),n:String(name||'').trim().slice(0,30)||plDefName(),at:dayKey(),p:code});
+  save();return true;
+}
+function planApply(pl){
+  if(!Array.isArray(S.cx))S.cx=[];
+  const map={};let room=40-S.cx.length;
+  pl.cx.forEach(e=>{
+    const ex=S.cx.find(x=>x.id===e.id);
+    if(ex&&ex.n===e.n&&ex.c===e.c&&ex.m===e.m)return;
+    if(room<=0){map[e.id]=null;return}
+    const ne=Object.assign({},e);
+    if(ex)ne.id='c_'+uid();
+    S.cx.push(ne);room--;map[e.id]=ne.id;
+  });
+  const days=pl.days.map(d=>{
+    if(!isTrain(d))return restDay();
+    const ex=d.ex.map(x=>{const m=map[x.e];if(m===null)return null;return Object.assign({},x,{id:uid(),e:m||x.e})}).filter(Boolean);
+    return ex.length?Object.assign({},d,{ex:ex}):restDay();
+  });
+  S.tp={v:1,set:pl.set,days:days,at:dayKey()};
+  S.tpHide=false;tpd=null;tpArm=null;tpSetOpen=false;tpOpenEx=null;tpFocus=false;tpDay=wdToday();
+  syncTraining();save();
+  try{remSchedule(true)}catch(e){}
+}
+function plGo(pl,keep){
+  if(S.ses&&S.ses.ex&&S.ses.ex.some(x=>x.sets.some(a=>a.d))){toast(Tx("Beende zuerst dein laufendes Training"));return false}
+  if(keep&&S.tp&&S.tp.days.some(isTrain))libSave(plDefName(),planPack(S.tp,plDefName()));
+  S.ses=null;sesOn=false;sesRender();
+  planApply(pl);
+  toast(Tx("Plan übernommen"));
+  return true;
+}
+function plUse(pl){
+  if(!premOn()){modal({kind:'vio',title:Tx("Premium"),body:usePaywall()?paywallBody('plan'):premModalBody('plan'),nobtn:true});return}
+  if(!(S.tp&&S.tp.days&&S.tp.days.some(isTrain))){if(plGo(pl,false)){plInDrop();render()}return}
+  plAsk=pl;
+  modal({title:Tx("Aktuellen Plan ersetzen?"),nobtn:true,body:Tx("<p>Dein aktueller Plan wird durch den neuen ersetzt. Gewichte, Bestwerte und Verlauf bleiben erhalten.</p><div class=\"acts\" style=\"margin-top:12px\">{0}<button class=\"btn warn\" data-act=\"pl-go\" data-id=\"rep\">Nur ersetzen</button><button class=\"btn ghost\" data-act=\"modal-ok\">Abbrechen</button></div>",libL().length<PL_MAX?Tx("<button class=\"btn ok\" data-act=\"pl-go\" data-id=\"keep\">Aktuellen Plan sichern und ersetzen</button>"):'')});
+}
+function copyTxt(t,msg){
+  const tmp=document.createElement('textarea');tmp.value=t;tmp.style.position='fixed';tmp.style.opacity='0';document.body.appendChild(tmp);
+  const done=()=>{tmp.remove();toast(msg)};
+  try{navigator.clipboard.writeText(t).then(done,()=>{tmp.select();try{document.execCommand('copy')}catch(x){}done()})}catch(x){tmp.select();try{document.execCommand('copy')}catch(y){}done()}
+}
+function plShare(code,name){
+  plSh={code:code,name:name};
+  modal({title:Tx("Plan teilen"),nobtn:true,body:Tx("<p style=\"margin-bottom:8px\">Dein Freund kann den Plan gratis ansehen. Zum Übernehmen braucht er Premium.</p><div class=\"acts\"><button class=\"btn ok\" data-act=\"pl-send\">Link senden</button><button class=\"btn\" data-act=\"pl-copyl\">Link kopieren</button><button class=\"btn ghost\" data-act=\"pl-copyc\">Nur Code kopieren</button></div><p class=\"dim\" style=\"font-size:13px;margin-top:10px\">Der Link öffnet sich im Browser. Wer die App schon auf dem Home-Bildschirm hat, fügt den Code unter Training > Meine Pläne ein.</p><div class=\"acts\" style=\"margin-top:8px\"><button class=\"btn ghost\" data-act=\"modal-ok\">Schließen</button></div>")});
+}
+function plPasteRow(){
+  return Tx("<div style=\"margin-top:14px;border-top:1px solid var(--line);padding-top:12px\"><div class=\"lbl\" style=\"margin-bottom:6px\">Plan von einem Freund?</div><div class=\"acts\"><input type=\"text\" id=\"pl-code\" maxlength=\"12000\" placeholder=\"Code oder Link einfügen\" autocomplete=\"off\" aria-label=\"Plan-Code\"><button class=\"btn ghost\" data-act=\"pl-paste\">Ansehen</button></div></div>");
+}
+function planLibSec(){
+  const L=libL(),has=!!(S.tp&&S.tp.days&&S.tp.days.some(isTrain));
+  let h=Tx("<section class=\"win\" id=\"pllib\"><div class=\"sub\"><div><div class=\"lbl\">Bibliothek</div><h2>Meine Pläne</h2></div><span class=\"qp\">{0} / {1}</span></div><p class=\"dim\" style=\"font-size:13.5px;margin-bottom:10px\">Speichere Pläne, teile sie mit Freunden oder spiele sie später wieder ab. Gewichte und Bestwerte bleiben erhalten.</p>",L.length,PL_MAX);
+  if(has)h+=Tx("<div class=\"acts\"><input type=\"text\" id=\"pl-name\" maxlength=\"30\" placeholder=\"Name des Plans\" autocomplete=\"off\" aria-label=\"Name des Plans\"><button class=\"btn\" data-act=\"pl-save\">Aktuellen Plan speichern</button><button class=\"btn ghost\" data-act=\"pl-share\" data-id=\"cur\">Aktuellen Plan teilen</button></div>");
+  if(L.length){
+    h+=L.map(x=>{
+      const pl=planUnpack(x.p),k=String(x.at||'');
+      const meta=pl?Tx("{0} Trainingstage · {1}",pl.nt,k.length===10?fmtDM(k.slice(8),k.slice(5,7)):''):Tx("Beschädigt");
+      return '<div class="item" style="margin-top:8px"><span class="nm">'+esc(x.n)+'<small class="dim" style="display:block;font-weight:400">'+esc(meta)+'</small></span></div><div class="acts" style="margin:4px 0 2px">'+(pl?Tx("<button class=\"btn ok sm\" data-act=\"pl-act\" data-id=\"{0}\">Aktivieren</button><button class=\"btn ghost sm\" data-act=\"pl-share\" data-id=\"{1}\">Teilen</button>",esc(x.id),esc(x.id)):'')+'<button class="btn '+(plDelArm===x.id?'bad':'ghost')+' sm" data-act="pl-del" data-id="'+esc(x.id)+'">'+(plDelArm===x.id?Tx("Sicher? Löschen"):Tx("Löschen"))+'</button></div>';
+    }).join('');
+  }else h+=Tx("<div class=\"empty\">Noch kein Plan gespeichert.</div>");
+  return h+plPasteRow()+'</section>';
+}
 function viewPlan(){
-  if(!premOn())return lockView('plan');
-  if(!S.tp)return planIntro();
-  return gymCard()+weekStrip()+dayEditor()+planSettings()+remSection()+histSection()+healthNote();
+  if(!premOn())return lockView('plan')+'<section class="win plbare">'+plPasteRow()+'</section>';
+  if(!S.tp)return planIntro()+planLibSec();
+  return gymCard()+weekStrip()+dayEditor()+planSettings()+planLibSec()+remSection()+histSection()+healthNote();
 }
 
 /* ---------- Übungswahl ---------- */
@@ -5368,6 +5519,8 @@ let S=defaults();
 try{const raw=localStorage.getItem(KEY)||localStorage.getItem('hunter-system-v1');if(raw)S=Object.assign(defaults(),JSON.parse(raw));migrate()}catch(e){}
 let authResolve=null,acct={guest:true,email:''},onlineErr='',sb=null,online=false,myId=null,samp=null,sampImg=false,lastSig='',lastDuelMax=0,showAll=false;
 const pendingAdd=(()=>{try{return (new URLSearchParams(location.search).get('add')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8)}catch(e){return ''}})();
+(function(){try{const u=new URLSearchParams(location.search),c=(u.get('plan')||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,12000);
+  if(c){try{localStorage.setItem('hunter-plan-in',c)}catch(e){}u.delete('plan');const q=u.toString();try{history.replaceState(null,'',location.pathname+(q?'?'+q:''))}catch(e){}}}catch(e){}})();
 let dirty=false,writing=false,tmr=null,lastCard='';
 let peers=[],peersLoaded=false,unsubPeers=null;
 let duelsIn=[],unsubDuels=null,firstDuel=true,arenaSince=0;
@@ -6375,6 +6528,47 @@ document.addEventListener('click',e=>{
       S.rem={t:v,on:1};save();
       remSchedule(true).then(r=>{if(r==='ok')toast(Tx("Erinnerung ist eingeschaltet"));else if(r==='none')toast(Tx("Dein Plan hat keinen Trainingstag"));else if(r==='denied'){S.rem.on=0;save();render();toast(Tx("Benachrichtigungen sind in den Einstellungen deines Geräts ausgeschaltet"))}else toast(Tx("Das hat nicht geklappt"))});render();return}
     case 'rem-off':S.rem=Object.assign({},S.rem,{on:0});save();remOff();toast(Tx("Erinnerung ausgeschaltet"));break;
+    case 'pl-save':{
+      if(!(S.tp&&S.tp.days.some(isTrain))){toast(Tx("Dein Plan hat keinen Trainingstag"));return}
+      const nm=((document.getElementById('pl-name')||{}).value||'').trim().slice(0,30)||plDefName();
+      if(libSave(nm,planPack(S.tp,nm))){plDelArm=null;toast(Tx("In Meine Pläne gespeichert"));render()}
+      return}
+    case 'pl-share':{
+      if(id==='cur'){
+        if(!(S.tp&&S.tp.days.some(isTrain))){toast(Tx("Dein Plan hat keinen Trainingstag"));return}
+        const nm=((document.getElementById('pl-name')||{}).value||'').trim().slice(0,30)||plDefName();
+        plShare(planPack(S.tp,nm),nm);return}
+      const x=libL().find(y=>y.id===id);if(!x)return;
+      plShare(x.p,x.n);return}
+    case 'pl-send':{
+      if(!plSh)return;
+      const link=webBase()+'?plan='+plSh.code,txt=Tx("Mein Trainingsplan «{0}» aus Step Up: SOLO. Öffne den Link, um ihn anzusehen.",plSh.name);
+      if(navigator.share){navigator.share({title:'Step Up: SOLO',text:txt,url:link}).catch(()=>{});return}
+      copyTxt(txt+'\n'+link,Tx("Link kopiert"));return}
+    case 'pl-copyl':{if(plSh)copyTxt(webBase()+'?plan='+plSh.code,Tx("Link kopiert"));return}
+    case 'pl-copyc':{if(plSh)copyTxt(plSh.code,Tx("Code kopiert"));return}
+    case 'pl-act':{
+      const x=libL().find(y=>y.id===id),pl=x&&planUnpack(x.p);
+      if(!pl){toast(Tx("Dieser Plan ist beschädigt"));return}
+      plUse(pl);return}
+    case 'pl-go':{
+      const pl=plAsk;plAsk=null;nextModal();
+      if(pl&&plGo(pl,id==='keep'))plInDrop();
+      render();return}
+    case 'pl-del':{
+      if(plDelArm!==id){plDelArm=id;break}
+      S.lib=libL().filter(y=>y.id!==id);plDelArm=null;save();toast(Tx("Plan gelöscht"));break}
+    case 'pl-paste':{
+      const raw=(document.getElementById('pl-code')||{}).value||'',pl=planUnpack(raw);
+      if(!pl){toast(Tx("Der Code ist ungültig"));return}
+      plInModal(planCode(raw),pl);return}
+    case 'pl-in-use':{const pl=plIn&&plIn.pl;nextModal();if(pl)plUse(pl);return}
+    case 'pl-in-save':{
+      if(!plIn)return;
+      if(libSave(plIn.pl.name,plIn.code)){plInDrop();nextModal();toast(Tx("In Meine Pläne gespeichert"));render()}
+      return}
+    case 'pl-in-close':plInDrop();nextModal();render();return;
+    case 'pl-in-prem':nextModal();modal({kind:'vio',title:Tx("Premium"),body:usePaywall()?paywallBody('plan'):premModalBody('plan'),nobtn:true});return;
     case 'acc-upgrade':upgradeAccount();return;
     case 'acc-out':signOutNow();return;
     case 'acc-del':accDelModal();return;
@@ -6683,7 +6877,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Vorbereitung für die App-Version:</b> Kaufbildschirm mit Preisen aus dem Store, Erinnerungen als Benachrichtigung und Vibration auch auf dem iPhone</li><li><b>Melden und Blockieren:</b> Im Profil eines Spielers kannst du ihn melden oder blockieren. Blockierte Spieler siehst du nicht mehr</li><li><b>Nutzungsbedingungen:</b> Neue Spieler stimmen im Willkommensbildschirm zu, bestehende einmalig in einem Fenster. Der Text steht unter Status > Konto</li><li><b>Koreanisch:</b> Die App gibt es jetzt auch auf Koreanisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Pläne teilen:</b> Teile deinen Trainingsplan per Link mit Freunden. Sie sehen ihn gratis und übernehmen ihn mit Premium. Unter Training > Meine Pläne speicherst du Pläne und spielst sie später wieder ab</li><li><b>Vorbereitung für die App-Version:</b> Kaufbildschirm mit Preisen aus dem Store, Erinnerungen als Benachrichtigung und Vibration auch auf dem iPhone</li><li><b>Melden und Blockieren:</b> Im Profil eines Spielers kannst du ihn melden oder blockieren. Blockierte Spieler siehst du nicht mehr</li><li><b>Nutzungsbedingungen:</b> Neue Spieler stimmen im Willkommensbildschirm zu, bestehende einmalig in einem Fenster. Der Text steht unter Status > Konto</li><li><b>Koreanisch:</b> Die App gibt es jetzt auch auf Koreanisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 if(S.started&&!S.terms&&!navigator.webdriver&&!window.__noTermsAsk){
   modal({title:Tx("Nutzungsbedingungen"),nobtn:true,body:Tx("<p>Wir haben Nutzungsbedingungen ergänzt. Sie regeln unter anderem Verhalten in der Arena, Premium und Haftung. Bitte lies sie und stimme zu, um weiterzuspielen.</p><p style=\"margin:10px 0\"><a href=\"{0}\" target=\"_blank\" rel=\"noopener\">Nutzungsbedingungen lesen</a></p><div class=\"btnrow\"><button class=\"btn ok\" data-act=\"terms-ok\">Akzeptieren</button></div>",termsHref())});
@@ -6692,6 +6886,7 @@ render();
 if(!S.started&&!(SUPABASE_URL&&SUPABASE_KEY))showIntro();
 initRemote();
 if(S.started){setTimeout(()=>{billSync();remSchedule(false)},600);document.addEventListener('visibilitychange',()=>{if(!document.hidden){billSync();remSchedule(false)}})}
+setTimeout(planInCheck,700);setInterval(planInCheck,2000);
 })();
 </script>
 </body>
