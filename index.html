@@ -1309,7 +1309,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v48';
+const APP_V='v49';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -1441,9 +1441,9 @@ function migrate(){
     if(g>0){S.gold=(S.gold||0)+g;S.gearNote=g}
     delete S.gear;delete S.bag;
     S.v=16;ch=true}
-  if(S.xk!==2){
-    const L0=Math.max(1,Math.floor(Number(S.level))||1),o0=Math.round((100+(L0-1)*50)*2.5),n0=need(L0);
-    S.xp=Math.max(0,Math.round((Number(S.xp)||0)*n0/o0));S.xk=2;ch=true}
+  if(S.xk!==3){
+    const L0=Math.max(1,Math.floor(Number(S.level))||1),o0=Math.round((100+(L0-1)*50)*(S.xk===2?1.1:2.5)),n0=need(L0);
+    S.xp=Math.max(0,Math.round((Number(S.xp)||0)*n0/o0));S.xk=3;ch=true}
   if(S.xe!==1){
     const CHQ={wadenheben:'db',step_up:'db',russian:'db',schraegbank:'bb'};
     if(S.tp&&Array.isArray(S.tp.days)){
@@ -2494,7 +2494,7 @@ function exRow(x,i,n){
   const stp=({kg:1,bw:1,sec:5,min:5,km:1})[e.m];
   let h='<div class="tx'+(open?' open':'')+'"><button type="button" class="th" data-act="tp-ex" data-id="'+x.id+'" aria-expanded="'+open+'">'+exThumb(e,46)+'<span class="tm"><b>'+esc(e.n)+'</b><small>'+tgtTxt(e,x)+(L&&L.w?Tx(" · zuletzt {0} kg",fmtW(L.w)):'')+'</small></span><span class="chev" aria-hidden="true">'+(open?'▴':'▾')+'</span></button>';
   if(open){
-    h+=Tx("<div class=\"tp-ed\">{0}{1}{2}<div class=\"chips\" style=\"margin-bottom:8px\"><span class=\"chip\">{3}</span><span class=\"chip\">{4} {5}</span></div><div class=\"steps\">{6}<div class=\"step\"><span>{7}</span><button type=\"button\" data-act=\"tp-step\" data-id=\"{8}|r|-{9}\" aria-label=\"Weniger\">−</button><b>{10}</b><button type=\"button\" data-act=\"tp-step\" data-id=\"{11}|r|{12}\" aria-label=\"Mehr\">+</button></div></div>{13}<div class=\"tp-acts\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"tp-mv\" data-id=\"{14}|-1\"{15} aria-label=\"Nach oben\">↑</button><button type=\"button\" class=\"btn ghost sm\" data-act=\"tp-mv\" data-id=\"{16}|1\"{17} aria-label=\"Nach unten\">↓</button><button type=\"button\" class=\"btn sm\" data-act=\"tp-rep\" data-id=\"{18}\">Ersetzen</button><button type=\"button\" class=\"btn bad sm\" data-act=\"tp-del\" data-id=\"{19}\">Entfernen</button></div></div>",exBig(e),e.cue?'<p class="cue">'+esc(e.cue)+'</p>':'',L&&L.s&&L.s.length?Tx("<p class=\"last\">Letztes Mal: {0}</p>",e.m==='kg'?L.s.map(a=>a[0]>0?fmtW(a[0])+' kg × '+a[1]:Tx("{0} Wdh.",a[1])).join(', '):L.s.map(a=>a[1]).join(', ')+' '+unitOf(e)):'',CATN[e.c],gico(EQN[e.q][1],18),EQN[e.q][0],e.m==='min'||e.m==='km'?'':Tx("<div class=\"step\"><span>Sätze</span><button type=\"button\" data-act=\"tp-step\" data-id=\"{0}|s|-1\" aria-label=\"Weniger Sätze\">−</button><b>{1}</b><button type=\"button\" data-act=\"tp-step\" data-id=\"{2}|s|1\" aria-label=\"Mehr Sätze\">+</button></div>",x.id,x.s,x.id),e.m==='sec'?Tx("Sekunden"):e.m==='min'?Tx("Minuten"):e.m==='km'?Tx("Kilometer"):'Wdh.',x.id,stp,x.r,x.id,stp,exSeries(e.id).length>1?Tx("<div class=\"acts\" style=\"margin:0 0 8px\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"ex-curve\" data-id=\"{0}\">Kurve ansehen</button></div>",e.id):'',x.id,i===0?' disabled':'',x.id,i===n-1?' disabled':'',x.id,x.id);
+    h+=Tx("<div class=\"tp-ed\">{0}{1}{2}<div class=\"chips\" style=\"margin-bottom:8px\"><span class=\"chip\">{3}</span><span class=\"chip\">{4} {5}</span></div><div class=\"steps\">{6}<div class=\"step\"><span>{7}</span><button type=\"button\" data-act=\"tp-step\" data-id=\"{8}|r|-{9}\" aria-label=\"Weniger\">−</button><b>{10}</b><button type=\"button\" data-act=\"tp-step\" data-id=\"{11}|r|{12}\" aria-label=\"Mehr\">+</button></div></div>{13}{14}<div class=\"tp-acts\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"tp-mv\" data-id=\"{15}|-1\"{16} aria-label=\"Nach oben\">↑</button><button type=\"button\" class=\"btn ghost sm\" data-act=\"tp-mv\" data-id=\"{17}|1\"{18} aria-label=\"Nach unten\">↓</button><button type=\"button\" class=\"btn sm\" data-act=\"tp-rep\" data-id=\"{19}\">Ersetzen</button><button type=\"button\" class=\"btn bad sm\" data-act=\"tp-del\" data-id=\"{20}\">Entfernen</button></div></div>",exBig(e),e.cue?'<p class="cue">'+esc(e.cue)+'</p>':'',L&&L.s&&L.s.length?Tx("<p class=\"last\">Letztes Mal: {0}</p>",e.m==='kg'?L.s.map(a=>a[0]>0?fmtW(a[0])+' kg × '+a[1]:Tx("{0} Wdh.",a[1])).join(', '):L.s.map(a=>a[1]).join(', ')+' '+unitOf(e)):'',CATN[e.c],gico(EQN[e.q][1],18),EQN[e.q][0],e.m==='min'||e.m==='km'?'':Tx("<div class=\"step\"><span>Sätze</span><button type=\"button\" data-act=\"tp-step\" data-id=\"{0}|s|-1\" aria-label=\"Weniger Sätze\">−</button><b>{1}</b><button type=\"button\" data-act=\"tp-step\" data-id=\"{2}|s|1\" aria-label=\"Mehr Sätze\">+</button></div>",x.id,x.s,x.id),e.m==='sec'?Tx("Sekunden"):e.m==='min'?Tx("Minuten"):e.m==='km'?Tx("Kilometer"):'Wdh.',x.id,stp,x.r,x.id,stp,exSeries(e.id).length>1?Tx("<div class=\"acts\" style=\"margin:0 0 8px\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"ex-curve\" data-id=\"{0}\">Kurve ansehen</button></div>",e.id):'',String(e.id).indexOf('c_')===0?Tx("<div class=\"acts\" style=\"margin:0 0 8px\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"cx-mu\" data-id=\"{0}\">Muskeln wählen</button></div>",e.id):'',x.id,i===0?' disabled':'',x.id,i===n-1?' disabled':'',x.id,x.id);
   }
   return h+'</div>';
 }
@@ -2542,7 +2542,7 @@ function plDefName(){const k=dayKey();return Tx("Plan vom {0}",fmtDM(k.slice(8),
 function planPack(tp,name){
   const used=new Set(),st=tp.set||{};
   const d=tp.days.map(x=>({t:x.t?1:0,f:String(x.f||''),n:String(x.n||'').slice(0,30),e:(x.ex||[]).filter(a=>exOf(a.e)).map(a=>{used.add(a.e);return [a.e,a.s,a.r]})}));
-  const c=(S.cx||[]).filter(e=>used.has(e.id)).map(e=>[e.id,e.n,e.c,e.q,e.m,e.s,e.r,e.cue||'']);
+  const c=(S.cx||[]).filter(e=>used.has(e.id)).map(e=>[e.id,e.n,e.c,e.q,e.m,e.s,e.r,e.cue||'',typeof e.mu==='string'?e.mu:null]);
   return b64e(JSON.stringify({v:1,w:String(name||'').slice(0,30),s:{p:st.place,q:st.eq,d:st.days,l:st.level,t:st.time,f:st.foc,m:st.mg,sp:st.split,vr:st.vr},d:d,c:c}));
 }
 function planCode(raw){
@@ -2561,7 +2561,7 @@ function planUnpack(raw){
       if(!Array.isArray(a))return;
       const id=String(a[0]||'');
       if(!/^c_[a-z0-9]{3,12}$/.test(id)||!hasOwn(CATN,a[2])||!hasOwn(EQN,a[3])||!hasOwn(MODE,a[4]))return;
-      cx.push({id:id,n:String(a[1]||'').slice(0,40)||Tx("Übung"),c:a[2],q:a[3],m:a[4],s:plClamp(a[5],1,10,1),r:plClamp(a[6],1,999,10),t:'o',x:[],cue:String(a[7]||'').slice(0,200),cx:1});
+      cx.push(Object.assign({id:id,n:String(a[1]||'').slice(0,40)||Tx("Übung"),c:a[2],q:a[3],m:a[4],s:plClamp(a[5],1,10,1),r:plClamp(a[6],1,999,10),t:'o',x:[],cue:String(a[7]||'').slice(0,200),cx:1},(muClean(a[8])!==null&&a[8]!=null?{mu:muClean(a[8])}:{})));
     });
     const cid=new Set(cx.map(e=>e.id));
     const days=o.d.map(x=>{
@@ -2678,6 +2678,37 @@ function planLibSec(){
   }else h+=Tx("<div class=\"empty\">Noch kein Plan gespeichert.</div>");
   return h+plPasteRow()+'</section>';
 }
+
+function muClean(s){
+  if(typeof s!=='string')return null;
+  if(s==='')return '';
+  const o=[],seen={};
+  const a=s.split(',');
+  if(a.length>3)return null;
+  for(let i=0;i<a.length;i++){const q=a[i].split(':'),k=q[0],w=q[1];if(!hasOwn(MU,k)||seen[k]||(w!=='1'&&w!=='.5'))return null;if(i===0&&w!=='1')return null;if(i>0&&w!=='.5')return null;seen[k]=1;o.push(k+':'+w)}
+  return o.join(',');
+}
+function muSel(id,val,none){
+  return '<select id="'+id+'"><option value="">'+none+'</option>'+Object.keys(MU).map(k=>'<option value="'+k+'"'+(val===k?' selected':'')+'>'+MU[k]+'</option>').join('')+'</select>';
+}
+function muFields(p,cur){
+  const a=muClean(cur)?String(cur).split(',').map(x=>x.split(':')[0]):[];
+  return Tx("<label class=\"f\">Hauptmuskel{0}</label><label class=\"f\">Nebenmuskel{1}</label><label class=\"f\">Weiterer Nebenmuskel{2}</label><p class=\"dim wide\" style=\"font-size:13px\">Der Hauptmuskel zählt voll, ein Nebenmuskel halb. Danach färbt die App im Verlauf den richtigen Muskel und zählt die Sätze pro Muskel.</p>",muSel(p+'0',a[0]||'',Tx("Automatisch (nach Kategorie)")),muSel(p+'1',a[1]||'',Tx("Keiner")),muSel(p+'2',a[2]||'',Tx("Keiner")));
+}
+function muRead(p){
+  const v=i=>((document.getElementById(p+i)||{}).value||'');
+  const m=v(0);
+  if(!m||!hasOwn(MU,m))return null;
+  const o=[m+':1'];
+  [v(1),v(2)].forEach(k=>{if(k&&hasOwn(MU,k)&&!o.some(x=>x.split(':')[0]===k))o.push(k+':.5')});
+  return o.join(',');
+}
+let muEd='';
+function muEdit(id){
+  const e=exOf(id);if(!e)return;
+  muEd=id;
+  modal({title:Tx("Muskeln der Übung"),nobtn:true,body:Tx("<p style=\"margin-bottom:8px\">{0}</p><div class=\"grid\">{1}</div><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ok\" data-act=\"cx-mu-save\">Speichern</button><button class=\"btn ghost\" data-act=\"modal-ok\">Abbrechen</button></div>",esc(e.n),muFields('cxmu',e.mu))});
+}
 function viewPlan(){
   if(!premOn())return lockView('plan')+'<section class="win plbare">'+plPasteRow()+'</section>';
   if(!S.tp)return planIntro()+planLibSec();
@@ -2700,6 +2731,7 @@ function pkRender(){
   const keep=el&&el.querySelector('.ov-body')?el.querySelector('.ov-body').scrollTop:0;
   if(!el){el=document.createElement('div');el.id='pk';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label',Tx("Übung wählen"));document.body.appendChild(el)}
   el.innerHTML=Tx("<div class=\"ov-top\"><div class=\"ov-brand\"><span>{0}</span><button type=\"button\" class=\"btn ghost sm\" data-act=\"pk-close\">Schließen</button></div></div><div class=\"ov-body\"><div class=\"ov-in\"><input type=\"text\" id=\"pk-q\" placeholder=\"Übung suchen\" autocomplete=\"off\" value=\"{1}\"><div class=\"pick\" style=\"margin:10px 0 6px\"><button type=\"button\" class=\"{2}\" data-act=\"pk-cat\" data-id=\"all\">Alle</button>{3}</div><button type=\"button\" class=\"tgl{4}\" data-act=\"pk-eq\" aria-pressed=\"{5}\"><i></i>Nur mein Equipment</button><div id=\"pk-list\">{6}</div>{7}</div></div>",pk.mode==='rep'?Tx("Übung ersetzen"):Tx("Übung hinzufügen"),esc(pk.q),pk.cat==='all'?'on':'',CATS.map(c=>'<button type="button" class="'+(pk.cat===c[0]?'on':'')+'" data-act="pk-cat" data-id="'+c[0]+'">'+c[1]+'</button>').join(''),pk.mine?' on':'',pk.mine,pkRows(),pk.nw?Tx("<div class=\"win\" style=\"margin-top:12px\"><div class=\"sub\"><h2>Eigene Übung</h2></div><div class=\"grid\"><label class=\"f wide\">Name<input type=\"text\" id=\"pkn\" maxlength=\"40\" placeholder=\"z. B. Boxsack\"></label><label class=\"f\">Kategorie<select id=\"pkc\">{0}</select></label><label class=\"f\">Messung<select id=\"pkm\">{1}</select></label></div><div class=\"acts\" style=\"margin-top:12px\"><button type=\"button\" class=\"btn ok\" data-act=\"pk-save\">Speichern und wählen</button><button type=\"button\" class=\"btn ghost\" data-act=\"pk-new\">Abbrechen</button></div></div>",CATS.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join(''),Object.keys(MODE).map(k=>'<option value="'+k+'">'+MODE[k].n+'</option>').join('')):Tx("<button type=\"button\" class=\"btn ghost\" style=\"margin-top:12px;width:100%\" data-act=\"pk-new\">Eigene Übung anlegen</button>"));
+  if(pk.nw){const g=el.querySelector('#pkm'),gr=g&&g.closest('.grid');if(gr)gr.insertAdjacentHTML('beforeend',muFields('pkmu',''))}
   const b=el.querySelector('.ov-body');if(b)b.scrollTop=keep;
 }
 function pkPick(id){
@@ -3545,7 +3577,7 @@ const esc=s=>Dx(String(s??'')).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 const clone=o=>JSON.parse(JSON.stringify(o));
 const clampN=(v,a,b,d)=>{v=Number(v);return Number.isFinite(v)?Math.min(b,Math.max(a,v)):d};
 const rnd=(a,b)=>a+Math.random()*(b-a);
-const XP_K=1.1,DG_XP=0.4;
+const XP_K=0.6,DG_XP=0.4;
 const need=l=>Math.round((100+(l-1)*50)*XP_K);
 const statNeed=v=>8+Math.floor(v/5);
 const rankIdx=l=>{let r=0;RANK_AT.forEach((v,i)=>{if(l>=v)r=i});return r};
@@ -3922,7 +3954,7 @@ MUX.handgelenk='unterarm:1';MUX.hang='unterarm:1,lat:.4,schulter:.2';MUX.farmer=
 MUX.yraise='trap:1,schulter:.5,uruecken:.5';MUX.tischrudern='lat:1,trap:.6,bizeps:.5';MUX.rdl_ein='hamstring:1,gesaess:.7,uruecken:.3';
 const MUC={brust:'brust:1,trizeps:.4',ruecken:'lat:1,bizeps:.4',beine:'quad:1,gesaess:.6',schultern:'schulter:1',arme:'bizeps:1,trizeps:.6',rumpf:'bauch:1',ausdauer:'quad:.5,wade:.5',beweglichkeit:''};
 function muW(e){
-  const s=e?(MUX[e.id]!=null?MUX[e.id]:MUC[e.c]):'',o={};
+  const s=e?(MUX[e.id]!=null?MUX[e.id]:(typeof e.mu==='string'?e.mu:MUC[e.c])):'',o={};
   if(s)s.split(',').forEach(p=>{const q=p.split(':');o[q[0]]=+q[1]});
   return o;
 }
@@ -6674,6 +6706,11 @@ document.addEventListener('click',e=>{
       d.ex=d.ex.filter(y=>y.id!==id);if(tpOpenEx===id)tpOpenEx=null;syncTraining();save();break;
     }
     case 'tp-add':pk={mode:'add',id:null,cat:'all',mine:true,q:'',nw:false};pkRender();break;
+    case 'cx-mu':{const e=exOf(id);if(!e||String(e.id).indexOf('c_')!==0)return;muEdit(e.id);return}
+    case 'cx-mu-save':{
+      const e=exOf(muEd);if(!e||String(e.id).indexOf('c_')!==0){nextModal();return}
+      const mu=muRead('cxmu');if(mu==null)delete e.mu;else e.mu=mu;
+      save();nextModal();render();toast(Tx("Muskeln gespeichert"));return}
     case 'tp-rep':{
       const d=S.tp&&S.tp.days[tpDay],x=d&&d.ex.find(y=>y.id===id),e=x&&exOf(x.e);
       pk={mode:'rep',id,cat:e?e.c:'all',mine:true,q:'',nw:false};pkRender();break;
@@ -6691,6 +6728,7 @@ document.addEventListener('click',e=>{
       const c=(document.getElementById('pkc')||{}).value,m=(document.getElementById('pkm')||{}).value;
       if(!CATN[c]||!MODE[m])return;
       const e={id:'c_'+uid(),n,c,q:'bw',m,s:(m==='kg'||m==='bw'||m==='sec')?3:1,r:({kg:10,bw:12,sec:30,min:10,km:3})[m],t:'i',x:[],cue:'',cx:1};
+      {const mu=muRead('pkmu');if(mu!=null)e.mu=mu}
       if(!Array.isArray(S.cx))S.cx=[];
       S.cx.push(e);
       if(!pkPick(e.id))return;
@@ -6896,7 +6934,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Bilder:</b> Neues Symbol für Abnehmen. Eigene Quests bekommen öfter das passende Bild, auch auf Koreanisch. Wo nichts passt, steht ein neutrales Bild</li><li><b>Korrekturen:</b> Eingabefelder zoomen im Rundgang nicht mehr. Übungsbilder passen zur Übung und zur Ausrüstung. Neues Symbol für das Ziel Abnehmen</li><li><b>Schneller aufsteigen:</b> Die Level kosten weniger Erfahrung. Dein Fortschritt im aktuellen Level bleibt anteilig gleich</li><li><b>Bedienung:</b> Größere Tippflächen für kleine Knöpfe, damit nichts danebengeht</li><li><b>Pläne teilen:</b> Teile deinen Trainingsplan per Link mit Freunden. Sie sehen ihn gratis und übernehmen ihn mit Premium. Unter Training > Meine Pläne speicherst du Pläne und spielst sie später wieder ab</li><li><b>Vorbereitung für die App-Version:</b> Kaufbildschirm mit Preisen aus dem Store, Erinnerungen als Benachrichtigung und Vibration auch auf dem iPhone</li><li><b>Melden und Blockieren:</b> Im Profil eines Spielers kannst du ihn melden oder blockieren. Blockierte Spieler siehst du nicht mehr</li><li><b>Nutzungsbedingungen:</b> Neue Spieler stimmen im Willkommensbildschirm zu, bestehende einmalig in einem Fenster. Der Text steht unter Status > Konto</li><li><b>Koreanisch:</b> Die App gibt es jetzt auch auf Koreanisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Eigene Übungen:</b> Du wählst einen Hauptmuskel und bis zu zwei Nebenmuskeln. So färbt der Verlauf den richtigen Muskel</li><li><b>Level:</b> Wer ein Jahr lang täglich dranbleibt, erreicht Level 70. Dein Fortschritt im aktuellen Level bleibt gleich</li><li><b>Bilder:</b> Neues Symbol für Abnehmen. Eigene Quests bekommen öfter das passende Bild, auch auf Koreanisch. Wo nichts passt, steht ein neutrales Bild</li><li><b>Korrekturen:</b> Eingabefelder zoomen im Rundgang nicht mehr. Übungsbilder passen zur Übung und zur Ausrüstung. Neues Symbol für das Ziel Abnehmen</li><li><b>Schneller aufsteigen:</b> Die Level kosten weniger Erfahrung. Dein Fortschritt im aktuellen Level bleibt anteilig gleich</li><li><b>Bedienung:</b> Größere Tippflächen für kleine Knöpfe, damit nichts danebengeht</li><li><b>Pläne teilen:</b> Teile deinen Trainingsplan per Link mit Freunden. Sie sehen ihn gratis und übernehmen ihn mit Premium. Unter Training > Meine Pläne speicherst du Pläne und spielst sie später wieder ab</li><li><b>Vorbereitung für die App-Version:</b> Kaufbildschirm mit Preisen aus dem Store, Erinnerungen als Benachrichtigung und Vibration auch auf dem iPhone</li><li><b>Melden und Blockieren:</b> Im Profil eines Spielers kannst du ihn melden oder blockieren. Blockierte Spieler siehst du nicht mehr</li><li><b>Nutzungsbedingungen:</b> Neue Spieler stimmen im Willkommensbildschirm zu, bestehende einmalig in einem Fenster. Der Text steht unter Status > Konto</li><li><b>Koreanisch:</b> Die App gibt es jetzt auch auf Koreanisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 if(S.started&&!S.terms&&!navigator.webdriver&&!window.__noTermsAsk){
   modal({title:Tx("Nutzungsbedingungen"),nobtn:true,body:Tx("<p>Wir haben Nutzungsbedingungen ergänzt. Sie regeln unter anderem Verhalten in der Arena, Premium und Haftung. Bitte lies sie und stimme zu, um weiterzuspielen.</p><p style=\"margin:10px 0\"><a href=\"{0}\" target=\"_blank\" rel=\"noopener\">Nutzungsbedingungen lesen</a></p><div class=\"btnrow\"><button class=\"btn ok\" data-act=\"terms-ok\">Akzeptieren</button></div>",termsHref())});
