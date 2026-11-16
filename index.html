@@ -546,7 +546,7 @@ label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:60
 .ov-foot .btn.ghost{flex:0 0 auto;padding:7px 14px;font-size:15px;letter-spacing:.03em}
 #pk,#ses{position:fixed;inset:0;z-index:46;display:flex;flex-direction:column;background:var(--bg);background-image:radial-gradient(700px 420px at 50% -8%,#1a2c7a66,transparent 70%),radial-gradient(520px 380px at 105% 105%,#3a1a7a44,transparent 70%)}
 #ses{z-index:47}
-#pk input[type=text],#pk select,#ses input[type=number]{background:#08122c;border:1px solid #2b6bff66;border-radius:10px;padding:10px 12px;font-size:16px;color:var(--fg);width:100%;min-height:44px}
+#pk input[type=text],#pk input[type=number],#pk select,#ses input[type=number]{background:#08122c;border:1px solid #2b6bff66;border-radius:10px;padding:10px 12px;font-size:16px;color:var(--fg);width:100%;min-height:44px}
 .pkr{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;margin-top:8px;text-align:left;color:var(--fg);min-width:0;flex-wrap:nowrap}
 .pkr:hover{border-color:var(--line2)}
 .pkr .chip{flex:none}
@@ -1104,6 +1104,38 @@ input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),
 #tour.zm .tb,#tour.zm .tring,#tour.zm .tarrow{display:none!important}
 .exbig.eqfb{object-fit:contain;background:#000}
 .gq.eqfb{object-fit:contain;background:#000}
+.win.gym .gbanner,.win.gym.rest .gbanner,.win.gym.done .gbanner{height:auto;min-height:164px;display:flex;flex-direction:column;justify-content:flex-end;padding-top:52px}
+.win.gym.rest .gbanner{min-height:124px}
+.win.gym.done .gbanner{min-height:96px}
+.win.gym .gbanner>img{position:absolute;inset:0;width:100%;height:100%}
+.win.gym .gbanner .gcap{position:relative;left:auto;right:auto;bottom:auto;margin:0 14px 10px}
+.dmu{display:flex;gap:12px;align-items:center;margin:8px 0 12px;padding:10px;border:1px solid var(--line);border-radius:14px;background:#070b1d}
+.dfig{display:flex;flex:none;width:56%;max-width:230px}
+.dfig svg{width:50%;flex:none}
+.dmt{flex:1;min-width:0}
+.dmt .lbl{margin:0 0 5px}
+.dmc{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.dfig .mu{cursor:default;pointer-events:none}
+.dfig .mu.d0 path{fill-opacity:0;stroke:#ffffff1a;stroke-width:1.5}
+.dfig .mu.d1{--mc:#4aa8ff}
+.dfig .mu.d2{--mc:#3dffb0}
+.dfig .mu.d2 path{filter:drop-shadow(0 0 6px #3dffb0)}
+.dtools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pkg{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;padding:11px 12px;background:#0b1233;border:1px solid var(--line2);border-radius:12px;color:var(--fg);font-family:var(--f-d);font-size:17px;letter-spacing:.04em;text-align:left;cursor:pointer}
+.pkg span{flex:1}
+.pkg small{font-family:var(--f-b);font-size:12.5px;color:var(--dim);letter-spacing:0}
+.pkg.on{border-color:var(--glow);background:#12306b}
+.pknew{margin-top:8px;width:100%}
+.cxf{margin-top:12px}
+.cxg{margin-top:14px}
+.cxg .lbl{display:block;margin-bottom:5px}
+.cxn{margin-top:14px}
+.mchips button.mn{border-color:#3dffb0;background:#0f3a35;box-shadow:0 0 10px #3dffb055}
+.mchips button.ms{border-color:#ffd23f;background:#3a3410;box-shadow:none}
+.cxf .pick button[disabled]{opacity:.5}
+.dcp .pick button small{font-size:11px}
+.dmu+.plv{max-height:30vh!important}
+#modal .dmu{margin:8px 0 4px;padding:8px}
 /* v37: Rundgang */
 #tour{position:fixed;inset:0;z-index:55;pointer-events:none}
 #tour[hidden]{display:none}
@@ -1309,7 +1341,7 @@ const CLS_K={'Krieger':'krieger','Dauerläufer':'dauerlaeufer','Schattenläufer'
 const gico=(f,sz)=>'<img class="gi" alt="" loading="lazy" src="img/'+f+'.webp"'+(sz?' style="--gs:'+sz+'px"':'')+' onerror="this.remove()">';
 const clsIco=(n,sz)=>CLS_K[n]?gico('class-'+CLS_K[n],sz):'';
 /* ---------- v23j: Verborgene Ränge S+ und S★ ---------- */
-const APP_V='v49';
+const APP_V='v50';
 const SPR=[{r:'S+',n:Tx("Herrscher"),d:100,c:'#ffd36b'},{r:'S★',n:Tx("Monster"),d:365,c:'#ff7ad9'}];
 const SP_TXT=[Tx("Hundert Tage ohne eine Lücke. Wenige erreichen die Schwelle, noch weniger treten hindurch. Das System erkennt dich als Herrscher an."),Tx("Ein ganzes Jahr, Tag für Tag. Das System kennt keinen Höheren. Du bist das Monster.")];
 const SEAL_C=['#d98c4a','#cfd8ff','#ffd36b','#7be7ff'];
@@ -2367,7 +2399,9 @@ const trainDays=()=>S.tp?S.tp.days.filter(isTrain).length:0;
 /* ---------- Ansichten ---------- */
 window.imgFb=function(el,src){el.onerror=function(){this.remove()};el.src=src};
 const FOCCAT=k=>({chest:'brust',back:'ruecken',delts:'schultern',arms:'arme',upper_b:'schultern',lower_b:'beine',push_b:'brust',pull_b:'ruecken',legs_b:'beine'})[k]||(k==='custom'?'rumpf':k==='cardio'?'ausdauer':k==='mobility'?'beweglichkeit':k==='push'?'brust':k==='pull'?'ruecken':k==='legs'||k==='lower'?'beine':k==='upper'?'schultern':'rumpf');
-const focThumb=(k,sz,cat)=>'<img class="gq" alt="" loading="lazy" src="img/foc-'+k+'-s.webp" style="--gs:'+(sz||44)+'px" onerror="imgFb(this,\'img/cat-'+(cat||FOCCAT(k))+'-s.webp\')">';
+const FOCIMG={push_b:'push',pull_b:'pull',legs_b:'legs',upper_b:'upper',lower_b:'lower',fb_c:'fb_b'};
+const fImg=k=>FOCIMG[k]||k;
+const focThumb=(k,sz,cat)=>'<img class="gq" alt="" loading="lazy" src="img/foc-'+fImg(k)+'-s.webp" style="--gs:'+(sz||44)+'px" onerror="imgFb(this,\'img/cat-'+(cat||FOCCAT(k))+'-s.webp\')">';
 /* ---------- Wochenranking ---------- */
 const WK_REW=[[60,1],[40,0],[25,0]];
 let wkTab='fr';
@@ -2434,14 +2468,15 @@ function wkSection(){
   return Tx("<section class=\"win gold\" id=\"wk-sec\"><div class=\"sub\"><div><div class=\"lbl\" style=\"color:var(--warn)\">Wochenranking</div><h2>Diese Woche</h2></div><span class=\"qp\">{0}</span></div><p class=\"dim\" style=\"font-size:13.5px;margin:6px 0 0\">Gezählt werden die XP, die du von Montag bis Sonntag verdienst. Am Montag fängt es bei null an. Plätze 1 bis 3 bekommen eine Belohnung (ab 100 XP und mindestens 3 Teilnehmern).</p>{1}{2}{3}{4}<label class=\"item\" style=\"cursor:pointer;margin-top:8px\"><input type=\"checkbox\" data-act=\"wkshare\" style=\"width:20px;height:20px\"{5}><span class=\"nm dim\" style=\"font-weight:400;font-size:14px\">Für andere im Wochenranking sichtbar</span></label></section>",left<=1?Tx("endet heute"):Tx("endet in {0} Tagen",left),seg,B.share?(pl?Tx("<p style=\"margin:0 0 6px\">Du bist auf Platz <b>{0}</b> von {1}.</p>",pl,cur.length):''):Tx("<p class=\"dim\" style=\"margin:0 0 6px\">Du bist im Ranking ausgeblendet.</p>"),rows.length&&rows.some(x=>!x.me)?rd:(rows.length?rd+'<div class="empty" style="margin-top:8px">'+emp+'</div>':'<div class="empty">'+emp+'</div>'),rs?Tx("<p class=\"dim\" style=\"font-size:13px;margin-top:10px\">Letzte Woche: {0}.</p>",rs.pl?Tx("Platz {0} von {1} ({2}), +{3} Gold{4}",rs.pl,rs.n,esc(rs.b),rs.g,rs.key?Tx(" und +{0} Schlüssel",rs.key):''):Tx("keine Platzierung unter den ersten drei")):'',B.share?' checked':'');
 }
 const exCx=e=>String(e.id).indexOf('c_')===0;
-const exEq=e=>e.m==='kg'?'img/eq-dumbbell.webp':'img/eq-body.webp';
+const EQIMG={bw:'img/eq-body.webp',db:'img/eq-dumbbell.webp',bb:'img/eq-barbell.webp',bar:'img/eq-bar.webp',mc:'img/eq-machine.webp',bd:'img/eq-band.webp'};
+const exEq=e=>EQIMG[e.q]||EQIMG.bw;
 const exThumb=(e,sz)=>exCx(e)?'<img class="gq eqfb" alt="" loading="lazy" src="'+exEq(e)+'" style="--gs:'+(sz||44)+'px" onerror="this.remove()">':'<img class="gq" alt="" loading="lazy" src="img/ex-'+e.id+'-s.webp" style="--gs:'+(sz||44)+'px" onerror="this.remove()">';
 const exBig=e=>exCx(e)?'<img class="exbig eqfb" alt="" loading="lazy" src="'+exEq(e)+'" onerror="this.remove()">':'<img class="exbig" alt="" loading="lazy" src="img/ex-'+e.id+'.webp" onerror="this.remove()">';
 const dayFoc=d=>d&&d.t&&d.f&&FOC[d.f]?d.f:null;
 const dayThumb=(d,sz)=>dayFoc(d)?focThumb(dayFoc(d),sz,mainCat(d)):catThumb(mainCat(d),sz);
 const catThumb=(c,sz)=>'<img class="gq" alt="" loading="lazy" src="img/cat-'+c+'-s.webp" style="--gs:'+(sz||44)+'px" onerror="this.remove()">';
 const tgtTxt=(e,x)=>(e.m==='min'||e.m==='km')?x.r+' '+unitOf(e):x.s+' × '+x.r+' '+unitOf(e);
-function gymCard(){
+function gymCard0(){
   if(!premOn())return '';
   if(!S.tp)return Tx("<section id=\"gymc\" class=\"win gym\"><div class=\"gbanner\"><img alt=\"\" src=\"img/ui-plan.webp\" onerror=\"this.remove()\"><span class=\"gtag\">GYM</span><div class=\"gcap\"><div class=\"gt\">Trainingsplan</div><div class=\"gs\">Übungen, Sätze und Ruhetage</div></div></div><p class=\"gx\">Lass dir einen Wochenplan erstellen. An jedem Trainingstag erscheint hier deine GYM-Quest.</p><div class=\"acts\"><button class=\"btn\" data-act=\"tp-quick\">Plan erstellen</button><button class=\"btn ghost\" data-act=\"go-plan\">Anpassen</button></div></section>");
   const t=wdToday(),d=S.tp.days[t],q=S.quests.find(x=>x.type==='gym'&&x.day===dayKey());
@@ -2451,7 +2486,7 @@ function gymCard(){
   }
   const st=dayStats(d),cat=mainCat(d),done=q&&q.done,S0=S.ses&&!S.ses.kind&&S.ses.day===dayKey()?S.ses:null;
   const names=d.ex.map(x=>{const e=exOf(x.e);return e?esc(e.n):''}).filter(Boolean);
-  let h=Tx("<section id=\"gymc\" class=\"win gym{0}\"><div class=\"gbanner\"><img alt=\"\" src=\"img/{1}.webp\" onerror=\"imgFb(this,'img/cat-{2}.webp')\"><span class=\"gtag\">GYM</span><div class=\"gcap\"><div class=\"gt\">{3}</div><div class=\"gs\">{4}{5} · {6}{7} · ca. {8} Min.</div></div></div>",done?' done':'',dayFoc(d)?'foc-'+dayFoc(d):'cat-'+cat,cat,esc(d.n),st.n,st.n===1?Tx(" Übung"):Tx(" Übungen"),st.sets,st.sets===1?Tx(" Satz"):Tx(" Sätze"),st.min);
+  let h=Tx("<section id=\"gymc\" class=\"win gym{0}\"><div class=\"gbanner\"><img alt=\"\" src=\"img/{1}.webp\" onerror=\"imgFb(this,'img/cat-{2}.webp')\"><span class=\"gtag\">GYM</span><div class=\"gcap\"><div class=\"gt\">{3}</div><div class=\"gs\">{4}{5} · {6}{7} · ca. {8} Min.</div></div></div>",done?' done':'',dayFoc(d)?'foc-'+fImg(dayFoc(d)):'cat-'+cat,cat,esc(d.n),st.n,st.n===1?Tx(" Übung"):Tx(" Übungen"),st.sets,st.sets===1?Tx(" Satz"):Tx(" Sätze"),st.min);
   if(done){
     const lg=(S.tlog||[]).filter(e=>e.d===dayKey()).slice(-1)[0];
     h+=Tx("<div class=\"gdone\">{0}<div><b>Erledigt</b><small>{1} · +{2} XP</small></div></div></section>",gico('ico-setdone',44),lg?(lg.direct?Tx("Ohne Protokoll abgehakt"):Tx("{0} Sätze{1}",lg.sets,lg.vol?Tx(" · {0} kg Volumen",lg.vol):'')):Tx("Training geschafft"),q.xp);
@@ -2494,13 +2529,13 @@ function exRow(x,i,n){
   const stp=({kg:1,bw:1,sec:5,min:5,km:1})[e.m];
   let h='<div class="tx'+(open?' open':'')+'"><button type="button" class="th" data-act="tp-ex" data-id="'+x.id+'" aria-expanded="'+open+'">'+exThumb(e,46)+'<span class="tm"><b>'+esc(e.n)+'</b><small>'+tgtTxt(e,x)+(L&&L.w?Tx(" · zuletzt {0} kg",fmtW(L.w)):'')+'</small></span><span class="chev" aria-hidden="true">'+(open?'▴':'▾')+'</span></button>';
   if(open){
-    h+=Tx("<div class=\"tp-ed\">{0}{1}{2}<div class=\"chips\" style=\"margin-bottom:8px\"><span class=\"chip\">{3}</span><span class=\"chip\">{4} {5}</span></div><div class=\"steps\">{6}<div class=\"step\"><span>{7}</span><button type=\"button\" data-act=\"tp-step\" data-id=\"{8}|r|-{9}\" aria-label=\"Weniger\">−</button><b>{10}</b><button type=\"button\" data-act=\"tp-step\" data-id=\"{11}|r|{12}\" aria-label=\"Mehr\">+</button></div></div>{13}{14}<div class=\"tp-acts\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"tp-mv\" data-id=\"{15}|-1\"{16} aria-label=\"Nach oben\">↑</button><button type=\"button\" class=\"btn ghost sm\" data-act=\"tp-mv\" data-id=\"{17}|1\"{18} aria-label=\"Nach unten\">↓</button><button type=\"button\" class=\"btn sm\" data-act=\"tp-rep\" data-id=\"{19}\">Ersetzen</button><button type=\"button\" class=\"btn bad sm\" data-act=\"tp-del\" data-id=\"{20}\">Entfernen</button></div></div>",exBig(e),e.cue?'<p class="cue">'+esc(e.cue)+'</p>':'',L&&L.s&&L.s.length?Tx("<p class=\"last\">Letztes Mal: {0}</p>",e.m==='kg'?L.s.map(a=>a[0]>0?fmtW(a[0])+' kg × '+a[1]:Tx("{0} Wdh.",a[1])).join(', '):L.s.map(a=>a[1]).join(', ')+' '+unitOf(e)):'',CATN[e.c],gico(EQN[e.q][1],18),EQN[e.q][0],e.m==='min'||e.m==='km'?'':Tx("<div class=\"step\"><span>Sätze</span><button type=\"button\" data-act=\"tp-step\" data-id=\"{0}|s|-1\" aria-label=\"Weniger Sätze\">−</button><b>{1}</b><button type=\"button\" data-act=\"tp-step\" data-id=\"{2}|s|1\" aria-label=\"Mehr Sätze\">+</button></div>",x.id,x.s,x.id),e.m==='sec'?Tx("Sekunden"):e.m==='min'?Tx("Minuten"):e.m==='km'?Tx("Kilometer"):'Wdh.',x.id,stp,x.r,x.id,stp,exSeries(e.id).length>1?Tx("<div class=\"acts\" style=\"margin:0 0 8px\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"ex-curve\" data-id=\"{0}\">Kurve ansehen</button></div>",e.id):'',String(e.id).indexOf('c_')===0?Tx("<div class=\"acts\" style=\"margin:0 0 8px\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"cx-mu\" data-id=\"{0}\">Muskeln wählen</button></div>",e.id):'',x.id,i===0?' disabled':'',x.id,i===n-1?' disabled':'',x.id,x.id);
+    h+=Tx("<div class=\"tp-ed\">{0}{1}{2}<div class=\"chips\" style=\"margin-bottom:8px\"><span class=\"chip\">{3}</span><span class=\"chip\">{4} {5}</span></div><div class=\"steps\">{6}<div class=\"step\"><span>{7}</span><button type=\"button\" data-act=\"tp-step\" data-id=\"{8}|r|-{9}\" aria-label=\"Weniger\">−</button><b>{10}</b><button type=\"button\" data-act=\"tp-step\" data-id=\"{11}|r|{12}\" aria-label=\"Mehr\">+</button></div></div>{13}{14}<div class=\"tp-acts\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"tp-mv\" data-id=\"{15}|-1\"{16} aria-label=\"Nach oben\">↑</button><button type=\"button\" class=\"btn ghost sm\" data-act=\"tp-mv\" data-id=\"{17}|1\"{18} aria-label=\"Nach unten\">↓</button><button type=\"button\" class=\"btn sm\" data-act=\"tp-rep\" data-id=\"{19}\">Ersetzen</button><button type=\"button\" class=\"btn bad sm\" data-act=\"tp-del\" data-id=\"{20}\">Entfernen</button></div></div>",exBig(e),e.cue?'<p class="cue">'+esc(e.cue)+'</p>':'',L&&L.s&&L.s.length?Tx("<p class=\"last\">Letztes Mal: {0}</p>",e.m==='kg'?L.s.map(a=>a[0]>0?fmtW(a[0])+' kg × '+a[1]:Tx("{0} Wdh.",a[1])).join(', '):L.s.map(a=>a[1]).join(', ')+' '+unitOf(e)):'',CATN[e.c],gico(EQN[e.q][1],18),EQN[e.q][0],e.m==='min'||e.m==='km'?'':Tx("<div class=\"step\"><span>Sätze</span><button type=\"button\" data-act=\"tp-step\" data-id=\"{0}|s|-1\" aria-label=\"Weniger Sätze\">−</button><b>{1}</b><button type=\"button\" data-act=\"tp-step\" data-id=\"{2}|s|1\" aria-label=\"Mehr Sätze\">+</button></div>",x.id,x.s,x.id),e.m==='sec'?Tx("Sekunden"):e.m==='min'?Tx("Minuten"):e.m==='km'?Tx("Kilometer"):'Wdh.',x.id,stp,x.r,x.id,stp,exSeries(e.id).length>1?Tx("<div class=\"acts\" style=\"margin:0 0 8px\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"ex-curve\" data-id=\"{0}\">Kurve ansehen</button></div>",e.id):'',String(e.id).indexOf('c_')===0?Tx("<div class=\"acts\" style=\"margin:0 0 8px\"><button type=\"button\" class=\"btn ghost sm\" data-act=\"cx-ed\" data-id=\"{0}\">Übung bearbeiten</button></div>",e.id):'',x.id,i===0?' disabled':'',x.id,i===n-1?' disabled':'',x.id,x.id);
   }
   return h+'</div>';
 }
-function dayEditor(){
+function dayEditor0(){
   const d=S.tp.days[tpDay],t=wdToday();
-  let h=Tx("<section class=\"win\"><div class=\"gbanner sm\"><img alt=\"\" src=\"img/{0}.webp\" onerror=\"imgFb(this,'img/cat-{1}.webp')\"></div><div class=\"sub\"><div><div class=\"lbl\">{2}{3}</div><h2>{4}</h2></div><div class=\"kind\" role=\"group\" aria-label=\"Tagesart\"><button type=\"button\" class=\"{5}\" data-act=\"tp-kind\" data-id=\"train\" aria-pressed=\"{6}\">Training</button><button type=\"button\" class=\"{7}\" data-act=\"tp-kind\" data-id=\"rest\" aria-pressed=\"{8}\">Ruhetag</button></div></div>",d.t?(dayFoc(d)?'foc-'+dayFoc(d):'cat-'+mainCat(d)):'foc-rest',d.t?mainCat(d):'beweglichkeit',WDL[tpDay],tpDay===t?Tx(" · heute"):'',d.t?esc(d.n):'Ruhetag',d.t?'on':'',!!d.t,d.t?'':'on',!d.t);
+  let h=Tx("<section class=\"win\"><div class=\"gbanner sm\"><img alt=\"\" src=\"img/{0}.webp\" onerror=\"imgFb(this,'img/cat-{1}.webp')\"></div><div class=\"sub\"><div><div class=\"lbl\">{2}{3}</div><h2>{4}</h2></div><div class=\"kind\" role=\"group\" aria-label=\"Tagesart\"><button type=\"button\" class=\"{5}\" data-act=\"tp-kind\" data-id=\"train\" aria-pressed=\"{6}\">Training</button><button type=\"button\" class=\"{7}\" data-act=\"tp-kind\" data-id=\"rest\" aria-pressed=\"{8}\">Ruhetag</button></div></div>",d.t?(dayFoc(d)?'foc-'+fImg(dayFoc(d)):'cat-'+mainCat(d)):'foc-rest',d.t?mainCat(d):'beweglichkeit',WDL[tpDay],tpDay===t?Tx(" · heute"):'',d.t?esc(d.n):'Ruhetag',d.t?'on':'',!!d.t,d.t?'':'on',!d.t);
   if(!d.t){
     h+=Tx("<div class=\"gr\" style=\"margin:4px 0 12px\">{0}<p class=\"dim\" style=\"font-size:14px\">An Ruhetagen wächst du. Schlafen, genug essen und locker bewegen reichen. Die Quests laufen normal weiter.</p></div>{1}",gico('ico-rest',64),tpFocus?focusPick():Tx("<button class=\"btn\" data-act=\"tp-focus-open\">Zum Trainingstag machen</button>"));
     return h+'</section>';
@@ -2580,7 +2615,7 @@ function planUnpack(raw){
     return {name:String(o.w||'').slice(0,30),set:set,days:days,cx:cx,nt:nt};
   }catch(e){return null}
 }
-function planPrev(pl){
+function planPrev0(pl){
   const nm={};pl.cx.forEach(e=>{nm[e.id]=e});
   const eo=id=>hasOwn(EXM,id)?EXM[id]:nm[id];
   const rest=pl.days.map((d,i)=>isTrain(d)?'':WD[i]).filter(Boolean);
@@ -2665,7 +2700,7 @@ function plShare(code,name){
 function plPasteRow(){
   return Tx("<div style=\"margin-top:14px;border-top:1px solid var(--line);padding-top:12px\"><div class=\"lbl\" style=\"margin-bottom:6px\">Plan von einem Freund?</div><div class=\"acts\"><input type=\"text\" id=\"pl-code\" maxlength=\"12000\" placeholder=\"Code oder Link einfügen\" autocomplete=\"off\" aria-label=\"Plan-Code\"><button class=\"btn ghost\" data-act=\"pl-paste\">Ansehen</button></div></div>");
 }
-function planLibSec(){
+function planLibSec0(){
   const L=libL(),has=!!(S.tp&&S.tp.days&&S.tp.days.some(isTrain));
   let h=Tx("<section class=\"win\" id=\"pllib\"><div class=\"sub\"><div><div class=\"lbl\">Bibliothek</div><h2>Meine Pläne</h2></div><span class=\"qp\">{0} / {1}</span></div><p class=\"dim\" style=\"font-size:13.5px;margin-bottom:10px\">Speichere Pläne, teile sie mit Freunden oder spiele sie später wieder ab. Gewichte und Bestwerte bleiben erhalten.</p>",L.length,PL_MAX);
   if(has)h+=Tx("<div class=\"acts\"><input type=\"text\" id=\"pl-name\" maxlength=\"30\" placeholder=\"Name des Plans\" autocomplete=\"off\" aria-label=\"Name des Plans\"><button class=\"btn\" data-act=\"pl-save\">Aktuellen Plan speichern</button><button class=\"btn ghost\" data-act=\"pl-share\" data-id=\"cur\">Aktuellen Plan teilen</button></div>");
@@ -2709,6 +2744,207 @@ function muEdit(id){
   muEd=id;
   modal({title:Tx("Muskeln der Übung"),nobtn:true,body:Tx("<p style=\"margin-bottom:8px\">{0}</p><div class=\"grid\">{1}</div><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ok\" data-act=\"cx-mu-save\">Speichern</button><button class=\"btn ghost\" data-act=\"modal-ok\">Abbrechen</button></div>",esc(e.n),muFields('cxmu',e.mu))});
 }
+
+/* ---------- v50: Muskeln pro Tag, Tage kopieren und speichern ---------- */
+const MUCAT={schulter:'schultern',brust:'brust',bizeps:'arme',unterarm:'arme',trizeps:'arme',bauch:'rumpf',seite:'rumpf',quad:'beine',hamstring:'beine',gesaess:'beine',wade:'beine',trap:'ruecken',lat:'ruecken',uruecken:'ruecken'};
+function dayMuPts(d,cxl){
+  const p={};
+  (d&&d.ex||[]).forEach(x=>{
+    const e=exOf(x.e)||(cxl||[]).find(c=>c.id===x.e);if(!e)return;
+    const w=muW(e),n=(e.m==='min'||e.m==='km')?1:(Number(x.s)||1);
+    Object.keys(w).forEach(k=>{if(MU[k])p[k]=(p[k]||0)+n*w[k]});
+  });
+  return p;
+}
+function dayMuKeys(d){const p=dayMuPts(d);return Object.keys(p).filter(k=>p[k]>=.9).sort((a,b)=>p[b]-p[a])}
+function muFigD(side,p,hi,lo){
+  const sx=bView()==='f'?'f':'m',L=MU_P[sx][side],w=MU_VB[0],hh=MU_VB[1];
+  let h='<svg class="mmap" viewBox="0 0 '+w+' '+hh+'" aria-hidden="true"><defs><clipPath id="dcl-'+side+sx+'"><path d="'+MU_S[sx][side]+'"/></clipPath></defs><image class="mbi" href="img/body-'+side+(sx==='f'?'-f':'')+'.webp" x="0" y="0" width="'+w+'" height="'+hh+'"/>';
+  L.forEach(m=>{const v=p[m[0]]||0,lv=v>=(hi||2.5)?2:v>=(lo||.9)?1:0;h+='<g clip-path="url(#dcl-'+side+sx+')" class="mu d'+lv+'"><path d="'+m[1]+'"/><path d="'+m[2]+'"/></g>'});
+  return h+'</svg>';
+}
+function muBlock(p,hi,lo){
+  const ks=Object.keys(p).filter(k=>MU[k]&&p[k]>=lo).sort((a,b)=>p[b]-p[a]);
+  if(!ks.length)return '';
+  const mj=ks.filter(k=>p[k]>=hi),sd=ks.filter(k=>p[k]<hi);
+  let h='<div class="dmu"><div class="dfig">'+muFigD('front',p,hi,lo)+muFigD('back',p,hi,lo)+'</div><div class="dmt">';
+  if(mj.length)h+=Tx("<div class=\"lbl\">Trainiert</div><div class=\"dmc\">{0}</div>",mj.map(k=>'<span class="chip sys">'+MU[k]+'</span>').join(''));
+  if(sd.length)h+=Tx("<div class=\"lbl\">Nebenbei</div><div class=\"dmc\">{0}</div>",sd.map(k=>'<span class="chip">'+MU[k]+'</span>').join(''));
+  return h+'</div></div>';
+}
+const dayMuBlock=d=>muBlock(dayMuPts(d),2.5,.9);
+function planMuBlock(days,cxl){
+  const p={};
+  (days||[]).forEach(d=>{if(isTrain(d)){const q=dayMuPts(d,cxl);Object.keys(q).forEach(k=>{p[k]=(p[k]||0)+q[k]})}});
+  return muBlock(p,6,1.8);
+}
+function planLibSec(){
+  let h=planLibSec0();
+  try{
+    const m=Tx("<div class=\"acts\"><input type=\"text\" id=\"pl-name\"");
+    if(S.tp&&S.tp.days&&h.indexOf(m)>0){const b=planMuBlock(S.tp.days);if(b)h=h.replace(m,x=>b+x)}
+    libL().forEach(x=>{
+      const pl=planUnpack(x.p);if(!pl)return;
+      let i=h.indexOf(Tx("data-act=\"pl-del\" data-id=\"{0}",esc(x.id))+'"');if(i<0)return;
+      const bt=h.indexOf('</button>',i);
+      if(bt>0){const rb=Tx("<button class=\"btn ghost sm\" data-act=\"rn-open\" data-k=\"pl\" data-id=\"{0}\">Umbenennen</button>",esc(x.id));h=h.slice(0,bt+9)+rb+h.slice(bt+9);i=bt}
+      const j=h.indexOf('</div>',i);if(j<0)return;
+      h=h.slice(0,j+6)+planMuBlock(pl.days,pl.cx)+h.slice(j+6);
+    });
+  }catch(e){}
+  return h;
+}
+function planPrev(pl){
+  let h=planPrev0(pl);
+  try{const b=planMuBlock(pl.days,pl.cx),i=h.indexOf('<div class="plv"');if(b&&i>0)h=h.slice(0,i)+b+h.slice(i)}catch(e){}
+  return h;
+}
+function dayMuLine(d){
+  const ks=dayMuKeys(d).slice(0,5);
+  return ks.length?Tx("<p class=\"gx\">Trainiert: {0}</p>",ks.map(k=>MU[k]).join(', ')):'';
+}
+function gymCard(){
+  let h=gymCard0();
+  try{
+    const d=S.tp&&S.tp.days[wdToday()];
+    if(h&&isTrain(d)&&h.indexOf('class="gdone"')<0){
+      const l=dayMuLine(d),m='<div class="acts"><button class="btn ok" data-act="ses-open">';
+      if(l&&h.indexOf(m)>0)h=h.replace(m,x=>l+x);
+    }
+  }catch(e){}
+  return h;
+}
+const DL_MAX=30;
+const dlL=()=>Array.isArray(S.dl)?S.dl:(S.dl=[]);
+let dcSel=[],dlArm=null,dlPend=null;
+function dayTools(d){
+  let h='<div class="dtools">';
+  if(isTrain(d))h+=Tx("<button type=\"button\" class=\"btn ghost sm\" data-act=\"dc-open\">Tag kopieren</button><button type=\"button\" class=\"btn ghost sm\" data-act=\"dl-save-open\">Tag speichern</button><button type=\"button\" class=\"btn ghost sm\" data-act=\"rn-open\" data-id=\"day\">Tag umbenennen</button>");
+  return Tx("{0}<button type=\"button\" class=\"btn ghost sm\" data-act=\"dl-open\">Gespeicherte Tage ({1})</button></div>",h,dlL().length);
+}
+function dayEditor(){
+  let h=dayEditor0();
+  try{
+    const d=S.tp.days[tpDay];
+    if(d&&d.t){const i=h.indexOf('<div class="tx');if(i>0)h=h.slice(0,i)+dayMuBlock(d)+h.slice(i)}
+    const j=h.lastIndexOf('</section>');
+    if(j>0)h=h.slice(0,j)+dayTools(d)+h.slice(j);
+  }catch(e){}
+  return h;
+}
+function cloneDay(d){return Object.assign({},d,{ex:(d.ex||[]).filter(x=>!x.once).map(x=>({id:uid(),e:x.e,s:x.s,r:x.r}))})}
+function cxMerge(list){
+  if(!Array.isArray(S.cx))S.cx=[];
+  const map={};let room=40-S.cx.length;
+  list.forEach(e=>{
+    const ex=S.cx.find(x=>x.id===e.id);
+    if(ex&&ex.n===e.n&&ex.c===e.c&&ex.m===e.m)return;
+    if(room<=0){map[e.id]=null;return}
+    const ne=Object.assign({},e);
+    if(ex)ne.id='c_'+uid();
+    S.cx.push(ne);room--;map[e.id]=ne.id;
+  });
+  return map;
+}
+function dcOpen(){
+  const d=S.tp&&S.tp.days[tpDay];if(!isTrain(d))return;
+  dcSel=[];
+  modal({title:Tx("Tag kopieren"),nobtn:true,body:Tx("<p style=\"margin-bottom:8px\">{0}</p><div class=\"dcp\"><div class=\"pick\">{1}</div></div><p class=\"dim\" style=\"font-size:13px;margin-top:8px\">Ein vorhandener Trainingstag wird ersetzt. Gewichte und Verlauf bleiben erhalten.</p><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ok\" data-act=\"dc-go\">Kopieren</button><button class=\"btn ghost\" data-act=\"modal-ok\">Abbrechen</button></div>",esc(d.n),WDL.map((n,i)=>i===tpDay?'':'<button type="button" data-act="dc-t" data-id="'+i+'" aria-pressed="false">'+n+'<small>'+(isTrain(S.tp.days[i])?esc(S.tp.days[i].n):'Ruhetag')+'</small></button>').join(''))});
+}
+let rnT=null;
+function rnOpen(k,id){
+  let cur='';
+  if(k==='day'){const d=S.tp&&S.tp.days[tpDay];if(!isTrain(d))return;cur=d.n}
+  else if(k==='pl'){const x=libL().find(y=>y.id===id);if(!x)return;cur=x.n}
+  else if(k==='dl'){const x=dlL().find(y=>y.id===id);if(!x)return;cur=x.n}
+  else return;
+  rnT={k,id};
+  if(k==='dl')nextModal();
+  modal({title:Tx("Umbenennen"),nobtn:true,body:Tx("<input type=\"text\" id=\"rn-name\" maxlength=\"30\" placeholder=\"Name\" autocomplete=\"off\" aria-label=\"Name\" value=\"{0}\"><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ok\" data-act=\"rn-save\">Speichern</button><button class=\"btn ghost\" data-act=\"modal-ok\">Abbrechen</button></div>",esc(cur))});
+}
+function dlSaveOpen(){
+  const d=S.tp&&S.tp.days[tpDay];if(!isTrain(d))return;
+  modal({title:Tx("Tag speichern"),nobtn:true,body:Tx("<p class=\"dim\" style=\"font-size:13.5px;margin-bottom:8px\">Speichere diesen Trainingstag, um ihn später in jeden Wochentag zu laden.</p><input type=\"text\" id=\"dl-name\" maxlength=\"30\" placeholder=\"Name des Tages\" autocomplete=\"off\" aria-label=\"Name des Tages\" value=\"{0}\"><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ok\" data-act=\"dl-save\">Speichern</button><button class=\"btn ghost\" data-act=\"modal-ok\">Abbrechen</button></div>",esc(d.n))});
+}
+function dlBlock(x){try{const pl=planUnpack(x.p);return pl?muBlock(dayMuPts(pl.days[0],pl.cx),2.5,.9):''}catch(e){return ''}}
+function dlOpen(){
+  const L=dlL();
+  let b='';
+  if(!L.length)b=Tx("<div class=\"empty\">Noch kein Tag gespeichert. Tippe bei einem Trainingstag auf „Tag speichern“.</div>");
+  else b=L.map(x=>Tx("<div class=\"item\" style=\"margin-top:8px\"><span class=\"nm\">{0}<small class=\"dim\" style=\"display:block;font-weight:400\">{1} Übungen · {2} Sätze</small></span></div>{3}<div class=\"acts\" style=\"margin:4px 0 2px\"><button class=\"btn ok sm\" data-act=\"dl-load\" data-id=\"{4}\">In {5} laden</button><button class=\"btn ghost sm\" data-act=\"rn-open\" data-k=\"dl\" data-id=\"{6}\">Umbenennen</button><button class=\"btn {7} sm\" data-act=\"dl-del\" data-id=\"{8}\">{9}</button></div>",esc(x.n),Number(x.c)||0,Number(x.s)||0,dlBlock(x),esc(x.id),WDL[tpDay],esc(x.id),dlArm===x.id?'bad':'ghost',esc(x.id),dlArm===x.id?Tx("Sicher? Löschen"):Tx("Löschen"))).join('');
+  modal({title:Tx("Gespeicherte Tage"),nobtn:true,body:Tx("{0}<div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn ghost\" data-act=\"modal-ok\">Schließen</button></div>",b)});
+}
+function dlApply(id){
+  const x=dlL().find(y=>y.id===id),pl=x&&planUnpack(x.p);
+  if(!pl||!S.tp)return false;
+  const map=cxMerge(pl.cx),d0=pl.days[0];
+  const ex=d0.ex.map(a=>{const m=map[a.e];if(m===null)return null;return Object.assign({},a,{id:uid(),e:m||a.e})}).filter(Boolean);
+  if(!ex.length)return false;
+  S.tp.days[tpDay]=Object.assign({},d0,{ex:ex});
+  tpOpenEx=null;tpFocus=false;syncTraining();save();
+  return true;
+}
+const dayBusy=i=>i===wdToday()&&S.ses&&S.ses.ex&&S.ses.ex.some(x=>x.sets.some(a=>a.d));
+
+/* ---------- v50: Uebungswahl nach Muskelgruppen, eigene Uebung neu ---------- */
+const CXM={kg:{s:3,r:10},bw:{s:3,r:12},sec:{s:3,r:30},min:{s:1,r:10},km:{s:1,r:3}};
+function muNames(e,n){
+  const w=muW(e),k=Object.keys(w).filter(x=>MU[x]).sort((a,b)=>w[b]-w[a]).slice(0,n||2);
+  return k.length?k.map(x=>MU[x]).join(', '):CATN[e.c];
+}
+function pkRows(){
+  const av=eqSet(S.tp&&S.tp.set),lim=limsOf(),q=(pk.q||'').trim().toLowerCase(),d=S.tp.days[tpDay];
+  const all=EXD.concat(S.cx||[]).filter(e=>(pk.cat==='all'||e.c===pk.cat)&&(!pk.mine||av.has(e.q)||e.cx)&&(!q||e.n.toLowerCase().includes(q)));
+  if(!all.length)return Tx("<div class=\"empty\">Keine Übung gefunden. Schalte „Nur mein Equipment“ aus oder lege eine eigene Übung an.</div>{0}",q?Tx("<button type=\"button\" class=\"btn ghost pknew\" data-act=\"pk-new\">„{0}“ als eigene Übung anlegen</button>",esc(pk.q.trim())):'');
+  const row=e=>{
+    const w=(e.x||[]).filter(x=>lim.includes(x)),inn=d&&d.ex.some(x=>x.e===e.id);
+    return '<button type="button" class="pkr" data-act="pk-pick" data-id="'+esc(e.id)+'">'+exThumb(e,46)+'<span class="tm"><b>'+esc(e.n)+'</b><small>'+muNames(e,2)+' · '+EQN[e.q][0]+' · '+((e.m==='min'||e.m==='km')?e.r+' '+unitOf(e):e.s+' × '+e.r+' '+unitOf(e))+'</small></span>'+(w.length?'<span class="chip warn">'+w.map(x=>LIMN[x]).join(', ')+'</span>':'')+(inn?Tx("<span class=\"chip sys\">im Plan</span>"):'')+'</button>';
+  };
+  if(pk.cat!=='all'||q)return all.map(row).join('');
+  const gr=[['eigen',Tx("Eigene Übungen")]].concat(CATS).map(g=>({k:g[0],n:g[1],r:all.filter(e=>g[0]==='eigen'?e.cx:(!e.cx&&e.c===g[0]))})).filter(g=>g.r.length);
+  let og=pk.og;
+  if(og==null||(og!==''&&!gr.some(g=>g.k===og)))og=gr[0].k;
+  return gr.map(g=>{
+    const on=g.k===og;
+    return '<button type="button" class="pkg'+(on?' on':'')+'" data-act="pk-grp" data-id="'+g.k+'" aria-expanded="'+on+'"><span>'+g.n+'</span><small>'+g.r.length+'</small><i aria-hidden="true">'+(on?'▴':'▾')+'</i></button>'+(on?g.r.map(row).join(''):'');
+  }).join('');
+}
+function cxNew(n){return {n:n||'',m:'kg',mu:[],q:null,cat:null,s:3,r:10,w:'',cue:''}}
+function cxAuto(f){
+  const mm=f.m==='min'||f.m==='km';
+  return {c:f.cat||(f.mu[0]&&MUCAT[f.mu[0]])||(mm?'ausdauer':'rumpf'),q:f.q||(f.m==='kg'?'db':'bw')};
+}
+function pkFormRead(){
+  const f=pk&&pk.f;if(!f)return;
+  const v=i=>{const el=document.getElementById(i);return el?el.value:null};
+  const n=v('pkn'),s=v('pks'),r=v('pkr'),w=v('pkw'),c=v('pkcue');
+  if(n!=null)f.n=n;if(s!=null)f.s=s;if(r!=null)f.r=r;if(w!=null)f.w=w;if(c!=null)f.cue=c;
+}
+function pkFormHtml(){
+  const f=pk.f,ed=!!pk.ed,m=f.m,au=cxAuto(f),mm=(m==='min'||m==='km');
+  const chip=(act,id,on,t,cls,dis)=>'<button type="button" class="'+(cls||'')+(on?' on':'')+'" data-act="'+act+'" data-id="'+id+'" aria-pressed="'+!!on+'"'+(dis?' disabled':'')+'>'+t+'</button>';
+  let h='<div class="win cxf"><div class="sub"><h2>'+(ed?Tx("Eigene Übung bearbeiten"):Tx("Eigene Übung"))+'</h2></div>';
+  h+=Tx("<label class=\"f\">Name<input type=\"text\" id=\"pkn\" maxlength=\"40\" placeholder=\"z. B. Boxsack\" value=\"{0}\"></label>",esc(f.n));
+  h+=Tx("<div class=\"cxg\"><span class=\"lbl\">Wie misst du?</span><div class=\"pick\">{0}</div></div>",Object.keys(MODE).map(k=>chip('pk-m',k,m===k,MODE[k].n,'',ed&&m!==k)).join(''));
+  h+=Tx("<div class=\"cxg\"><span class=\"lbl\">Welche Muskeln?</span><div class=\"pick mchips\">{0}</div><p class=\"ob-note\">Tippe zuerst den Hauptmuskel, danach bis zu zwei Nebenmuskeln. Der Hauptmuskel zählt voll, ein Nebenmuskel halb. So färbt die App im Verlauf die richtigen Muskeln.</p></div>",Object.keys(MU).map(k=>{const i=f.mu.indexOf(k);return chip('pk-mu',k,i>=0,MU[k]+(i===0?Tx("<small>Haupt</small>"):i>0?Tx("<small>Neben</small>"):''),i===0?'mn':i>0?'ms':'')}).join(''));
+  const rl=({kg:Tx("Wiederholungen"),bw:Tx("Wiederholungen"),sec:Tx("Sekunden"),min:Tx("Minuten"),km:Tx("Kilometer")})[m];
+  h+='<div class="grid cxn">'+(mm?'':Tx("<label class=\"f\">Sätze<input type=\"number\" id=\"pks\" inputmode=\"numeric\" min=\"1\" max=\"8\" value=\"{0}\"></label>",esc(String(f.s))))+'<label class="f">'+rl+'<input type="number" id="pkr" inputmode="decimal" min="1" value="'+esc(String(f.r))+'"></label>'+(m==='kg'?Tx("<label class=\"f\">Startgewicht (kg)<input type=\"number\" id=\"pkw\" inputmode=\"decimal\" min=\"0\" step=\"0.5\" value=\"{0}\" placeholder=\"optional\"></label>",esc(String(f.w||''))):'')+'</div>';
+  h+=Tx("<div class=\"cxg\"><span class=\"lbl\">Ausrüstung</span><div class=\"pick\">{0}</div></div>",Object.keys(EQN).map(k=>chip('pk-q',k,au.q===k,EQN[k][0])).join(''));
+  h+=Tx("<div class=\"cxg\"><span class=\"lbl\">Kategorie</span><div class=\"pick\">{0}</div></div>",CATS.map(c=>chip('pk-c',c[0],au.c===c[0],c[1])).join(''));
+  h+=Tx("<label class=\"f cxg\">Hinweis zur Technik (optional)<input type=\"text\" id=\"pkcue\" maxlength=\"160\" value=\"{0}\"></label>",esc(f.cue||''));
+  return Tx("{0}<div class=\"acts\" style=\"margin-top:14px\"><button type=\"button\" class=\"btn ok\" data-act=\"pk-save\">{1}</button><button type=\"button\" class=\"btn ghost\" data-act=\"pk-new\">Abbrechen</button></div></div>",h,ed?Tx("Speichern"):Tx("Speichern und wählen"));
+}
+function pkPost(el){
+  const ino=el.querySelector('.ov-in');if(!ino||!pk)return;
+  if(pk.nw&&pk.f){
+    ino.innerHTML=pkFormHtml();
+    if(pk.ed){const s=el.querySelector('.ov-brand span');if(s)s.textContent=Tx("Übung bearbeiten")}
+    return;
+  }
+  el.querySelectorAll('[data-act="pk-new"]').forEach(b=>{if(!b.classList.contains('pknew'))b.remove()});
+  const q=ino.querySelector('#pk-q');
+  if(q&&!ino.querySelector('.pknew'))q.insertAdjacentHTML('afterend',Tx("<button type=\"button\" class=\"btn ghost sm pknew\" data-act=\"pk-new\">+ Eigene Übung</button>"));
+}
 function viewPlan(){
   if(!premOn())return lockView('plan')+'<section class="win plbare">'+plPasteRow()+'</section>';
   if(!S.tp)return planIntro()+planLibSec();
@@ -2716,7 +2952,7 @@ function viewPlan(){
 }
 
 /* ---------- Übungswahl ---------- */
-function pkRows(){
+function pkRows0(){
   const av=eqSet(S.tp&&S.tp.set),lim=limsOf(),q=(pk.q||'').trim().toLowerCase(),d=S.tp.days[tpDay];
   const all=EXD.concat(S.cx||[]).filter(e=>(pk.cat==='all'||e.c===pk.cat)&&(!pk.mine||av.has(e.q)||e.cx)&&(!q||e.n.toLowerCase().includes(q)));
   if(!all.length)return Tx("<div class=\"empty\">Keine Übung gefunden. Schalte „Nur mein Equipment“ aus oder lege eine eigene Übung an.</div>");
@@ -2731,7 +2967,7 @@ function pkRender(){
   const keep=el&&el.querySelector('.ov-body')?el.querySelector('.ov-body').scrollTop:0;
   if(!el){el=document.createElement('div');el.id='pk';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');el.setAttribute('aria-label',Tx("Übung wählen"));document.body.appendChild(el)}
   el.innerHTML=Tx("<div class=\"ov-top\"><div class=\"ov-brand\"><span>{0}</span><button type=\"button\" class=\"btn ghost sm\" data-act=\"pk-close\">Schließen</button></div></div><div class=\"ov-body\"><div class=\"ov-in\"><input type=\"text\" id=\"pk-q\" placeholder=\"Übung suchen\" autocomplete=\"off\" value=\"{1}\"><div class=\"pick\" style=\"margin:10px 0 6px\"><button type=\"button\" class=\"{2}\" data-act=\"pk-cat\" data-id=\"all\">Alle</button>{3}</div><button type=\"button\" class=\"tgl{4}\" data-act=\"pk-eq\" aria-pressed=\"{5}\"><i></i>Nur mein Equipment</button><div id=\"pk-list\">{6}</div>{7}</div></div>",pk.mode==='rep'?Tx("Übung ersetzen"):Tx("Übung hinzufügen"),esc(pk.q),pk.cat==='all'?'on':'',CATS.map(c=>'<button type="button" class="'+(pk.cat===c[0]?'on':'')+'" data-act="pk-cat" data-id="'+c[0]+'">'+c[1]+'</button>').join(''),pk.mine?' on':'',pk.mine,pkRows(),pk.nw?Tx("<div class=\"win\" style=\"margin-top:12px\"><div class=\"sub\"><h2>Eigene Übung</h2></div><div class=\"grid\"><label class=\"f wide\">Name<input type=\"text\" id=\"pkn\" maxlength=\"40\" placeholder=\"z. B. Boxsack\"></label><label class=\"f\">Kategorie<select id=\"pkc\">{0}</select></label><label class=\"f\">Messung<select id=\"pkm\">{1}</select></label></div><div class=\"acts\" style=\"margin-top:12px\"><button type=\"button\" class=\"btn ok\" data-act=\"pk-save\">Speichern und wählen</button><button type=\"button\" class=\"btn ghost\" data-act=\"pk-new\">Abbrechen</button></div></div>",CATS.map(c=>'<option value="'+c[0]+'">'+c[1]+'</option>').join(''),Object.keys(MODE).map(k=>'<option value="'+k+'">'+MODE[k].n+'</option>').join('')):Tx("<button type=\"button\" class=\"btn ghost\" style=\"margin-top:12px;width:100%\" data-act=\"pk-new\">Eigene Übung anlegen</button>"));
-  if(pk.nw){const g=el.querySelector('#pkm'),gr=g&&g.closest('.grid');if(gr)gr.insertAdjacentHTML('beforeend',muFields('pkmu',''))}
+  pkPost(el);
   const b=el.querySelector('.ov-body');if(b)b.scrollTop=keep;
 }
 function pkPick(id){
@@ -6705,7 +6941,76 @@ document.addEventListener('click',e=>{
       if(!d)break;
       d.ex=d.ex.filter(y=>y.id!==id);if(tpOpenEx===id)tpOpenEx=null;syncTraining();save();break;
     }
-    case 'tp-add':pk={mode:'add',id:null,cat:'all',mine:true,q:'',nw:false};pkRender();break;
+    case 'tp-add':{const d0=S.tp&&S.tp.days[tpDay];pk={mode:'add',id:null,cat:'all',mine:true,q:'',nw:false,f:null,ed:null,og:isTrain(d0)?mainCat(d0):null};pkRender();break}
+    case 'pk-grp':{if(!pk)return;pk.og=pk.og===id?'':id;pkRender();return}
+    case 'pk-m':{if(!pk||!pk.f||pk.ed||!hasOwn(MODE,id))return;pkFormRead();pk.f.m=id;pk.f.s=CXM[id].s;pk.f.r=CXM[id].r;if(id!=='kg')pk.f.w='';pkRender();return}
+    case 'pk-mu':{
+      if(!pk||!pk.f||!hasOwn(MU,id))return;
+      pkFormRead();
+      const a=pk.f.mu,i=a.indexOf(id);
+      if(i>=0)a.splice(i,1);
+      else{if(a.length>=3){toast(Tx("Höchstens ein Haupt- und zwei Nebenmuskeln"));return}a.push(id)}
+      pkRender();return}
+    case 'pk-q':{if(!pk||!pk.f||!hasOwn(EQN,id))return;pkFormRead();pk.f.q=id;pkRender();return}
+    case 'pk-c':{if(!pk||!pk.f||!hasOwn(CATN,id))return;pkFormRead();pk.f.cat=id;pkRender();return}
+    case 'cx-ed':{
+      const e=exOf(id);if(!e||String(e.id).indexOf('c_')!==0)return;
+      const L=(S.exl||{})[e.id];
+      pk={mode:'edit',id:null,cat:'all',mine:false,q:'',nw:true,ed:e.id,og:null,f:{n:e.n,m:e.m,mu:muClean(e.mu)?e.mu.split(',').map(x=>x.split(':')[0]):[],q:e.q,cat:e.c,s:e.s,r:e.r,w:(L&&L.w>0)?L.w:'',cue:e.cue||''}};
+      pkRender();return}
+    case 'dc-open':dcOpen();return;
+    case 'dc-t':{
+      const i=Number(id);if(!(i>=0&&i<7))return;
+      const j=dcSel.indexOf(i);if(j>=0)dcSel.splice(j,1);else dcSel.push(i);
+      b.classList.toggle('on',j<0);b.setAttribute('aria-pressed',String(j<0));return}
+    case 'dc-go':{
+      const d=S.tp&&S.tp.days[tpDay];
+      if(!isTrain(d))return;
+      if(!dcSel.length){toast(Tx("Wähle mindestens einen Tag"));return}
+      if(dcSel.some(dayBusy)){toast(Tx("Beende zuerst dein laufendes Training"));return}
+      dcSel.forEach(i=>{S.tp.days[i]=cloneDay(d)});
+      const n=dcSel.length;dcSel=[];
+      nextModal();syncTraining();save();toast(n===1?Tx("Tag kopiert"):Tx("Tag kopiert nach {0} Tagen",n));break}
+    case 'dl-save-open':dlSaveOpen();return;
+    case 'rn-open':rnOpen(id==='day'?'day':b.dataset.k||id,b.dataset.k?id:'');return;
+    case 'rn-save':{
+      if(!rnT)return;
+      const nm=((document.getElementById('rn-name')||{}).value||'').trim().slice(0,30);
+      if(!nm){toast(Tx("Gib einen Namen ein"));return}
+      if(rnT.k==='day'){const d=S.tp&&S.tp.days[tpDay];if(isTrain(d))d.n=nm}
+      else if(rnT.k==='pl'){const x=libL().find(y=>y.id===rnT.id);if(x)x.n=nm}
+      else if(rnT.k==='dl'){const x=dlL().find(y=>y.id===rnT.id);if(x)x.n=nm}
+      const k=rnT.k;rnT=null;
+      nextModal();syncTraining();save();toast(Tx("Umbenannt"));if(k==='dl')dlOpen();break}
+    case 'dl-save':{
+      const d=S.tp&&S.tp.days[tpDay];
+      if(!isTrain(d))return;
+      if(dlL().length>=DL_MAX){toast(Tx("Höchstens {0} gespeicherte Tage",DL_MAX));return}
+      const nm=((document.getElementById('dl-name')||{}).value||'').trim().slice(0,30)||d.n;
+      const st=dayStats(d);
+      dlL().unshift({id:uid(),n:nm,at:dayKey(),c:st.n,s:st.sets,mu:dayMuKeys(d).slice(0,4),p:planPack({set:S.tp.set,days:[d].concat([1,2,3,4,5,6].map(restDay))},nm)});
+      nextModal();save();toast(Tx("Tag gespeichert"));break}
+    case 'dl-open':dlArm=null;dlOpen();return;
+    case 'dl-del':{
+      if(dlArm!==id){dlArm=id;nextModal();dlOpen();return}
+      dlArm=null;S.dl=dlL().filter(y=>y.id!==id);save();nextModal();dlOpen();toast(Tx("Tag gelöscht"));return}
+    case 'dl-load':{
+      const x=dlL().find(y=>y.id===id);if(!x||!S.tp)return;
+      if(!planUnpack(x.p)){toast(Tx("Beschädigt"));return}
+      if(dayBusy(tpDay)){toast(Tx("Beende zuerst dein laufendes Training"));return}
+      const cur=S.tp.days[tpDay];
+      if(isTrain(cur)){
+        dlPend=id;nextModal();
+        modal({title:Tx("Tag ersetzen?"),nobtn:true,body:Tx("<p>{0} wird durch „{1}“ ersetzt. Gewichte und Verlauf bleiben erhalten.</p><div class=\"acts\" style=\"margin-top:12px\"><button class=\"btn warn\" data-act=\"dl-go\">Ersetzen</button><button class=\"btn ghost\" data-act=\"modal-ok\">Abbrechen</button></div>",esc(cur.n),esc(x.n))});
+        return}
+      if(!dlApply(id)){toast(Tx("Beschädigt"));return}
+      nextModal();toast(Tx("Tag geladen"));break}
+    case 'dl-go':{
+      if(!dlPend)return;
+      const ok=dlApply(dlPend);dlPend=null;
+      nextModal();
+      if(!ok){toast(Tx("Beschädigt"));break}
+      toast(Tx("Tag geladen"));break}
     case 'cx-mu':{const e=exOf(id);if(!e||String(e.id).indexOf('c_')!==0)return;muEdit(e.id);return}
     case 'cx-mu-save':{
       const e=exOf(muEd);if(!e||String(e.id).indexOf('c_')!==0){nextModal();return}
@@ -6718,9 +7023,37 @@ document.addEventListener('click',e=>{
     case 'pk-close':pk=null;pkRender();break;
     case 'pk-cat':if(!pk)return;pk.cat=id;pkRender();return;
     case 'pk-eq':if(!pk)return;pk.mine=!pk.mine;pkRender();return;
-    case 'pk-new':if(!pk)return;pk.nw=!pk.nw;pkRender();return;
+    case 'pk-new':{
+      if(!pk)return;
+      if(pk.nw){const ed=!!pk.ed;pk.nw=false;pk.f=null;pk.ed=null;if(ed)pk=null;pkRender();return}
+      pk.nw=true;pk.ed=null;pk.f=cxNew((pk.q||'').trim().slice(0,40));pkRender();
+      const sc=document.querySelector('#pk .ov-body');if(sc)sc.scrollTop=0;
+      return}
     case 'pk-pick':if(!pkPick(id))return;break;
     case 'pk-save':{
+      if(!pk||!pk.f)return;
+      pkFormRead();
+      const f=pk.f,n=String(f.n||'').trim().slice(0,40),ed=pk.ed?exOf(pk.ed):null;
+      if(!n){toast(Tx("Gib der Übung einen Namen"));return}
+      if(!ed&&(S.cx||[]).length>=40){toast(Tx("Höchstens 40 eigene Übungen"));return}
+      if((S.cx||[]).some(x=>x.n.toLowerCase()===n.toLowerCase()&&(!ed||x.id!==ed.id))){toast(Tx("Diese Übung gibt es schon"));return}
+      const au=cxAuto(f),mm=(f.m==='min'||f.m==='km');
+      const s=mm?1:Math.max(1,Math.min(8,Math.round(Number(f.s))||CXM[f.m].s));
+      const rmax=f.m==='km'?200:(f.m==='min'||f.m==='sec')?600:100;
+      const r=Math.max(f.m==='km'?.1:1,Math.min(rmax,Math.round((Number(String(f.r).replace(',','.'))||CXM[f.m].r)*10)/10));
+      const mu=f.mu.length?f.mu.map((k,i)=>k+(i?':.5':':1')).join(','):null;
+      const cue=String(f.cue||'').trim().slice(0,160);
+      let e;
+      if(ed){e=ed;e.n=n;e.c=au.c;e.q=au.q;e.s=s;e.r=r;e.cue=cue;if(mu!=null)e.mu=mu;else delete e.mu}
+      else{e={id:'c_'+uid(),n,c:au.c,q:au.q,m:f.m,s,r,t:'i',x:[],cue,cx:1};if(mu!=null)e.mu=mu;if(!Array.isArray(S.cx))S.cx=[];S.cx.push(e)}
+      const w=f.m==='kg'?Number(String(f.w).replace(',','.')):0;
+      if(w>0&&w<=1000){if(!S.exl)S.exl={};S.exl[e.id]=Object.assign({s:[],up:0,at:dayKey()},S.exl[e.id]||{},{w:Math.round(w*10)/10})}
+      if(ed){pk=null;pkRender();syncTraining();save();toast(Tx("Gespeichert"));break}
+      if(!pkPick(e.id))return;
+      {const dd=S.tp.days[tpDay],xx=dd&&dd.ex[dd.ex.length-1];if(xx&&xx.e===e.id){xx.s=s;xx.r=r;syncTraining();save()}}
+      break;
+    }
+    case 'pk-save0':{
       if(!pk)return;
       const n=((document.getElementById('pkn')||{}).value||'').trim().slice(0,40);
       if(!n){toast(Tx("Gib der Übung einen Namen"));return}
@@ -6934,7 +7267,7 @@ if(S.started&&S.sys.st==='none'){S.sys={day:dayKey(),q:genSys(),st:'open'}}
 if(S.started){wkRoll();rollover();syncTraining();ensureLive();save()}
 if(S.started&&S.seenV!==APP_V&&!navigator.webdriver){
   S.seenV=APP_V;save();
-  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Eigene Übungen:</b> Du wählst einen Hauptmuskel und bis zu zwei Nebenmuskeln. So färbt der Verlauf den richtigen Muskel</li><li><b>Level:</b> Wer ein Jahr lang täglich dranbleibt, erreicht Level 70. Dein Fortschritt im aktuellen Level bleibt gleich</li><li><b>Bilder:</b> Neues Symbol für Abnehmen. Eigene Quests bekommen öfter das passende Bild, auch auf Koreanisch. Wo nichts passt, steht ein neutrales Bild</li><li><b>Korrekturen:</b> Eingabefelder zoomen im Rundgang nicht mehr. Übungsbilder passen zur Übung und zur Ausrüstung. Neues Symbol für das Ziel Abnehmen</li><li><b>Schneller aufsteigen:</b> Die Level kosten weniger Erfahrung. Dein Fortschritt im aktuellen Level bleibt anteilig gleich</li><li><b>Bedienung:</b> Größere Tippflächen für kleine Knöpfe, damit nichts danebengeht</li><li><b>Pläne teilen:</b> Teile deinen Trainingsplan per Link mit Freunden. Sie sehen ihn gratis und übernehmen ihn mit Premium. Unter Training > Meine Pläne speicherst du Pläne und spielst sie später wieder ab</li><li><b>Vorbereitung für die App-Version:</b> Kaufbildschirm mit Preisen aus dem Store, Erinnerungen als Benachrichtigung und Vibration auch auf dem iPhone</li><li><b>Melden und Blockieren:</b> Im Profil eines Spielers kannst du ihn melden oder blockieren. Blockierte Spieler siehst du nicht mehr</li><li><b>Nutzungsbedingungen:</b> Neue Spieler stimmen im Willkommensbildschirm zu, bestehende einmalig in einem Fenster. Der Text steht unter Status > Konto</li><li><b>Koreanisch:</b> Die App gibt es jetzt auch auf Koreanisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
+  modal({title:Tx("Neu in {0}",APP_V),btn:Tx("Los geht’s"),body:Tx("<ul style=\"text-align:left;padding-left:18px;margin:6px 0;font-size:15px;line-height:1.5\"><li><b>Trainingstag:</b> Eine Muskelfigur zeigt dir, was der Tag trainiert. Einzelne Tage kannst du kopieren und speichern</li><li><b>Übungswahl:</b> Die Liste ist nach Muskelgruppen geordnet</li><li><b>Eigene Übungen:</b> Neu gestaltet. Muskeln, Gerät, Sätze und Startgewicht legst du gleich beim Anlegen fest</li><li><b>Level:</b> Wer ein Jahr lang täglich dranbleibt, erreicht Level 70. Dein Fortschritt im aktuellen Level bleibt gleich</li><li><b>Bilder:</b> Neues Symbol für Abnehmen. Eigene Quests bekommen öfter das passende Bild, auch auf Koreanisch. Wo nichts passt, steht ein neutrales Bild</li><li><b>Korrekturen:</b> Eingabefelder zoomen im Rundgang nicht mehr. Übungsbilder passen zur Übung und zur Ausrüstung. Neues Symbol für das Ziel Abnehmen</li><li><b>Schneller aufsteigen:</b> Die Level kosten weniger Erfahrung. Dein Fortschritt im aktuellen Level bleibt anteilig gleich</li><li><b>Bedienung:</b> Größere Tippflächen für kleine Knöpfe, damit nichts danebengeht</li><li><b>Pläne teilen:</b> Teile deinen Trainingsplan per Link mit Freunden. Sie sehen ihn gratis und übernehmen ihn mit Premium. Unter Training > Meine Pläne speicherst du Pläne und spielst sie später wieder ab</li><li><b>Vorbereitung für die App-Version:</b> Kaufbildschirm mit Preisen aus dem Store, Erinnerungen als Benachrichtigung und Vibration auch auf dem iPhone</li><li><b>Melden und Blockieren:</b> Im Profil eines Spielers kannst du ihn melden oder blockieren. Blockierte Spieler siehst du nicht mehr</li><li><b>Nutzungsbedingungen:</b> Neue Spieler stimmen im Willkommensbildschirm zu, bestehende einmalig in einem Fenster. Der Text steht unter Status > Konto</li><li><b>Koreanisch:</b> Die App gibt es jetzt auch auf Koreanisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Beta-Feedback:</b> Unter Status, Konto kannst du jetzt Fehler und Ideen direkt senden. Gerät und Version werden automatisch angehängt</li><li><b>Analyse:</b> Unter Muskeln siehst du jetzt pro Muskel deine Sätze und den empfohlenen Bereich, dazu den Umfang pro Tag und Muskelgruppe. Im Verlauf gibt es einen Monatsrückblick. In der Übung öffnet „Kurve ansehen“ deinen Fortschritt</li><li><b>Plan-Varianten:</b> Beim Plan wählst du jetzt einen Fokus (ausgewogen, Ästhetik, Kraft oder Muskelgruppen) und eine Variante pro Aufbau. Neu ist der Bro-Split. Die App empfiehlt passend zu deinem Fragebogen</li><li><b>Rundgang:</b> Dein Trainer zeigt dir Schritt für Schritt die App. Du tippst selbst, er leuchtet den Weg. Im Konto kannst du ihn wiederholen</li><li><b>Trainer:</b> Wähle Kaito, Rex, Mira, Thyra, Fenrik oder Ember als deinen Trainer. Dein Trainer meldet sich bei Erfolgen, nach Pausen und wenn du Motivation brauchst</li><li><b>Premium:</b> Training und Muskelanalyse sind jetzt Premium, Dungeons gratis einmal pro Tag. Du startest mit 7 Tagen gratis oder ohne Kauf</li><li><b>Sprachwahl:</b> Beim ersten Start wählst du Deutsch oder English</li><li><b>Schwächen-Quest:</b> Am Samstag erstellt das System automatisch eine Quest für die Muskeln, die diese Woche zu kurz kamen</li><li><b>Stoppuhr:</b> Bei Übungen mit Sekunden oder Minuten startest du eine Stoppuhr. Die Zeit wird automatisch eingetragen</li><li><b>Neue Übungen:</b> Mehr Übungen für Unterarme, Nacken, Rücken und Oberschenkel hinten</li><li><b>Neue Gefährten:</b> Sechs weitere besondere Gefährten, darunter Männer und Monster</li><li><b>Rang-Belohnung:</b> Für S+ und S★ bekommst du dauerhaft einen Titel und eine Gefährtin, auch wenn du den Rang später verlierst</li><li><b>Mehr Gegner:</b> 20 neue Gegner im Dungeon, darunter spezielle und vier sehr seltene</li><li><b>Neue Gefährten:</b> 20 Sonder-Gefährten, mit höherem Rang immer öfter menschenähnlich. Sehr seltene haben einen eigenen Glow</li><li><b>Auflösen:</b> Gefährten kannst du jetzt gegen ein paar Gold auflösen (Spieler > Gefährten)</li><li><b>Kampfbühne:</b> Gegner besser sichtbar, Rast-Symbol korrigiert</li><li><b>Englisch:</b> Die App gibt es jetzt auch auf Englisch. Die Sprache stellst du unter Spieler > Status > Konto > Einstellungen um</li><li><b>Daten und Konto:</b> Unter Spieler > Status > Konto kannst du Konto und alle Daten löschen. Neu: Hinweis zu Gesundheit, Datenschutz und Impressum</li><li><b>Begriffe:</b> Aus Hunter wird Spieler, aus Schatten werden Gefährten (Rekrutierung statt Extraktion)</li><li><b>Neuer Name:</b> Die App heißt jetzt Step Up: SOLO. Dein Spielstand bleibt erhalten</li><li><b>Wochenranking</b> in der Arena: Wer holt diese Woche die meisten XP, unter Freunden und in deiner Rang-Klasse. Die Plätze 1 bis 3 bekommen am Montag eine Belohnung. Abschaltbar im Ranking</li><li><b>Neue Bilder</b> für Trainingstage, Ruhetag, Fragebogen, Defizit-Training, Verlauf und alle 58 Übungen und neue Quests (Hautpflege, Zähne putzen, Vitamine, Handy-Pause, Sonnenlicht, Atemübung, Finanzen, Tanzen, Klettern, Kettlebell, Faszienrolle) unter Quest hinzufügen</li><li><b>Kopfbilder</b> für Ziele, Erfolge und Körperdaten</li><li><b>Klassen</b> haben Boni und eine Spezialfähigkeit im Kampf (Spieler > Status)</li><li><b>Quests vom System</b> als Schalter (Spieler > Konto > Einstellungen)</li><li><b>Verlauf > Training</b> zeigt dein Plus pro Übung</li><li><b>Verborgene Ränge S+ und S★</b> für lange Serien, nur ab Rang S</li><li><b>Erfolge</b> als Hex-Abzeichen mit Filter und Details</li><li><b>Körperdaten</b> im Fragebogen und unter Spieler > Status > Konto: BMI, Normbereich, Grundumsatz. Die Angaben bleiben nur auf diesem Gerät</li><li><b>Muskelkarte</b> unter Spieler > Verlauf > Muskeln: zeigt, welche Muskeln du trainiert hast, und schlägt Übungen für die schwachen vor. Mit + Heute kommt eine Übung einmalig ins heutige Training, mit + Defizit in ein eigenes Zusatztraining unter Heute</li><li><b>Ruhetage:</b> Am geplanten Ruhetag entfallen nur die Sport-Quests. Lesen, früh aufstehen und Skincare bleiben Pflicht</li><li><b>Muskelkarte:</b> Männlich oder weiblich stellst du jetzt unter Spieler > Status > Konto ein</li><li><b>Sicherheit:</b> Der Server prüft jetzt Spielstände, Herausforderungen und Duelle. Einsätze werden fairer ausgezahlt: Dein Gewinn kommt, sobald der Verlierer bezahlt hat. Pro Tag gibt es höchstens 3 Sieg-Boni.</li><li><b>Langsamerer Aufstieg:</b> Level brauchen mehr XP, Dungeons geben weniger. Rang S ist ein Ziel für ein Jahr, nicht für ein paar Wochen.</li></ul>")});
 }
 if(S.started&&!S.terms&&!navigator.webdriver&&!window.__noTermsAsk){
   modal({title:Tx("Nutzungsbedingungen"),nobtn:true,body:Tx("<p>Wir haben Nutzungsbedingungen ergänzt. Sie regeln unter anderem Verhalten in der Arena, Premium und Haftung. Bitte lies sie und stimme zu, um weiterzuspielen.</p><p style=\"margin:10px 0\"><a href=\"{0}\" target=\"_blank\" rel=\"noopener\">Nutzungsbedingungen lesen</a></p><div class=\"btnrow\"><button class=\"btn ok\" data-act=\"terms-ok\">Akzeptieren</button></div>",termsHref())});
